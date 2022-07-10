@@ -1,0 +1,32 @@
+[package]
+edition = "2021"
+name = "bload_oath"
+version = "0.1.0"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+codegen-units = 1
+lto = true
+
+[features]
+debug = []
+default = ["debug"]
+
+[dependencies]
+bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
+legion = {version = "0.4.0", default-features = false, features = ["wasm-bindgen"]}
+parking_lot = {version = "0.12.1", features = ["nightly"]}
+
+colored = "^2.0.0"
+lazy_static = "1.4.0"
+
+[build-dependencies]
+embed-resource = "1.7.2"
+
+[workspace]
+resolver = "2" # Important! wgpu/Bevy needs this!
