@@ -13,7 +13,7 @@ impl Map {
             layers.push(Layer::new(i, ecs));
         }
         Self {
-            current_layer: 0,
+            current_layer: 0, // TODO: Set me back
             layers,
         }
     }

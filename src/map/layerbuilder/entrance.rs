@@ -80,7 +80,7 @@ fn add_docking_capsule(map: &mut Layer, ecs: &mut World) {
 
     edge_filler(map);
     add_windows(map, ecs);
-    add_exit(&rooms, map, ecs);
+    add_exit(&mut rooms, map, ecs);
 
     // Populate rooms
     populate_rooms(&rooms, ecs);
@@ -121,7 +121,6 @@ fn add_landscape(map: &mut Layer) {
         }
     }
 }
-
 fn add_door(map: &mut Layer, ecs: &mut World, pt: Point) {
     let idx = map.point2d_to_index(pt);
     ecs.push((
@@ -134,6 +133,8 @@ fn add_door(map: &mut Layer, ecs: &mut World, pt: Point) {
         Door {},
     ));
     map.tiles[idx] = Tile::wall();
+    map.tiles[idx].glyph = to_cp437('+');
+    map.tiles[idx].color.fg = CYAN.into();
     map.is_door[idx] = true;
 }
 
@@ -292,10 +293,9 @@ fn add_windows(map: &mut Layer, ecs: &mut World) {
         }
     }
 }
-
-fn add_exit(rooms: &[Rect], map: &mut Layer, ecs: &mut World) {
+fn add_exit(rooms: &mut Vec<Rect>, map: &mut Layer, ecs: &mut World) {
     let mut rng = crate::RNG.lock();
-    let room = rng.random_slice_entry(rooms).unwrap();
+    let room = rng.random_slice_entry(&rooms).unwrap();
     let exit_location = room.center();
     let idx = map.point2d_to_index(exit_location);
     map.tiles[idx] = Tile::stairs_down();

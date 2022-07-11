@@ -25,6 +25,7 @@ impl Layer {
 
     pub fn render(&self) {
         let mut batch = DrawBatch::new();
+        batch.target(LAYER_MAP);
 
         let mut y = 0;
         let mut idx = 0;

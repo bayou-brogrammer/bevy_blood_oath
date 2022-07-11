@@ -8,6 +8,7 @@ pub enum TileType {
     Floor,
     Outside,
     StairsDown,
+    StairsUp,
 }
 
 #[derive(Clone)]
@@ -32,7 +33,7 @@ impl Tile {
 
     pub fn empty() -> Self {
         Self {
-            glyph: to_cp437('#'),
+            glyph: to_cp437(' '),
             color: ColorPair::new(DARK_GRAY, BLACK),
             blocked: true,
             opaque: false,
@@ -42,7 +43,7 @@ impl Tile {
 
     pub fn floor() -> Self {
         Self {
-            glyph: to_cp437('.'),
+            glyph: to_cp437('∙'),
             color: ColorPair::new(DARK_GRAY, BLACK),
             blocked: false,
             opaque: false,
@@ -60,6 +61,16 @@ impl Tile {
         }
     }
 
+    pub fn lava() -> Self {
+        Self {
+            glyph: to_cp437('!'),
+            color: ColorPair::new(DARK_GRAY, BLACK),
+            blocked: true,
+            opaque: true,
+            tile_type: TileType::Wall,
+        }
+    }
+
     pub fn window() -> Self {
         Self {
             glyph: to_cp437('#'),
@@ -70,9 +81,29 @@ impl Tile {
         }
     }
 
+    pub fn stairs_down() -> Self {
+        Self {
+            glyph: to_cp437('>'),
+            color: ColorPair::new(WHITE, BLACK),
+            blocked: false,
+            opaque: false,
+            tile_type: TileType::StairsDown,
+        }
+    }
+
+    pub fn stairs_up() -> Self {
+        Self {
+            glyph: to_cp437('<'),
+            color: ColorPair::new(WHITE, BLACK),
+            blocked: false,
+            opaque: false,
+            tile_type: TileType::StairsUp,
+        }
+    }
+
     pub fn capsule_floor() -> Self {
         Self {
-            glyph: to_cp437('.'),
+            glyph: to_cp437('∙'),
             color: ColorPair::new(DARK_CYAN, BLACK),
             blocked: false,
             opaque: false,
@@ -110,12 +141,22 @@ impl Tile {
         }
     }
 
+    pub fn healing() -> Self {
+        Self {
+            glyph: to_cp437('+'),
+            color: ColorPair::new(RED, WHITE),
+            blocked: false,
+            opaque: false,
+            tile_type: TileType::Floor,
+        }
+    }
+
     pub fn alien_landscape(height: f32) -> Self {
         let fg = if height < 0.0 {
             if height < -0.25 {
-                (40, 20, 0)
+                YELLOW
             } else {
-                GRAY
+                RED
             }
         } else {
             (
@@ -131,16 +172,6 @@ impl Tile {
             blocked: height <= -0.255,
             opaque: false,
             tile_type: TileType::Outside,
-        }
-    }
-
-    pub fn stairs_down() -> Self {
-        Self {
-            glyph: to_cp437('>'),
-            color: ColorPair::new(YELLOW, BLACK),
-            blocked: false,
-            opaque: false,
-            tile_type: TileType::StairsDown,
         }
     }
 }

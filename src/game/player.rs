@@ -11,6 +11,7 @@ pub fn build_input_scheduler() -> Schedule {
 
 pub fn build_player_scheduler() -> Schedule {
     Schedule::builder()
+        .add_system(update_fov_system())
         .add_system(tile_triggers_system())
         .build()
 }
@@ -48,7 +49,7 @@ pub fn player_input(
             if !map.get_current().tiles[new_idx].blocked {
                 pos.pt = new_pos;
                 fov.is_dirty = true;
-                result = TurnState::PlayerTurn;
+                result = TurnState::Ticking;
             } else if map.get_current().is_door[new_idx] {
                 map.get_current_mut().open_door(new_idx);
                 doors_to_delete.insert(map.get_current().index_to_point2d(new_idx));
