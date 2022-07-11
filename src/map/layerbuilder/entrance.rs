@@ -1,16 +1,10 @@
-use super::all_space;
-use crate::{
-    components::{Description, Position, TileTrigger},
-    map::{Layer, Tile, HEIGHT, TILES, WIDTH},
-};
-use bracket_lib::prelude::*;
-use legion::*;
+use super::*;
 
 pub fn build_entrance(ecs: &mut World) -> Layer {
     let mut layer = Layer::new(std::usize::MAX, ecs); // Gets a default layer
 
     all_space(&mut layer);
-    add_landscape(&mut layer, ecs);
+    add_landscape(&mut layer);
     add_docking_capsule(&mut layer, ecs);
 
     layer
@@ -23,6 +17,7 @@ fn add_docking_capsule(map: &mut Layer, ecs: &mut World) {
     const LEFT: usize = 1;
     const RIGHT: usize = 8;
 
+    // Floor
     for y in TOP..=BOTTOM {
         for x in LEFT..=RIGHT {
             let idx = map.point2d_to_index(Point::new(x, y));
@@ -30,8 +25,36 @@ fn add_docking_capsule(map: &mut Layer, ecs: &mut World) {
         }
     }
 
+    // Encasing Walls
+    for x in LEFT - 1..=RIGHT + 1 {
+        let idx = map.point2d_to_index(Point::new(x, TOP - 1));
+        map.tiles[idx] = Tile::capsule_wall();
+        let idx = map.point2d_to_index(Point::new(x, BOTTOM + 1));
+        map.tiles[idx] = Tile::capsule_wall();
+    }
+    for y in TOP - 1..=BOTTOM + 1 {
+        let idx = map.point2d_to_index(Point::new(LEFT - 1, y));
+        map.tiles[idx] = Tile::capsule_wall();
+        let idx = map.point2d_to_index(Point::new(RIGHT + 1, y));
+        map.tiles[idx] = Tile::capsule_wall();
+    }
+
+    // Add some windows
+    let x_middle = (LEFT + RIGHT) / 2;
+    let idx = map.point2d_to_index(Point::new(x_middle - 2, TOP - 1));
+    map.tiles[idx] = Tile::capsule_window();
+    let idx = map.point2d_to_index(Point::new(x_middle - 2, BOTTOM + 1));
+    map.tiles[idx] = Tile::capsule_window();
+    let idx = map.point2d_to_index(Point::new(x_middle + 2, TOP - 1));
+    map.tiles[idx] = Tile::capsule_window();
+    let idx = map.point2d_to_index(Point::new(x_middle + 2, BOTTOM + 1));
+    map.tiles[idx] = Tile::capsule_window();
+
     // Spawn the game exit
     add_game_exit(map, ecs, Point::new(LEFT - 1, MIDDLE));
+
+    // Start adding in building complex features
+    add_door(map, ecs, Point::new(RIGHT + 1, MIDDLE));
 
     map.starting_point = Point::new(LEFT + 1, MIDDLE);
 }
@@ -50,10 +73,10 @@ fn add_game_exit(map: &mut Layer, ecs: &mut World, pt: Point) {
     ));
 }
 
-fn add_landscape(map: &mut Layer, ecs: &mut World) {
-    let mut rng_lock = crate::RNG.lock();
-    let rng = rng_lock.as_mut().unwrap();
+fn add_landscape(map: &mut Layer) {
+    let mut rng = crate::RNG.lock();
     let mut noise = FastNoise::seeded(rng.next_u64());
+
     noise.set_noise_type(NoiseType::SimplexFractal);
     noise.set_fractal_type(FractalType::FBM);
     noise.set_fractal_octaves(10);
@@ -68,4 +91,19 @@ fn add_landscape(map: &mut Layer, ecs: &mut World) {
             map.tiles[idx] = Tile::alien_landscape(h);
         }
     }
+}
+
+fn add_door(map: &mut Layer, ecs: &mut World, pt: Point) {
+    let idx = map.point2d_to_index(pt);
+    ecs.push((
+        Position::with_pt(pt, 0),
+        Description("A heavy, steel door.".to_string()),
+        Glyph {
+            glyph: to_cp437('+'),
+            color: ColorPair::new(CYAN, BLACK),
+        },
+        Door {},
+    ));
+    map.tiles[idx] = Tile::wall();
+    map.is_door[idx] = true;
 }

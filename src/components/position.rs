@@ -1,6 +1,6 @@
 use bracket_lib::prelude::Point;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Position {
     pub pt: Point,
     pub layer: usize,

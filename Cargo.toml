@@ -19,14 +19,14 @@ default = ["debug"]
 
 [dependencies]
 bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
-legion = {version = "0.4.0", default-features = false, features = ["wasm-bindgen"]}
+legion = {version = "0.4.0", default-features = false, features = ["wasm-bindgen", "codegen"]}
 parking_lot = {version = "0.12.1", features = ["nightly"]}
 
 colored = "^2.0.0"
 lazy_static = "1.4.0"
 
 [build-dependencies]
-embed-resource = "1.7.2"
+embed-resource = "1.7.3"
 
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!

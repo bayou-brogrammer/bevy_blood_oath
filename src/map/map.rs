@@ -1,7 +1,6 @@
-use super::{Layer, NUM_LAYERS};
-use bracket_lib::prelude::*;
-use legion::World;
+use super::*;
 
+#[derive(Clone)]
 pub struct Map {
     pub current_layer: usize,
     layers: Vec<Layer>,

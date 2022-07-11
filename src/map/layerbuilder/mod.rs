@@ -1,5 +1,6 @@
+use super::*;
+
 mod entrance;
-use super::{Layer, Tile};
 pub use entrance::build_entrance;
 
 fn all_space(layer: &mut Layer) {

@@ -1,8 +1,4 @@
-use crate::components::{Glyph, Position};
-use crate::map::{Map, HEIGHT, WIDTH};
-use crate::NewState;
-use bracket_lib::prelude::*;
-use legion::*;
+use crate::prelude::*;
 pub mod tooltips;
 
 pub fn render_glyphs(ctx: &mut BTerm, ecs: &World, map: &Map) {
@@ -28,7 +24,7 @@ pub fn render_ui_skeleton(ctx: &mut BTerm) {
     ctx.set(WIDTH + 1, HEIGHT + 1, GRAY, BLACK, to_cp437('┴'));
 }
 
-pub fn modal(ctx: &mut BTerm, title: &String, body: &String) -> NewState {
+pub fn modal(ctx: &mut BTerm, title: &str, body: &str) -> NewState {
     let mut draw_batch = DrawBatch::new();
     draw_batch.draw_double_box(Rect::with_size(19, 14, 71, 12), ColorPair::new(CYAN, BLACK));
     let mut buf = TextBuilder::empty();

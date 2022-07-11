@@ -1,9 +1,4 @@
-use crate::{
-    components::{Description, Position},
-    map::{Map, HEIGHT, WIDTH},
-};
-use bracket_lib::prelude::*;
-use legion::*;
+use crate::prelude::*;
 
 pub fn render_tooltips(ctx: &mut BTerm, ecs: &World, map: &Map) {
     let (mx, my) = ctx.mouse_pos();
