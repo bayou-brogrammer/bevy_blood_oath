@@ -18,8 +18,8 @@ impl Map {
         }
     }
 
-    pub fn render(&self, ctx: &mut BTerm) {
-        self.layers[self.current_layer].render(ctx);
+    pub fn render(&self) {
+        self.layers[self.current_layer].render();
     }
 
     pub fn get_current(&self) -> &Layer {

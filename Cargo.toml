@@ -14,12 +14,19 @@ codegen-units = 1
 lto = true
 
 [features]
+default = [
+  "debug",
+  "legion/wasm-bindgen",
+  "legion/codegen",
+  "legion/parallel",
+  "legion/serialize",
+]
+
 debug = []
-default = ["debug"]
 
 [dependencies]
 bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
-legion = {version = "0.4.0", default-features = false, features = ["wasm-bindgen", "codegen"]}
+legion = {version = "0.4.0", default-features = false}
 parking_lot = {version = "0.12.1", features = ["nightly"]}
 
 colored = "^2.0.0"

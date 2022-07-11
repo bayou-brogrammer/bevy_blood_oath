@@ -6,7 +6,7 @@ const TILES: usize = WIDTH * HEIGHT;
 pub const NUM_LAYERS: usize = 5;
 
 mod tile;
-use tile::Tile;
+use tile::{Tile, TileType};
 
 mod layer;
 use layer::Layer;

@@ -1,17 +1,19 @@
-#[derive(PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum NewState {
     NoChange,
     Wait,
+    // Tick,
     Player,
     Enemy,
     LeftMap,
 }
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TurnState {
     WaitingForInput,
     PlayerTurn,
     EnemyTurn,
-    Modal { title: String, body: String },
+    // Ticking,
     GameOverLeft,
+    Modal { title: String, body: String },
 }

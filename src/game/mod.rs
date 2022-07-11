@@ -1,2 +1,7 @@
+use crate::prelude::*;
+
 pub mod player;
-pub use player::player_turn;
+
+pub fn build_ai_scheduler() -> Schedule {
+    Schedule::builder().build()
+}

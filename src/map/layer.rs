@@ -23,26 +23,44 @@ impl Layer {
         }
     }
 
-    pub fn render(&self, ctx: &mut BTerm) {
+    pub fn render(&self) {
+        let mut batch = DrawBatch::new();
+
         let mut y = 0;
         let mut idx = 0;
         while y < HEIGHT {
             for x in 0..WIDTH {
-                if self.visible[idx] {
+                if self.in_bounds(Point::new(x, y)) && self.revealed[idx] {
                     let t = &self.tiles[idx];
-                    ctx.set(x + 1, y + 1, t.color.fg, t.color.bg, t.glyph);
-                } else if self.revealed[idx] {
-                    let t = &self.tiles[idx];
-                    ctx.set(x + 1, y + 1, t.color.fg.to_greyscale(), t.color.bg, t.glyph);
+                    let glyph = t.glyph;
+                    let mut color = t.color;
+
+                    if !self.visible[idx] {
+                        color.fg = color.fg.to_greyscale();
+                    }
+
+                    batch.set(Point::new(x + 1, y + 1), color, glyph);
                 }
+
                 idx += 1;
             }
             y += 1;
         }
+
+        batch
+            .submit(0)
+            .expect("Failed to submit draw batch for map");
     }
 
     pub fn clear_visible(&mut self) {
         self.visible.iter_mut().for_each(|b| *b = false);
+    }
+
+    pub fn open_door(&mut self, idx: usize) {
+        self.is_door[idx] = false;
+        self.tiles[idx].blocked = false;
+        self.tiles[idx].opaque = false;
+        self.tiles[idx].glyph = to_cp437('.');
     }
 
     fn test_exit(&self, pt: Point, delta: Point, exits: &mut SmallVec<[(usize, f32); 10]>) {
