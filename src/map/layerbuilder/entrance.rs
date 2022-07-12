@@ -295,7 +295,7 @@ fn add_windows(map: &mut Layer, ecs: &mut World) {
 }
 fn add_exit(rooms: &mut Vec<Rect>, map: &mut Layer, ecs: &mut World) {
     let mut rng = crate::RNG.lock();
-    let room = rng.random_slice_entry(&rooms).unwrap();
+    let room = rng.random_slice_entry(rooms).unwrap();
     let exit_location = room.center();
     let idx = map.point2d_to_index(exit_location);
     map.tiles[idx] = Tile::stairs_down();

@@ -7,6 +7,8 @@ mod turn;
 pub mod render;
 pub mod text;
 
+mod systems;
+
 mod prelude {
     pub use bracket_lib::prelude::*;
     pub use lazy_static::*;
@@ -15,6 +17,8 @@ mod prelude {
     pub use legion::systems::CommandBuffer;
     pub use legion::world::*;
     pub use legion::*;
+
+    pub use specs::prelude::*;
 
     pub use crate::components::*;
     pub use crate::game::*;
