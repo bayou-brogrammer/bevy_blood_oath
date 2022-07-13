@@ -1,6 +1,7 @@
-use bracket_lib::prelude::Point;
+use crate::prelude::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
+#[storage(DenseVecStorage)]
 pub struct Position {
     pub pt: Point,
     pub layer: usize,

@@ -8,21 +8,20 @@ pub enum NewState {
     LeftMap,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum TurnState {
     Start,
     WaitingForInput,
     Ticking,
     GameOverLeft,
-    Modal { title: String, body: String },
+    // Modal(String, String),
 }
 
 pub struct State {
     pub world: World,
-    pub resources: Resources,
-    pub input_scheduler: Schedule,
-    pub player_scheduler: Schedule,
-    pub ai_scheduler: Schedule,
+    pub(crate) input_dispatcher: Box<dyn crate::systems::UnifiedDispatcher + 'static>,
+    pub(crate) ticking_dispatcher: Box<dyn crate::systems::UnifiedDispatcher + 'static>,
+    pub(crate) gui_dispatcher: Box<dyn crate::systems::UnifiedDispatcher + 'static>,
 }
 
 impl Default for State {
@@ -33,106 +32,148 @@ impl Default for State {
 
 impl State {
     pub fn new() -> Self {
-        let options = WorldOptions {
-            groups: vec![
-                <(Position, Glyph)>::to_group(),
-                <(Description, Name)>::to_group(),
-            ],
-        };
-        let mut world = World::new(options);
-        world.pack(PackOptions::force());
+        let mut world = World::new();
 
-        let mut resources = Resources::default();
-        let map = Map::new(&mut world);
+        // Dispatchers
+        let mut input_dispatcher = crate::systems::new_input_dispatcher();
+        let mut ticking_dispatcher = crate::systems::new_ticking_dispatcher();
+        let mut gui_dispatcher = crate::render::new_gui_dispatcher();
 
-        resources.insert(map);
-        resources.insert(TurnState::Start);
+        input_dispatcher.setup(&mut world);
+        ticking_dispatcher.setup(&mut world);
+        gui_dispatcher.setup(&mut world);
+
+        Self::register_systems(&mut world);
+
+        // Resources
+        world.insert(TurnState::Start);
 
         Self {
             world,
-            resources,
-            input_scheduler: player::build_input_scheduler(),
-            player_scheduler: player::build_player_scheduler(),
-            ai_scheduler: build_ai_scheduler(),
+            input_dispatcher,
+            ticking_dispatcher,
+            gui_dispatcher,
         }
     }
 
-    pub fn new_game(&mut self) {
-        let map = self.resources.get::<Map>().unwrap();
+    fn register_systems(world: &mut World) {
+        // Tags
+        world.register::<Player>();
+        world.register::<Colonist>();
+        world.register::<Door>();
 
-        // Spawn the player
-        self.world.push((
-            Player {},
-            Position::with_pt(map.get_current().starting_point, 0),
-            Glyph {
+        // Generics
+        world.register::<Position>();
+        world.register::<Glyph>();
+        world.register::<Description>();
+        world.register::<ColonistStatus>();
+
+        // Stats
+        world.register::<FieldOfView>();
+        world.register::<Name>();
+
+        // Activate
+        world.register::<TileTrigger>();
+    }
+
+    fn run_all_systems(&mut self) {
+        self.input_dispatcher.run_now(&mut self.world);
+        self.ticking_dispatcher.run_now(&mut self.world);
+        self.world.maintain();
+    }
+
+    fn run_input_systems(&mut self) {
+        self.input_dispatcher.run_now(&mut self.world);
+        self.world.maintain();
+    }
+
+    fn run_ticking_systems(&mut self) {
+        self.ticking_dispatcher.run_now(&mut self.world);
+        self.world.maintain();
+    }
+
+    pub fn new_game(&mut self) {
+        let map = Map::new(&mut self.world);
+
+        dbg!("new game");
+        let player = self
+            .world
+            .create_entity()
+            .with(Position::with_pt(map.get_current().starting_point, 0))
+            .with(Glyph {
                 glyph: to_cp437('@'),
                 color: ColorPair::new(YELLOW, BLACK),
-            },
-            Description("Everybody's favorite Bracket Corp SecBot".to_string()),
-            Name("SecBot".to_string()),
-            FieldOfView::new(8),
-        ));
+            })
+            .with(Description(
+                "Everybody's favorite Bracket Corp SecBot".to_string(),
+            ))
+            .with(Name("SecBot".to_string()))
+            .with(FieldOfView::new(8))
+            .build();
+
+        self.world
+            .write_storage::<Player>()
+            .insert(player, Player { id: player })
+            .unwrap();
+
+        self.world.insert(Player { id: player });
+
+        self.world.insert(map);
     }
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         render::clear_all_consoles(ctx);
-        self.resources.insert(ctx.key);
-        self.resources.insert(Mouse {
+
+        if let Some(quit) = self.world.get_mut::<Quit>() {
+            if quit.0 {
+                ctx.quit();
+            }
+        }
+
+        self.world.insert(Key(ctx.key));
+        self.world.insert(Mouse {
             left_click: ctx.left_click,
             mouse_pos: Point::from_tuple(ctx.mouse_pos()),
         });
 
-        let current_state = self.resources.get::<TurnState>().unwrap().clone();
+        let mut current_turn_state;
+        {
+            let state = self.world.fetch::<TurnState>();
+            current_turn_state = *state;
+        }
 
-        match current_state {
-            TurnState::GameOverLeft => {}
+        // Rendering GUI
+        match current_turn_state {
             TurnState::Start => {}
+            TurnState::GameOverLeft => {}
             _ => {
-                render::render_gui(&mut self.world, &mut self.resources);
+                render::render(&mut self.world);
                 render_draw_buffer(ctx).expect("Render error");
             }
         }
 
-        let next_state = match current_state {
+        let next_state = match current_turn_state {
             TurnState::Start => {
                 self.new_game();
-
-                Schedule::builder()
-                    .add_system(player::update_fov_system())
-                    .build()
-                    .execute(&mut self.world, &mut self.resources);
-
-                *self.resources.get_mut::<TurnState>().unwrap() = TurnState::Modal {
-                    title: "Welcome to Bracket Corp".to_string(),
-                    body: "Press any key to start".to_string(),
-                };
-
-                NewState::NoChange
+                self.run_all_systems();
+                NewState::Wait
             }
-            TurnState::Modal { title, body } => render::modal(ctx, &title, &body),
-            TurnState::GameOverLeft => render::gameover::game_over_dead(ctx, &mut self.world),
             TurnState::WaitingForInput => {
-                self.input_scheduler
-                    .execute(&mut self.world, &mut self.resources);
+                self.run_input_systems();
                 NewState::NoChange
             }
             TurnState::Ticking => {
-                self.player_scheduler
-                    .execute(&mut self.world, &mut self.resources);
-
-                self.ai_scheduler
-                    .execute(&mut self.world, &mut self.resources);
-
-                match *self.resources.get::<TurnState>().unwrap() {
-                    TurnState::GameOverLeft => NewState::LeftMap,
-                    _ => NewState::Wait,
-                }
+                self.run_ticking_systems();
+                NewState::Wait
             }
+            // TurnState::Modal { title, body } => render::modal(ctx, &title, &body),
+            // TurnState::GameOverLeft => render::gameover::game_over_dead(ctx, &mut self.world),
+            _ => NewState::NoChange,
         };
 
-        let mut turn_state = self.resources.get_mut::<TurnState>().unwrap();
+        let mut turn_state = self.world.get_mut::<TurnState>().unwrap();
         match next_state {
             NewState::NoChange => {}
             NewState::LeftMap => *turn_state = TurnState::GameOverLeft,

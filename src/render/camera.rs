@@ -1,17 +1,16 @@
 use super::*;
 
+#[derive(Debug)]
 pub struct Camera {
     player_pos: Point,
     viewport: Rect,
 }
 
 impl Camera {
-    pub fn new(ecs: &World) -> Self {
-        let player_pos = <(&Player, &Position)>::query()
-            .iter(ecs)
-            .map(|(_, pos)| pos.pt)
-            .next()
-            .unwrap();
+    pub fn new(world: &World) -> Self {
+        let positions = world.read_component::<Position>();
+        let player = world.fetch::<Player>();
+        let player_pos = positions.get(player.id).unwrap().pt;
 
         let viewport = Rect::with_size(player_pos.x - 20, player_pos.y - 15, 40, 31);
 
@@ -44,7 +43,6 @@ impl Camera {
             let idx = layer.point2d_to_index(pt);
             if layer.in_bounds(pt) && layer.revealed[idx] {
                 let t = &layer.tiles[idx];
-                let glyph = t.glyph;
                 let mut color = t.color;
 
                 if !layer.visible[idx] {
@@ -58,12 +56,14 @@ impl Camera {
         batch.submit(0).expect("Error batching map");
     }
 
-    pub fn render_glyphs(&self, map: &Map, ecs: &World) {
+    pub fn render_glyphs(&self, map: &Map, world: &World) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_CHR);
 
-        let mut query = <(&Position, &Glyph)>::query();
-        query.for_each(ecs, |(pos, glyph)| {
+        let positions = world.read_component::<Position>();
+        let glyphs = world.read_component::<Glyph>();
+
+        for (pos, glyph) in (&positions, &glyphs).join() {
             if pos.layer == map.current_layer {
                 let idx = map.get_current().point2d_to_index(pos.pt);
                 if map.get_current().visible[idx] {
@@ -71,89 +71,79 @@ impl Camera {
                     batch.set(screen_pos, glyph.color, glyph.glyph);
                 }
             }
-        });
+        }
 
         batch.submit(4000).expect("Error batching map");
     }
 
-    pub fn render_tooltips(&self, ecs: &mut World, map: &Map, mouse: &Mouse) {
-        let mut batch = DrawBatch::new();
-        batch.target(LAYER_TEXT);
+    // pub fn render_tooltips(&self, ecs: &mut World, map: &Map, mouse: &Mouse) {
+    //     let mut batch = DrawBatch::new();
+    //     batch.target(LAYER_TEXT);
 
-        let Point {
-            x: mouse_x,
-            y: mouse_y,
-        } = mouse.mouse_pos;
-        let map_pos = self.screen_to_world(mouse_x, mouse_y);
-        let mut new_target = None;
+    //     let Point {
+    //         x: mouse_x,
+    //         y: mouse_y,
+    //     } = mouse.mouse_pos;
+    //     let map_pos = self.screen_to_world(mouse_x, mouse_y);
+    //     let mut new_target = None;
 
-        let mut lines = Vec::new();
-        <(Entity, &Position, &Description, &Name)>::query().for_each(
-            ecs,
-            |(entity, pos, desc, name)| {
-                if pos.layer == map.current_layer && pos.pt == map_pos {
-                    let idx = map.get_current().point2d_to_index(pos.pt);
-                    if map.get_current().visible[idx] {
-                        lines.push((CYAN, name.0.clone()));
-                        lines.push((GRAY, desc.0.clone()));
-                        // if let Ok(er) = ecs.entry_ref(*entity) {
-                        //     if let Ok(hp) = er.get_component::<Health>() {
-                        //         lines.push((GRAY, format!("{}/{} hp", hp.current, hp.max)));
-                        //     }
-                        // }
-                        if mouse.left_click {
-                            //println!("Set new target");
-                            new_target = Some(*entity);
-                        }
-                    }
-                }
-            },
-        );
+    //     let mut lines = Vec::new();
+    //     <(Entity, &Position, &Description, &Name)>::query().for_each(
+    //         ecs,
+    //         |(entity, pos, desc, name)| {
+    //             if pos.layer == map.current_layer && pos.pt == map_pos {
+    //                 let idx = map.get_current().point2d_to_index(pos.pt);
+    //                 if map.get_current().visible[idx] {
+    //                     lines.push((CYAN, name.0.clone()));
+    //                     lines.push((GRAY, desc.0.clone()));
+    //                     // if let Ok(er) = ecs.entry_ref(*entity) {
+    //                     //     if let Ok(hp) = er.get_component::<Health>() {
+    //                     //         lines.push((GRAY, format!("{}/{} hp", hp.current, hp.max)));
+    //                     //     }
+    //                     // }
+    //                     if mouse.left_click {
+    //                         //println!("Set new target");
+    //                         new_target = Some(*entity);
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //     );
 
-        if !lines.is_empty() {
-            let height = lines.len() + 1;
-            let width = lines.iter().map(|s| s.1.len()).max().unwrap() + 2;
-            let tip_x = if map_pos.x < WIDTH as i32 / 2 {
-                i32::min((mouse_x * 2) + 1, 111)
-            } else {
-                i32::max(0, (mouse_x * 2) - (width as i32 + 1))
-            };
-            let tip_y = if map_pos.y > HEIGHT as i32 / 2 {
-                mouse_y - height as i32
-            } else {
-                mouse_y
-            };
-            batch.draw_box(
-                Rect::with_size(
-                    tip_x,
-                    tip_y - (lines.len() / 2) as i32,
-                    width as i32,
-                    height as i32,
-                ),
-                ColorPair::new(WHITE, BLACK),
-            );
-            let mut y = tip_y + 1 - (lines.len() / 2) as i32;
-            lines.iter().for_each(|s| {
-                safe_print_color(
-                    &mut batch,
-                    Point::new(tip_x + 1, y),
-                    &s.1,
-                    ColorPair::new(s.0, BLACK),
-                );
-                y += 1;
-            });
-        }
+    //     if !lines.is_empty() {
+    //         let height = lines.len() + 1;
+    //         let width = lines.iter().map(|s| s.1.len()).max().unwrap() + 2;
+    //         let tip_x = if map_pos.x < WIDTH as i32 / 2 {
+    //             i32::min((mouse_x * 2) + 1, 111)
+    //         } else {
+    //             i32::max(0, (mouse_x * 2) - (width as i32 + 1))
+    //         };
+    //         let tip_y = if map_pos.y > HEIGHT as i32 / 2 {
+    //             mouse_y - height as i32
+    //         } else {
+    //             mouse_y
+    //         };
+    //         batch.draw_box(
+    //             Rect::with_size(
+    //                 tip_x,
+    //                 tip_y - (lines.len() / 2) as i32,
+    //                 width as i32,
+    //                 height as i32,
+    //             ),
+    //             ColorPair::new(WHITE, BLACK),
+    //         );
+    //         let mut y = tip_y + 1 - (lines.len() / 2) as i32;
+    //         lines.iter().for_each(|s| {
+    //             safe_print_color(
+    //                 &mut batch,
+    //                 Point::new(tip_x + 1, y),
+    //                 &s.1,
+    //                 ColorPair::new(s.0, BLACK),
+    //             );
+    //             y += 1;
+    //         });
+    //     }
 
-        batch.submit(100_000).expect("Error batching tooltips");
-
-        // if let Some(target) = new_target {
-        //     <(&Player, &mut Targeting)>::query().for_each_mut(ecs, |(_, t)| {
-        //         let tf = t.targets.iter().enumerate().find(|(_i, e)| e.0 == target);
-        //         if let Some((idx, _)) = tf {
-        //             t.index = idx;
-        //             t.current_target = Some(target);
-        //         }
-        //     });
-        // }
-    }
+    //     batch.submit(100_000).expect("Error batching tooltips");
+    // }
 }

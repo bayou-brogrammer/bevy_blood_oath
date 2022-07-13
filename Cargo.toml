@@ -16,20 +16,22 @@ lto = true
 [features]
 default = [
   "debug",
-  "legion/wasm-bindgen",
-  "legion/codegen",
-  "legion/parallel",
-  "legion/serialize",
+  "parallel",
 ]
 
 debug = []
 
+parallel = [
+  "rayon"
+]
+
 [dependencies]
 bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
-legion = {version = "0.4.0", default-features = false}
+# legion = {version = "0.4.0", default-features = false}
 parking_lot = {version = "0.12.1", features = ["nightly"]}
 
-specs = {git = "https://github.com/amethyst/specs", features = ["serde", "derive"]}
+specs = {git = "https://github.com/amethyst/specs", features = ["serde", "derive", "shred-derive"]}
+rayon = { version = "1.5.3", optional = true }
 
 colored = "^2.0.0"
 lazy_static = "1.4.0"

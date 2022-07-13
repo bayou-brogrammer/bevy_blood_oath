@@ -1,33 +1,32 @@
+#![feature(decl_macro)]
+#![feature(is_some_with)]
+
 mod components;
-mod game;
+// mod game;
 mod map;
-mod rng;
-mod turn;
-
 pub mod render;
-pub mod text;
-
+mod rng;
 mod systems;
+mod turn;
+// pub mod text;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
     pub use lazy_static::*;
 
-    pub use legion::storage::PackOptions;
-    pub use legion::systems::CommandBuffer;
-    pub use legion::world::*;
-    pub use legion::*;
-
+    pub use specs::prelude::World;
     pub use specs::prelude::*;
+    pub use specs::Component;
 
     pub use crate::components::*;
-    pub use crate::game::*;
+    // pub use crate::game::*;
     pub use crate::map::*;
     pub use crate::rng::*;
+    pub use crate::systems::*;
     pub use crate::turn::*;
 
     pub use crate::render;
-    pub use crate::text;
+    // pub use crate::text;
 
     pub const LAYER_MAP: usize = 0;
     pub const LAYER_DECOR: usize = 1;

@@ -1,17 +1,17 @@
 use crate::prelude::*;
 
-pub fn spawn_random_colonist(
-    location: Point,
-    layer: usize,
-) -> (Colonist, Position, Glyph, Description, ColonistStatus) {
-    (
-        Colonist {},
-        Position::with_pt(location, layer),
-        Glyph {
+pub fn spawn_random_colonist(world: &mut World, location: Point, layer: usize) {
+    world
+        .create_entity()
+        .with(Colonist)
+        .with(Position::with_pt(location, layer))
+        .with(Glyph {
             glyph: to_cp437('☺'),
             color: ColorPair::new(LIME_GREEN, BLACK),
-        },
-        Description("A squishy friend. You are here to rescue your squishies.".to_string()),
-        ColonistStatus::Alive,
-    )
+        })
+        .with(Description(
+            "A squishy friend. You are here to rescue your squishies.".to_string(),
+        ))
+        .with(ColonistStatus::Alive)
+        .build();
 }

@@ -1,44 +1,41 @@
 use super::UnifiedDispatcher;
 use specs::prelude::*;
 
-macro_rules! construct_dispatcher {
-    (
+pub macro construct_dispatcher(
+    $(
+        (
+            $type:ident,
+            $name:expr,
+            $deps:expr
+        )
+    ),*
+) {
+    use specs::DispatcherBuilder;
+
+    let dispatcher = DispatcherBuilder::new()
         $(
-            (
-                $type:ident,
-                $name:expr,
-                $deps:expr
-            )
-        ),*
-    ) => {
-        fn new_dispatch() -> Box<dyn UnifiedDispatcher + 'static> {
-            use specs::DispatcherBuilder;
+            .with($type{}, $name, $deps)
+        )*
+        .build();
 
-            let dispatcher = DispatcherBuilder::new()
-                $(
-                    .with($type{}, $name, $deps)
-                )*
-                .build();
-
-            let dispatch = MultiThreadedDispatcher{
-                dispatcher : dispatcher
-            };
-
-            return Box::new(dispatch);
-        }
+    let dispatch = MultiThreadedDispatcher{
+        dispatcher
     };
+
+    return Box::new(dispatch);
 }
 
 pub struct MultiThreadedDispatcher {
     pub dispatcher: specs::Dispatcher<'static, 'static>,
 }
 
-impl<'a> UnifiedDispatcher for MultiThreadedDispatcher {
-    fn run_now(&mut self, ecs: *mut World) {
-        unsafe {
-            self.dispatcher.dispatch(&mut *ecs);
+impl UnifiedDispatcher for MultiThreadedDispatcher {
+    fn run_now(&mut self, ecs: &mut World) {
+        self.dispatcher.dispatch(ecs);
+        // crate::effects::run_effects_queue(&mut *ecs);
+    }
 
-            // crate::effects::run_effects_queue(&mut *ecs);
-        }
+    fn setup(&mut self, ecs: &mut World) {
+        self.dispatcher.setup(ecs);
     }
 }

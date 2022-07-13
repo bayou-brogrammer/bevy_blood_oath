@@ -49,22 +49,35 @@ fn add_docking_capsule(map: &mut Layer, ecs: &mut World) {
     map.tiles[idx] = Tile::capsule_window();
     let idx = map.point2d_to_index(Point::new(x_middle + 2, BOTTOM + 1));
     map.tiles[idx] = Tile::capsule_window();
-    ecs.push((
-        Position::with_pt(Point::new(x_middle - 2, TOP - 1), 0),
-        Description("A window. It doesn't look fun outside.".to_string()),
-    ));
-    ecs.push((
-        Position::with_pt(Point::new(x_middle - 2, BOTTOM + 1), 0),
-        Description("A window. It doesn't look fun outside.".to_string()),
-    ));
-    ecs.push((
-        Position::with_pt(Point::new(x_middle + 2, TOP - 1), 0),
-        Description("A window. It doesn't look fun outside.".to_string()),
-    ));
-    ecs.push((
-        Position::with_pt(Point::new(x_middle + 2, BOTTOM + 1), 0),
-        Description("A window. It doesn't look fun outside.".to_string()),
-    ));
+
+    // Window 1
+    ecs.create_entity()
+        .with(Position::with_pt(Point::new(x_middle - 2, TOP - 1), 0))
+        .with(Description(
+            "A window. It doesn't look fun outside.".to_string(),
+        ))
+        .build();
+    // Window 2
+    ecs.create_entity()
+        .with(Position::with_pt(Point::new(x_middle - 2, BOTTOM + 1), 0))
+        .with(Description(
+            "A window. It doesn't look fun outside.".to_string(),
+        ))
+        .build();
+    // Window 3
+    ecs.create_entity()
+        .with(Position::with_pt(Point::new(x_middle + 2, TOP - 1), 0))
+        .with(Description(
+            "A window. It doesn't look fun outside.".to_string(),
+        ))
+        .build();
+    // Window 4
+    ecs.create_entity()
+        .with(Position::with_pt(Point::new(x_middle + 2, BOTTOM + 1), 0))
+        .with(Description(
+            "A window. It doesn't look fun outside.".to_string(),
+        ))
+        .build();
 
     // Start adding in building complex features
     add_door(map, ecs, Point::new(RIGHT + 1, MIDDLE));
@@ -92,14 +105,14 @@ fn add_game_exit(map: &mut Layer, ecs: &mut World, pt: Point) {
     let exit_idx = map.point2d_to_index(pt);
     map.tiles[exit_idx] = Tile::game_over();
 
-    ecs.push((
-        Position::with_pt(pt, 0),
-        Description(
+    ecs.create_entity()
+        .with(Position::with_pt(pt, 0))
+        .with(Description(
             "Exit to SecBot's Ship. Leave through here when you are ready to call it game over."
                 .to_string(),
-        ),
-        TileTrigger(crate::components::TriggerType::EndGame),
-    ));
+        ))
+        .with(TileTrigger(crate::components::TriggerType::EndGame))
+        .build();
 }
 
 fn add_landscape(map: &mut Layer) {
@@ -121,21 +134,21 @@ fn add_landscape(map: &mut Layer) {
         }
     }
 }
+
 fn add_door(map: &mut Layer, ecs: &mut World, pt: Point) {
     let idx = map.point2d_to_index(pt);
-    ecs.push((
-        Position::with_pt(pt, 0),
-        Description("A heavy, steel door.".to_string()),
-        Glyph {
+
+    ecs.create_entity()
+        .with(Position::with_pt(pt, 0))
+        .with(Description("A heavy, steel door.".to_string()))
+        .with(Glyph {
             glyph: to_cp437('+'),
             color: ColorPair::new(CYAN, BLACK),
-        },
-        Door {},
-    ));
-    map.tiles[idx] = Tile::wall();
-    map.tiles[idx].glyph = to_cp437('+');
-    map.tiles[idx].color.fg = CYAN.into();
-    map.is_door[idx] = true;
+        })
+        .with(Door)
+        .build();
+
+    map.create_door(idx);
 }
 
 fn add_entryway(map: &mut Layer, _ecs: &mut World, entrance: Point) -> Rect {
@@ -285,10 +298,13 @@ fn add_windows(map: &mut Layer, ecs: &mut World) {
                 && rng.range(0, 10) == 0
             {
                 map.tiles[idx] = Tile::window();
-                ecs.push((
-                    Position::with_pt(Point::new(x, y), 0),
-                    Description("A window. Not sure who thought that was a good idea.".to_string()),
-                ));
+
+                ecs.create_entity()
+                    .with(Position::with_pt(Point::new(x, y), 0))
+                    .with(Description(
+                        "A window. Not sure who thought that was a good idea.".to_string(),
+                    ))
+                    .build();
             }
         }
     }
@@ -300,26 +316,23 @@ fn add_exit(rooms: &mut Vec<Rect>, map: &mut Layer, ecs: &mut World) {
     let idx = map.point2d_to_index(exit_location);
     map.tiles[idx] = Tile::stairs_down();
 
-    ecs.push((
-        Position::with_pt(exit_location, 0),
-        Description("Stairs further into the complex".to_string()),
-    ));
+    ecs.create_entity()
+        .with(Position::with_pt(exit_location, 0))
+        .with(Description("Stairs further into the complex".to_string()))
+        .build();
 }
 
 fn populate_rooms(rooms: &[Rect], ecs: &mut World) {
     let mut rng = crate::RNG.lock();
 
     // The first room always contains a single colonist
-    ecs.push(spawn_random_colonist(rooms[0].center(), 0));
+    let entities = ecs.create_iter().take(1).collect::<Vec<_>>();
 
     // Each room after that can be random. This is an initial, very boring spawn to get
     // the colonist functionality going.
-    let mut colonist = Vec::new();
     rooms.iter().skip(1).for_each(|r| {
         if rng.range(0, 5) == 0 {
-            colonist.push(spawn_random_colonist(r.center(), 0));
+            spawn_random_colonist(ecs, r.center(), 0);
         }
     });
-
-    ecs.extend(colonist);
 }

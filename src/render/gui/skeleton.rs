@@ -10,7 +10,7 @@ pub fn render_panels(batch: &mut DrawBatch) {
     );
     batch.print_color_centered_at(
         Point::new(97, 1),
-        "SecBot - 2021 7DRL",
+        "SecBot - 2022",
         ColorPair::new(WHITE, BLACK),
     );
 }

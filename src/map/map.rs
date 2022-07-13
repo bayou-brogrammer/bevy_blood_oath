@@ -18,10 +18,6 @@ impl Map {
         }
     }
 
-    pub fn render(&self) {
-        self.layers[self.current_layer].render();
-    }
-
     pub fn get_current(&self) -> &Layer {
         &self.layers[self.current_layer]
     }

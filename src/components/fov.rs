@@ -1,10 +1,12 @@
-use bracket_lib::prelude::Point;
+use super::*;
 use std::collections::HashSet;
 
+#[derive(Debug, Clone, PartialEq, Eq, Component)]
+#[storage(DenseVecStorage)]
 pub struct FieldOfView {
     pub radius: i32,
-    pub visible_tiles: HashSet<Point>,
     pub is_dirty: bool,
+    pub visible_tiles: HashSet<Point>,
 }
 
 impl FieldOfView {

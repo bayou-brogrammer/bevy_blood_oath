@@ -1,8 +1,10 @@
 use crate::prelude::*;
 
 pub mod dispatcher;
-pub use dispatcher::UnifiedDispatcher;
+pub use dispatcher::*;
 
-pub fn build() -> Box<dyn dispatcher::UnifiedDispatcher + 'static> {
-    dispatcher::new()
-}
+pub mod fov_system;
+pub use fov_system::FovSystem;
+
+mod input;
+pub use input::*;
