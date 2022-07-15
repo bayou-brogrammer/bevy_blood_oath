@@ -18,7 +18,7 @@ pub struct Tile {
     pub blocked: bool,
     pub opaque: bool,
     pub tile_type: TileType,
-    pub contents: Option<Vec<Entity>>,
+    pub contents: Vec<Entity>,
 }
 
 impl Tile {
@@ -26,7 +26,7 @@ impl Tile {
         Self {
             opaque: false,
             blocked: false,
-            contents: None,
+            contents: Vec::new(),
             glyph: to_cp437('.'),
             tile_type: TileType::Floor,
             color: ColorPair::new(GREEN, BLACK),
@@ -37,7 +37,7 @@ impl Tile {
         Self {
             opaque: false,
             blocked: true,
-            contents: None,
+            contents: Vec::new(),
             glyph: to_cp437(' '),
             tile_type: TileType::Empty,
             color: ColorPair::new(DARK_GRAY, BLACK),
@@ -48,7 +48,7 @@ impl Tile {
         Self {
             opaque: false,
             blocked: false,
-            contents: None,
+            contents: Vec::new(),
             glyph: to_cp437('.'),
             tile_type: TileType::Floor,
             color: ColorPair::new(WHITE, BLACK),
@@ -59,7 +59,7 @@ impl Tile {
         Self {
             opaque: true,
             blocked: true,
-            contents: None,
+            contents: Vec::new(),
             glyph: to_cp437('#'),
             tile_type: TileType::Wall,
             color: ColorPair::new(WHITE, BLACK),
@@ -73,7 +73,7 @@ impl Tile {
     //         blocked: true,
     //         opaque: false,
     //         tile_type: TileType::Wall,
-    //         contents: None,
+    //         contents: Vec::new(),
     //     }
     // }
 
@@ -84,7 +84,7 @@ impl Tile {
     //         blocked: false,
     //         opaque: false,
     //         tile_type: TileType::StairsDown,
-    //         contents: None,
+    //         contents: Vec::new(),
     //     }
     // }
 
@@ -95,7 +95,7 @@ impl Tile {
     //         blocked: false,
     //         opaque: false,
     //         tile_type: TileType::StairsUp,
-    //         contents: None,
+    //         contents: Vec::new(),
     //     }
     // }
 }

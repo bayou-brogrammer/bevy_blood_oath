@@ -1,6 +1,4 @@
-use super::{CombatStats, Player, SufferDamage};
-use bracket_lib::prelude::*;
-use specs::prelude::*;
+use super::*;
 
 pub struct DamageSystem {}
 
@@ -37,21 +35,4 @@ pub fn delete_the_dead(ecs: &mut World) {
     }
 
     ecs.delete_entities(&dead_entities);
-}
-
-struct ScopeCall<F: FnMut()> {
-    c: F,
-}
-impl<F: FnMut()> Drop for ScopeCall<F> {
-    fn drop(&mut self) {
-        (self.c)();
-    }
-}
-
-macro defer($e:expr) {
-    let _scope_call = ScopeCall {
-        c: || -> () {
-            $e;
-        },
-    };
 }

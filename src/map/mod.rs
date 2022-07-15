@@ -45,6 +45,18 @@ impl Map {
         }
     }
 
+    pub fn clear_content_index(&mut self) {
+        for tile in self.tiles.iter_mut() {
+            tile.contents.clear();
+        }
+    }
+
+    pub fn populate_blocked(&mut self) {
+        for tile in self.tiles.iter_mut() {
+            tile.blocked = tile.tile_type == TileType::Wall;
+        }
+    }
+
     pub fn clear_visible(&mut self) {
         self.visible.iter_mut().for_each(|b| *b = false);
     }
@@ -55,6 +67,17 @@ impl Map {
             self.visible[idx] = true;
             self.revealed[idx] = true;
         }
+    }
+
+    pub fn can_enter_tile(&self, point: Point) -> bool {
+        self.in_bounds(point) && !self.tiles[self.point2d_to_index(point)].blocked
+    }
+
+    pub fn update_blocked(&mut self, old_pt: Point, new_pt: Point) {
+        let old_idx = self.point2d_to_index(old_pt);
+        let new_idx = self.point2d_to_index(new_pt);
+        self.tiles[old_idx].blocked = false;
+        self.tiles[new_idx].blocked = true;
     }
 
     pub fn new_map_rooms_and_corridors() -> Self {
@@ -109,10 +132,6 @@ impl Map {
         }
 
         map
-    }
-
-    pub fn can_enter_tile(&self, point: Point) -> bool {
-        self.in_bounds(point) && !self.tiles[self.point2d_to_index(point)].blocked
     }
 
     // Private

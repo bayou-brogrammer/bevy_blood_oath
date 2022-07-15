@@ -21,15 +21,15 @@ debug = []
 parallel = ["rayon"]
 
 [dependencies]
-bracket-lib = {version = "~0.8.1", features = ["serde"]}
-rayon = {version = "1.5.3", optional = true}
-specs = {version = "~0.18.0", default_features = false, features = [
+bracket-lib = { version = "~0.8.1", features = ["serde"] }
+rayon = { version = "1.5.3", optional = true }
+specs = { version = "~0.18.0", default_features = false, features = [
   "parallel",
   "derive",
-]}
+] }
 
 lazy_static = "1.4.0"
-parking_lot = {version = "0.12.1", features = ["nightly"]}
+parking_lot = { version = "0.12.1", features = ["nightly"] }
 
 [build-dependencies]
 embed-resource = "1.7.3"

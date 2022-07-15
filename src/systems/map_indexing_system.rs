@@ -1,6 +1,4 @@
-use super::{BlocksTile, Map, Position};
-use bracket_lib::prelude::Algorithm2D;
-use specs::prelude::*;
+use super::*;
 
 pub struct MapIndexingSystem {}
 
@@ -15,8 +13,8 @@ impl<'a> System<'a> for MapIndexingSystem {
     fn run(&mut self, data: Self::SystemData) {
         let (entities, mut map, position, blockers) = data;
 
-        // map.populate_blocked();
-        // map.clear_content_index();
+        map.populate_blocked();
+        map.clear_content_index();
         for (entity, pos, blocker) in (&entities, &position, (&blockers).maybe()).join() {
             let idx = map.point2d_to_index(pos.0);
 
@@ -28,11 +26,7 @@ impl<'a> System<'a> for MapIndexingSystem {
             // Push the entity to the appropriate index slot. It's a Copy
             // type, so we don't need to clone it (we want to avoid moving it out of the ECS!)
             // map.tile_content[idx].push(entity);
-            if let Some(content) = map.tiles[idx].contents.as_mut() {
-                content.push(entity);
-            } else {
-                map.tiles[idx].contents = Some(vec![entity]);
-            }
+            map.tiles[idx].contents.push(entity);
         }
     }
 }

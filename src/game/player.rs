@@ -17,21 +17,20 @@ pub fn try_move_player(delta_pt: Point, ecs: &mut World) {
         }
 
         let destination_idx = map.point2d_to_index(destination);
-
-        // for potential_target in map.tile_content[destination_idx].iter() {
-        //     let target = combat_stats.get(*potential_target);
-        //     if let Some(_target) = target {
-        //         wants_to_melee
-        //             .insert(
-        //                 entity,
-        //                 WantsToMelee {
-        //                     target: *potential_target,
-        //                 },
-        //             )
-        //             .expect("Add target failed");
-        //         return;
-        //     }
-        // }
+        for potential_target in map.tiles[destination_idx].contents.iter() {
+            let target = combat_stats.get(*potential_target);
+            if let Some(_target) = target {
+                wants_to_melee
+                    .insert(
+                        entity,
+                        WantsToMelee {
+                            target: *potential_target,
+                        },
+                    )
+                    .expect("Add target failed");
+                return;
+            }
+        }
 
         if map.can_enter_tile(destination) {
             pos.0 = destination;

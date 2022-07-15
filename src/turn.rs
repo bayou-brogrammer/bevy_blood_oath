@@ -56,6 +56,21 @@ impl State {
 
     fn run_systems(&mut self) {
         self.ticking_dispatcher.run_now(&mut self.world);
+        // let mut vis = systems::FovSystem {};
+        // vis.run_now(&self.world);
+
+        // let mut mob = MonsterAISystem {};
+        // mob.run_now(&self.world);
+
+        // let mut mapindex = MapIndexingSystem {};
+        // mapindex.run_now(&self.world);
+
+        // let mut melee = MeleeCombatSystem {};
+        // melee.run_now(&self.world);
+
+        // let mut damage = DamageSystem {};
+        // damage.run_now(&self.world);
+
         self.world.maintain();
     }
 
@@ -63,33 +78,34 @@ impl State {
         let map = Map::new_map_rooms_and_corridors();
 
         let start_pos = map.starting_point;
-        let player = self
-            .world
-            .create_entity()
-            .with(Player)
-            .with(Position::new(start_pos))
-            .with(Glyph {
-                glyph: to_cp437('@'),
-                color: ColorPair::new(YELLOW, BLACK),
-            })
-            .with(Description(
-                "Everybody's favorite Bracket Corp SecBot".to_string(),
-            ))
-            .with(Name("SecBot".to_string()))
-            .with(FieldOfView::new(8))
-            .build();
+        let player = spawner::spawn_player(&mut self.world, start_pos);
+
+        map.rooms
+            .iter()
+            .skip(1)
+            .map(Rect::center)
+            .enumerate()
+            .for_each(|(i, start_pos)| {
+                spawner::spawn_monster(&mut self.world, start_pos, i);
+            });
 
         // Resources
         self.world.insert(map);
         self.world.insert(player);
         self.world.insert(start_pos);
         self.world.insert(TurnState::PreRun);
+
+        crate::gamelog::Logger::new()
+            .append("Welcome to")
+            .append_with_color("Rusty Roguelike", CYAN)
+            .log();
     }
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
-        ctx.cls();
+        render::clear_all_consoles(ctx);
+
         let mut newrunstate;
         {
             let runstate = self.world.fetch::<TurnState>();
@@ -124,20 +140,22 @@ impl GameState for State {
         draw_map(&self.world, ctx);
 
         let positions = self.world.read_storage::<Position>();
-        let glyphs = self.world.read_storage::<Glyph>();
+        let renderables = self.world.read_storage::<Glyph>();
         let map = self.world.fetch::<Map>();
 
-        for (pos, render) in (&positions, &glyphs).join() {
+        for (pos, render) in (&positions, &renderables).join() {
             let idx = map.point2d_to_index(pos.0);
             if map.visible[idx] {
                 ctx.set(
                     pos.0.x,
                     pos.0.y,
                     render.color.fg,
-                    RGBA::from_u8(0, 0, 0, 0),
+                    render.color.bg,
                     render.glyph,
                 )
             }
         }
+
+        render_draw_buffer(ctx).expect("Render error");
     }
 }
