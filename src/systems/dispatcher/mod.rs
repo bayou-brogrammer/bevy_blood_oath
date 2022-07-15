@@ -19,7 +19,3 @@ pub trait UnifiedDispatcher {
     fn run_now(&mut self, ecs: &mut World);
     fn setup(&mut self, ecs: &mut World);
 }
-
-pub fn new_ticking_dispatcher() -> Box<dyn UnifiedDispatcher + 'static> {
-    construct_dispatcher!((FovSystem, "fov", &[]));
-}

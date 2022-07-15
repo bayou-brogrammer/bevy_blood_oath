@@ -2,14 +2,12 @@ use super::*;
 
 #[derive(Component)]
 #[storage(HashMapStorage)]
-pub struct Player {
-    pub id: Entity,
-}
+pub struct Player;
 
-#[derive(Default, Component)]
-#[storage(NullStorage)]
-pub struct Door;
+#[derive(Component)]
+#[storage(HashMapStorage)]
+pub struct Monster;
 
-#[derive(Default, Component)]
-#[storage(NullStorage)]
-pub struct Colonist;
+#[derive(Component)]
+#[storage(HashMapStorage)]
+pub struct BlocksTile;

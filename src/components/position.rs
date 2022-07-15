@@ -2,13 +2,14 @@ use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
 #[storage(DenseVecStorage)]
-pub struct Position {
-    pub pt: Point,
-    pub layer: usize,
-}
+pub struct Position(pub Point);
 
 impl Position {
-    pub fn with_pt(pt: Point, layer: usize) -> Self {
-        Self { pt, layer }
+    pub fn new(pt: Point) -> Self {
+        Self(pt)
+    }
+
+    pub fn new_xy(x: i32, y: i32) -> Self {
+        Self(Point::new(x, y))
     }
 }
