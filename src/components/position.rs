@@ -1,7 +1,6 @@
-use crate::prelude::*;
+use super::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
-#[storage(DenseVecStorage)]
 pub struct Position(pub Point);
 
 impl Position {

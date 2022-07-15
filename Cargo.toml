@@ -14,19 +14,12 @@ codegen-units = 1
 lto = true
 
 [features]
-default = ["debug", "parallel"]
-
+default = ["debug"]
 debug = []
-
-parallel = ["rayon"]
 
 [dependencies]
 bracket-lib = { version = "~0.8.1", features = ["serde"] }
-rayon = { version = "1.5.3", optional = true }
-specs = { version = "~0.18.0", default_features = false, features = [
-  "parallel",
-  "derive",
-] }
+bevy_ecs = { git = "https://github.com/bevyengine/bevy" }
 
 lazy_static = "1.4.0"
 parking_lot = { version = "0.12.1", features = ["nightly"] }

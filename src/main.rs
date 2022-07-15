@@ -1,34 +1,19 @@
 #![feature(decl_macro)]
 #![feature(is_some_with)]
 
-pub mod render;
-pub mod spawner;
-pub mod systems;
-
 mod components;
-mod game;
-mod gamelog;
 mod map;
 mod rng;
 mod turn;
 
 mod prelude {
+    pub use bevy_ecs::prelude::*;
     pub use bracket_lib::prelude::*;
     pub use lazy_static::*;
 
-    pub use specs::prelude::World;
-    pub use specs::prelude::*;
-    pub use specs::Component;
-
-    pub use crate::render;
-    pub use crate::spawner;
-    pub use crate::systems;
-
     pub use crate::components::*;
-    pub use crate::game::*;
     pub use crate::map::*;
     pub use crate::rng::*;
-    pub use crate::systems::*;
     pub use crate::turn::*;
 
     pub const LAYER_MAP: usize = 0;
@@ -61,7 +46,5 @@ fn main() -> BError {
         .with_sparse_console(112, 31, "vga.png") // Console 4: User Interface
         .build()?;
 
-    let mut state = State::new();
-    state.new_game();
-    main_loop(context, state)
+    main_loop(context, turn::State::new())
 }
