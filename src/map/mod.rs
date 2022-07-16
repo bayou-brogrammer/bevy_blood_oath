@@ -2,7 +2,7 @@ use crate::prelude::*;
 use std::cmp::{max, min};
 
 const MAPWIDTH: usize = 80;
-const MAPHEIGHT: usize = 43;
+const MAPHEIGHT: usize = 60;
 const MAPCOUNT: usize = MAPHEIGHT * MAPWIDTH;
 
 mod tile;
@@ -61,7 +61,7 @@ impl Map {
         self.visible.iter_mut().for_each(|b| *b = false);
     }
 
-    pub fn set_visibility(&mut self, point: Point) {
+    pub fn set_revealed_and_visible(&mut self, point: Point) {
         if self.in_bounds(point) {
             let idx = self.point2d_to_index(point);
             self.visible[idx] = true;
@@ -186,8 +186,8 @@ impl BaseMap for Map {
     }
 }
 
-pub fn draw_map(ecs: &World, ctx: &mut BTerm) {
-    let map = ecs.fetch::<Map>();
+pub fn draw_map(world: &World, ctx: &mut BTerm) {
+    let map = world.get_resource::<Map>().unwrap();
 
     let mut y = 0;
     let mut x = 0;
