@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashSet;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TileType {
@@ -18,7 +19,7 @@ pub struct Tile {
     pub blocked: bool,
     pub opaque: bool,
     pub tile_type: TileType,
-    pub contents: Vec<Entity>,
+    pub contents: HashSet<Entity>,
 }
 
 impl Tile {
@@ -26,7 +27,7 @@ impl Tile {
         Self {
             opaque: false,
             blocked: false,
-            contents: Vec::new(),
+            contents: HashSet::new(),
             glyph: to_cp437('.'),
             tile_type: TileType::Floor,
             color: ColorPair::new(GREEN, BLACK),
@@ -37,7 +38,7 @@ impl Tile {
         Self {
             opaque: false,
             blocked: true,
-            contents: Vec::new(),
+            contents: HashSet::new(),
             glyph: to_cp437(' '),
             tile_type: TileType::Empty,
             color: ColorPair::new(DARK_GRAY, BLACK),
@@ -48,7 +49,7 @@ impl Tile {
         Self {
             opaque: false,
             blocked: false,
-            contents: Vec::new(),
+            contents: HashSet::new(),
             glyph: to_cp437('.'),
             tile_type: TileType::Floor,
             color: ColorPair::new(WHITE, BLACK),
@@ -59,7 +60,7 @@ impl Tile {
         Self {
             opaque: true,
             blocked: true,
-            contents: Vec::new(),
+            contents: HashSet::new(),
             glyph: to_cp437('#'),
             tile_type: TileType::Wall,
             color: ColorPair::new(WHITE, BLACK),

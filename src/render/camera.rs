@@ -36,13 +36,20 @@ impl Camera {
 
         self.viewport.for_each(|pt| {
             if map.in_bounds(pt) {
-                let idx = map.point2d_to_index(pt);
-                if map.revealed[idx] {
-                    let t = &map.tiles[idx];
-                    let tint = if map.visible[idx] { GREEN } else { DARK_GRAY };
-                    let color = ColorPair::new(tint, t.color.bg);
+                if map.revealed.get_bit(pt) {
+                    let tile = &map.tiles[map.point2d_to_index(pt)];
 
-                    batch.set(self.world_to_screen(pt), color, t.glyph);
+                    let tint = if map.visible.get_bit(pt) {
+                        GREEN
+                    } else {
+                        DARK_GRAY
+                    };
+
+                    batch.set(
+                        self.world_to_screen(pt),
+                        ColorPair::new(tint, tile.color.bg),
+                        tile.glyph,
+                    );
                 }
             }
         });
@@ -58,9 +65,10 @@ impl Camera {
         let mut entities = query.iter(&world).collect::<Vec<_>>();
         entities.sort_by(|&a, &b| b.1.render_order.cmp(&a.1.render_order));
 
+        println!("{}", entities.len());
+
         for (pos, glyph) in entities.iter() {
-            let idx = map.point2d_to_index(pos.0);
-            if map.visible[idx] {
+            if map.visible.get_bit(pos.0) {
                 let screen_pos = self.world_to_screen(pos.0);
                 batch.set(screen_pos, glyph.color, glyph.glyph);
             }
@@ -88,8 +96,7 @@ impl Camera {
             .iter(world)
             .filter(|(pos, _, _, _)| pos.0 == map_pos)
             .for_each(|(pos, name, desc, stats)| {
-                let idx = map.point2d_to_index(pos.0);
-                if map.visible[idx] {
+                if map.visible.get_bit(pos.0) {
                     lines.push((CYAN, name.0.clone()));
 
                     if let Some(desc) = desc {

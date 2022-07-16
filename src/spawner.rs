@@ -5,6 +5,11 @@ use crate::prelude::*;
 pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
     world
         .spawn()
+        .insert_bundle(FighterBundle::new(
+            EntityBundle::new(Player, "SecBot", "Everybody's favorite Bracket Corp SecBot"),
+            FieldOfView::new(8),
+            CombatStats::new(30, 30, 2, 5),
+        ))
         .insert_bundle(RenderBundle {
             position: Position::new(start_pos),
             glyph: Glyph::new(
@@ -13,13 +18,6 @@ pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
                 RenderOrder::Actor,
             ),
         })
-        .insert_bundle(EntityBundle {
-            tag: Player,
-            fov: FieldOfView::new(8),
-            name: Name("SecBot".to_string()),
-            stats: CombatStats::new(30, 30, 2, 5),
-            description: Description("Everybody's favorite Bracket Corp SecBot".to_string()),
-        })
         .id()
 }
 
@@ -27,33 +25,41 @@ const MAX_MONSTERS: i32 = 4;
 const MAX_ITEMS: i32 = 2;
 
 pub fn spawn_room(world: &mut World, room: &Rect) {
+    let mut rng = crate::rng::RNG.write().clone();
+
+    let num_monsters = rng.roll_dice(1, MAX_MONSTERS + 2) - 3;
     let mut monster_spawn_points: HashSet<Point> = HashSet::new();
-    let mut rng = crate::rng::RNG.write();
+    (0..num_monsters).for_each(|_| loop {
+        let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
+        let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
+        let pt = Point::new(x, y);
 
-    // Scope to keep the borrow checker happy
-    // {
-    //     let num_monsters = rng.roll_dice(1, MAX_MONSTERS + 2) - 3;
+        if !monster_spawn_points.contains(&pt) {
+            monster_spawn_points.insert(pt);
+            break;
+        }
+    });
 
-    //     for _i in 0..num_monsters {
-    //         let mut added = false;
-    //         while !added {
-    //             let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
-    //             let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
-    //             let pt = Point::new(x, y);
+    let num_items = rng.roll_dice(1, MAX_ITEMS + 2) - 3;
+    let mut item_spawn_points: HashSet<Point> = HashSet::new();
+    (0..num_items).for_each(|_| loop {
+        let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
+        let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
+        let pt = Point::new(x, y);
 
-    //             if !monster_spawn_points.contains(&pt) {
-    //                 monster_spawn_points.insert(pt);
-    //                 added = true;
-    //             }
-    //         }
-    //     }
-    // }
-
-    monster_spawn_points.insert(room.center());
+        if !item_spawn_points.contains(&pt) {
+            item_spawn_points.insert(pt);
+            break;
+        }
+    });
 
     monster_spawn_points
         .iter()
         .for_each(|pt| random_monster(world, &mut rng, *pt));
+
+    item_spawn_points
+        .iter()
+        .for_each(|pt| health_potion(world, *pt));
 }
 
 /// Spawns a random monster at a given location
@@ -66,28 +72,36 @@ pub fn random_monster(world: &mut World, rng: &mut RandomNumberGenerator, pt: Po
 }
 
 fn orc(world: &mut World, pt: Point) {
-    monster(world, pt, to_cp437('o'), "Orc", "An ugly powerful orc");
+    monster(world, pt, to_cp437('o'), "Orc", "An ugly powerful orc")
 }
 
 fn goblin(world: &mut World, pt: Point) {
-    monster(world, pt, to_cp437('g'), "Goblin", "An ugly goblin");
+    monster(world, pt, to_cp437('g'), "Goblin", "An ugly goblin")
 }
 
 pub fn monster(world: &mut World, start_pos: Point, glyph: FontCharType, name: &str, desc: &str) {
     world
         .spawn()
+        .insert_bundle(MonsterBundle::new(FighterBundle::new(
+            EntityBundle::new(Monster, name, desc),
+            FieldOfView::new(6),
+            CombatStats::new(16, 16, 1, 4),
+        )))
         .insert_bundle(RenderBundle {
-            glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
             position: Position::new(start_pos),
-        })
-        .insert_bundle(MonsterBundle {
-            blocks: BlocksTile,
-            monster: EntityBundle {
-                tag: Monster,
-                fov: FieldOfView::new(6),
-                name: Name(name.to_string()),
-                stats: CombatStats::new(16, 16, 1, 4),
-                description: Description(desc.to_string()),
-            },
+            glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
         });
+}
+
+fn health_potion(world: &mut World, pt: Point) {
+    world.spawn().insert_bundle(ItemBundle::new(
+        EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
+        RenderBundle::new(
+            to_cp437('!'),
+            ColorPair::new(MAGENTA, BLACK),
+            RenderOrder::Item,
+            pt,
+        ),
+        Potion { heal_amount: 8 },
+    ));
 }

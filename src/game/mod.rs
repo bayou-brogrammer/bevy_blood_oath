@@ -3,6 +3,7 @@ use crate::prelude::*;
 mod damage;
 mod end_turn;
 mod fov;
+mod inventory;
 mod map_indexing;
 mod melee_combat;
 mod monster_ai;
@@ -22,6 +23,7 @@ pub fn setup_scheduler(world: &mut World) -> Schedule {
     world.insert_resource(Events::<WantsToMove>::default());
     world.insert_resource(Events::<WantsToAttack>::default());
     world.insert_resource(Events::<SufferDamage>::default());
+    world.insert_resource(Events::<WantsToPickupItem>::default());
 
     let mut schedule = Schedule::default();
 
@@ -50,8 +52,10 @@ pub fn setup_scheduler(world: &mut World) -> Schedule {
             .with_system(Events::<WantsToMove>::update_system)
             .with_system(Events::<WantsToAttack>::update_system)
             .with_system(Events::<SufferDamage>::update_system)
+            .with_system(Events::<WantsToPickupItem>::update_system)
             .with_system(map_indexing::map_indexing)
             .with_system(damage::damage_system)
+            .with_system(inventory::item_collection)
             .into(),
     );
 

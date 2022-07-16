@@ -8,14 +8,13 @@ const MAPCOUNT: usize = MAPHEIGHT * MAPWIDTH;
 mod tile;
 use tile::{Tile, TileType};
 
-#[derive(Clone)]
 pub struct Map {
     pub width: i32,
     pub height: i32,
-    pub tiles: Vec<Tile>,
+    pub tiles: Vec<tile::Tile>,
     pub rooms: Vec<Rect>,
-    pub visible: Vec<bool>,
-    pub revealed: Vec<bool>,
+    pub visible: BitGrid,
+    pub revealed: BitGrid,
     pub starting_point: Point,
 }
 
@@ -58,14 +57,13 @@ impl Map {
     }
 
     pub fn clear_visible(&mut self) {
-        self.visible.iter_mut().for_each(|b| *b = false);
+        self.visible.zero_out_bits();
     }
 
-    pub fn set_revealed_and_visible(&mut self, point: Point) {
-        if self.in_bounds(point) {
-            let idx = self.point2d_to_index(point);
-            self.visible[idx] = true;
-            self.revealed[idx] = true;
+    pub fn set_revealed_and_visible(&mut self, pt: Point) {
+        if self.in_bounds(pt) {
+            self.visible.set_bit(pt, true);
+            self.revealed.set_bit(pt, true);
         }
     }
 
@@ -85,10 +83,10 @@ impl Map {
             rooms: Vec::new(),
             width: MAPWIDTH as i32,
             height: MAPHEIGHT as i32,
-            visible: vec![false; MAPCOUNT],
-            revealed: vec![false; MAPCOUNT],
             tiles: vec![Tile::wall(); MAPCOUNT],
             starting_point: Point::new(MAPWIDTH / 2, MAPHEIGHT / 2),
+            visible: BitGrid::new(MAPWIDTH as i32, MAPHEIGHT as i32),
+            revealed: BitGrid::new(MAPWIDTH as i32, MAPHEIGHT as i32),
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -194,9 +192,13 @@ pub fn draw_map(world: &World, ctx: &mut BTerm) {
     for (idx, tile) in map.tiles.iter().enumerate() {
         // Render a tile depending upon the tile type
 
-        if map.revealed[idx] {
+        if map.revealed.get_bit(Point::new(x, y)) {
             let tile = &tile;
-            let tint = if map.visible[idx] { GREEN } else { DARK_GRAY };
+            let tint = if map.visible.get_bit(Point::new(x, y)) {
+                GREEN
+            } else {
+                DARK_GRAY
+            };
             let color = ColorPair::new(tint, tile.color.bg);
 
             ctx.set(x, y, color.fg, color.bg, tile.glyph);

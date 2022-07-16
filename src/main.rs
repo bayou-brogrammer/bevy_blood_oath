@@ -2,6 +2,7 @@ pub mod gamelog;
 pub mod render;
 pub mod spawner;
 
+mod bitgrid;
 mod components;
 mod events;
 mod game;
@@ -25,6 +26,7 @@ mod prelude {
     pub use crate::render;
     pub use crate::spawner;
 
+    pub use crate::bitgrid::*;
     pub use crate::components::*;
     pub use crate::events::*;
     pub use crate::game::*;

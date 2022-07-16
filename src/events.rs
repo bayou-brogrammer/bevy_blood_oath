@@ -24,3 +24,9 @@ pub struct SufferDamage {
     pub victim: Entity,
     pub damage: i32,
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct WantsToPickupItem {
+    pub item: Entity,
+    pub collected_by: Entity,
+}
