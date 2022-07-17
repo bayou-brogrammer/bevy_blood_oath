@@ -183,32 +183,3 @@ impl BaseMap for Map {
         exits
     }
 }
-
-pub fn draw_map(world: &World, ctx: &mut BTerm) {
-    let map = world.get_resource::<Map>().unwrap();
-
-    let mut y = 0;
-    let mut x = 0;
-    for (idx, tile) in map.tiles.iter().enumerate() {
-        // Render a tile depending upon the tile type
-
-        if map.revealed.get_bit(Point::new(x, y)) {
-            let tile = &tile;
-            let tint = if map.visible.get_bit(Point::new(x, y)) {
-                GREEN
-            } else {
-                DARK_GRAY
-            };
-            let color = ColorPair::new(tint, tile.color.bg);
-
-            ctx.set(x, y, color.fg, color.bg, tile.glyph);
-        }
-
-        // Move the coordinates
-        x += 1;
-        if x > MAPWIDTH as i32 - 1 {
-            x = 0;
-            y += 1;
-        }
-    }
-}

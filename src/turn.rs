@@ -1,3 +1,4 @@
+use crate::modes::title::TitleMode;
 use crate::prelude::*;
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
@@ -17,65 +18,52 @@ pub enum GameStage {
 
 pub struct GameWorld {
     pub world: World,
-    pub schedule: Schedule,
-    pub player_entity: Entity,
-}
-
-impl Default for GameWorld {
-    fn default() -> Self {
-        Self::new()
-    }
+    pub mode_stack: ModeStack,
+    pub wait_for_event: bool,
 }
 
 impl GameWorld {
     pub fn new() -> Self {
-        let mut world = World::new();
-
-        let player_entity = Self::setup_game(&mut world);
-        let schedule = setup_scheduler(&mut world);
+        let world = World::new();
+        let mode_stack = ModeStack::new(vec![TitleMode::new().into()]);
 
         Self {
             world,
-            schedule,
-            player_entity,
+            mode_stack,
+            wait_for_event: false,
         }
     }
 
-    pub fn setup_game(world: &mut World) -> Entity {
-        let map = Map::new_map_rooms_and_corridors();
-        let start_pos = map.starting_point;
-
-        // Spawn Player
-        let player = spawner::spawn_player(world, start_pos);
-
-        // Spawn Enemies
-        map.rooms.iter().skip(1).for_each(|room| {
-            spawner::spawn_room(world, room);
-        });
-
-        // Resource
-        world.insert_resource(map);
-        world.insert_resource(TurnState::AwaitingInput);
-
-        crate::gamelog::Logger::new()
-            .append("Welcome to")
-            .append_with_color("Rusty Roguelike", CYAN)
-            .log();
-
-        player
+    pub fn update(&mut self, ctx: &mut BTerm) {
+        match self.mode_stack.update(ctx, &mut self.world) {
+            RunControl::Update => {}
+            RunControl::WaitForEvent => self.wait_for_event = true,
+            RunControl::Quit => ctx.quit(),
+        }
     }
 }
 
 impl GameState for GameWorld {
     fn tick(&mut self, ctx: &mut BTerm) {
-        render::clear_all_consoles(ctx);
-        self.world.insert_resource(ctx.key);
-        self.world
-            .insert_resource(Mouse::new(ctx.mouse_point(), ctx.left_click));
+        if !self.wait_for_event {
+            self.update(ctx);
+        } else {
+            // Wait for key event
+            let mut is_event = false;
 
-        render::render_camera(self.player_entity, &mut self.world);
+            match (ctx.key, ctx.left_click) {
+                (None, false) => {}
+                (None, true) => is_event = true,
+                (Some(_), false) => is_event = true,
+                (Some(_), true) => is_event = true,
+            }
+
+            if is_event {
+                self.wait_for_event = false;
+                self.update(ctx);
+            }
+        }
+
         render_draw_buffer(ctx).expect("Render error");
-
-        self.schedule.run(&mut self.world);
     }
 }

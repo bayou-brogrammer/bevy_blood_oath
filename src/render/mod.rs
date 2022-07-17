@@ -5,22 +5,23 @@ pub mod camera;
 mod gui;
 use gui::safe_print_color;
 
-pub fn clear_all_consoles(ctx: &mut BTerm) {
-    for layer in 0..LAYERS {
-        ctx.set_active_console(layer);
+pub fn clear_all_consoles(ctx: &mut BTerm, consoles: &Vec<usize>) {
+    for layer in consoles.iter() {
+        ctx.set_active_console(*layer);
         ctx.cls();
     }
-    ctx.set_active_console(0);
+
+    ctx.set_active_console(consoles[0]);
 }
 
-pub fn render_camera(player_entity: Entity, world: &mut World) {
+pub fn render_camera(ctx: &mut BTerm, world: &mut World) {
     render_ui(world);
 
-    let camera = camera::Camera::new(player_entity, world);
+    let camera = camera::Camera::new(world);
     world.resource_scope(|world, map: Mut<Map>| {
         camera.render_map(&map);
         camera.render_glyphs(&map, world);
-        camera.render_tooltips(&map, world);
+        camera.render_tooltips(ctx, &map, world);
     });
 }
 

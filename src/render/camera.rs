@@ -1,14 +1,31 @@
 use super::*;
 
+lazy_static! {
+    pub static ref CAMERA_VIEWPORT_WIDTH: i32 = 40;
+    pub static ref CAMERA_VIEWPORT_HEIGHT: i32 = 31;
+    pub static ref CAMERA_OFFSET: Point = Point::new(20, 15);
+}
+
 pub struct Camera {
     player_pos: Point,
     viewport: Rect,
 }
 
 impl Camera {
-    pub fn new(player_entity: Entity, world: &World) -> Self {
-        let player_pos = world.entity(player_entity).get::<Position>().unwrap().0;
-        let viewport = Rect::with_size(player_pos.x - 20, player_pos.y - 15, 40, 31);
+    pub fn new(world: &mut World) -> Self {
+        let player_pos = world
+            .query_filtered::<&Position, With<Player>>()
+            .iter(world)
+            .next()
+            .unwrap()
+            .0;
+
+        let viewport = Rect::with_size(
+            player_pos.x - CAMERA_OFFSET.x,
+            player_pos.y - CAMERA_OFFSET.y,
+            *CAMERA_VIEWPORT_WIDTH,
+            *CAMERA_VIEWPORT_HEIGHT,
+        );
 
         Self {
             player_pos,
@@ -18,10 +35,10 @@ impl Camera {
 
     fn world_to_screen(&self, pt: Point) -> Point {
         let bot = pt - self.player_pos;
-        bot + Point::new(20, 15)
+        bot + *CAMERA_OFFSET
     }
 
-    fn world_to_screen_text(&self, pt: Point) -> Point {
+    fn _world_to_screen_text(&self, pt: Point) -> Point {
         let ws = self.world_to_screen(pt);
         ws * Point::new(2, 1)
     }
@@ -65,8 +82,6 @@ impl Camera {
         let mut entities = query.iter(&world).collect::<Vec<_>>();
         entities.sort_by(|&a, &b| b.1.render_order.cmp(&a.1.render_order));
 
-        println!("{}", entities.len());
-
         for (pos, glyph) in entities.iter() {
             if map.visible.get_bit(pos.0) {
                 let screen_pos = self.world_to_screen(pos.0);
@@ -77,21 +92,17 @@ impl Camera {
         batch.submit(4000).expect("Error batching map");
     }
 
-    pub fn render_tooltips(&self, map: &Map, world: &mut World) {
+    pub fn render_tooltips(&self, ctx: &mut BTerm, map: &Map, world: &mut World) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
 
-        let mouse = world.resource::<Mouse>();
-
-        let Point {
-            x: mouse_x,
-            y: mouse_y,
-        } = mouse.mouse_pos;
+        let (mouse_x, mouse_y) = ctx.mouse_pos();
         let map_pos = self.screen_to_world(mouse_x, mouse_y);
 
         let mut lines = Vec::new();
         let mut query =
-            world.query::<(&Position, &Name, Option<&Description>, Option<&CombatStats>)>();
+            world.query_filtered::<(&Position, &Name, Option<&Description>, Option<&CombatStats>), With<Player>>();
+
         query
             .iter(world)
             .filter(|(pos, _, _, _)| pos.0 == map_pos)
