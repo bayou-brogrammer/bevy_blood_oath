@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use bracket_lib::prelude::Rect;
 use std::cmp::{max, min};
 
 const MAPWIDTH: usize = 80;

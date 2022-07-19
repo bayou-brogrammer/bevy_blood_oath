@@ -1,4 +1,5 @@
 use super::*;
+use bracket_lib::prelude::Rect;
 
 lazy_static! {
     pub static ref CAMERA_VIEWPORT_WIDTH: i32 = 40;
@@ -100,8 +101,12 @@ impl Camera {
         let map_pos = self.screen_to_world(mouse_x, mouse_y);
 
         let mut lines = Vec::new();
-        let mut query =
-            world.query_filtered::<(&Position, &Name, Option<&Description>, Option<&CombatStats>), With<Player>>();
+        let mut query = world.query_filtered::<(
+            &Position,
+            &Naming,
+            Option<&Description>,
+            Option<&CombatStats>,
+        ), With<Player>>();
 
         query
             .iter(world)

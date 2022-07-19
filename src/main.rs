@@ -7,19 +7,19 @@ mod components;
 mod events;
 mod game;
 mod map;
-mod modes;
 mod resources;
 mod rng;
-mod turn;
 mod utils;
 
 mod prelude {
-    pub use bevy_ecs::event::Events;
-    pub use bevy_ecs::prelude::*;
-    pub use bevy_ecs::system::SystemState;
+    pub use bevy::ecs::event::Events;
+    pub use bevy::prelude::*;
 
-    pub use bracket_lib::prelude::*;
     pub use iyes_loopless::prelude::*;
+
+    pub use bracket_lib::prelude::Rect;
+    pub use bracket_lib::prelude::*;
+
     pub use lazy_static::*;
 
     pub use rayon::prelude::*;
@@ -33,11 +33,9 @@ mod prelude {
     pub use crate::events::*;
     pub use crate::game::*;
     pub use crate::map::*;
-    pub use crate::modes::*;
     pub use crate::render::*;
     pub use crate::resources::*;
     pub use crate::rng::*;
-    pub use crate::turn::*;
     pub use crate::utils::*;
 
     pub const LAYER_MAP_CHAR: usize = 0;
@@ -52,6 +50,32 @@ mod prelude {
 
 pub use prelude::*;
 
+pub struct GameWorld {
+    pub mode_stack: ModeStack,
+}
+
+impl GameWorld {
+    pub fn new() -> Self {
+        Self {
+            mode_stack: ModeStack::new(vec![main_menu::MainMenuMode::new().into()]),
+        }
+    }
+}
+
+impl GameState for GameWorld {
+    fn tick(&mut self, ctx: &mut BTerm) {
+        match self.mode_stack.tick(ctx) {
+            RunControl::Quit => {
+                println!("Run Control Quit");
+                ctx.quit();
+            }
+            RunControl::Update => {}
+        }
+
+        render_draw_buffer(ctx).expect("Render error");
+    }
+}
+
 embedded_resource!(GAME_FONT, "../resources/game_tileset.png");
 embedded_resource!(VGA_FONT, "../resources/vga.png");
 
@@ -62,22 +86,22 @@ fn main() -> BError {
     let mut context = BTermBuilder::new()
         .with_title("Secbot - 2021 7DRL") // Set Window Title
         .with_tile_dimensions(16, 16) // Calculate window size with this...
-        .with_dimensions(56, 31) // ..Assuming a console of this size
+        .with_dimensions(80, 50) // ..Assuming a console of this size
         .with_fps_cap(60.0) // Limit game speed
         .with_font("game_tileset.png", 16, 16) // load game font
         .with_font("vga.png", 8, 16) // Load easy-to-read font
         .with_font("font.png", 16, 16) // Load big font
         ////////////////////////////////////////////////////////////////////////////////
         // Map + Entities Layer - #0
-        .with_simple_console(56, 31, "font.png")
+        .with_simple_console(80, 50, "font.png")
         // Decorations Layer - #1
-        .with_sparse_console_no_bg(56, 31, "font.png")
+        .with_sparse_console_no_bg(80, 50, "font.png")
         // Items Layer - #2
-        .with_sparse_console_no_bg(56, 31, "font.png")
+        .with_sparse_console_no_bg(80, 50, "font.png")
         // UI Layer - #3
-        .with_sparse_console(112, 31, "vga.png")
+        .with_sparse_console(112, 50, "vga.png")
         // Main Menu Layer - #4
-        .with_sparse_console(80, 31, "vga.png")
+        .with_sparse_console(80, 50, "vga.png")
         ////////////////////////////////////////////////////////////////////////////////
         .build()?;
 

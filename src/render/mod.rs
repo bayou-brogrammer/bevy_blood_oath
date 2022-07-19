@@ -2,7 +2,7 @@ use self::gui::LOG_PANEL_BOX;
 use crate::prelude::*;
 
 pub mod camera;
-mod gui;
+pub mod gui;
 use gui::safe_print_color;
 
 pub fn clear_all_consoles(ctx: &mut BTerm, consoles: &Vec<usize>) {
@@ -11,7 +11,9 @@ pub fn clear_all_consoles(ctx: &mut BTerm, consoles: &Vec<usize>) {
         ctx.cls();
     }
 
-    ctx.set_active_console(consoles[0]);
+    if !consoles.is_empty() {
+        ctx.set_active_console(consoles[0])
+    }
 }
 
 pub fn render_camera(ctx: &mut BTerm, world: &mut World) {
@@ -32,5 +34,24 @@ pub fn render_ui(world: &mut World) {
     gui::render_status(&mut gui_batch, world);
     gamelog::print_log(&mut gui_batch, Point::new(1, LOG_PANEL_BOX.y1 + 1));
 
-    gui_batch.submit(50_000).expect("Batch error"); // On top of everything
+    gui_batch.submit(40_000).expect("Batch error"); // On top of everything
+}
+
+pub struct RenderPlugin;
+impl Plugin for RenderPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(GUIPlugin);
+    }
+}
+
+pub struct GUIPlugin;
+impl Plugin for GUIPlugin {
+    fn build(&self, app: &mut App) {
+        // app.add_system_set(
+        //     ConditionSet::new()
+        //         .with_system(render_tooltips)
+        //         .with_system(render_gui)
+        //         .into(),
+        // );
+    }
 }

@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
 use crate::prelude::*;
+use bracket_lib::prelude::Rect;
+use std::collections::HashSet;
 
 pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
     world
@@ -21,7 +21,7 @@ pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
         .id()
 }
 
-const MAX_MONSTERS: i32 = 4;
+const MAX_MONSTERS: i32 = 10;
 const MAX_ITEMS: i32 = 2;
 
 pub fn spawn_room(world: &mut World, room: &Rect) {
@@ -93,7 +93,7 @@ pub fn monster(world: &mut World, start_pos: Point, glyph: FontCharType, name: &
         });
 }
 
-fn health_potion(world: &mut World, pt: Point) {
+pub fn health_potion(world: &mut World, pt: Point) {
     world.spawn().insert_bundle(ItemBundle::new(
         EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
         RenderBundle::new(

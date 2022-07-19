@@ -7,6 +7,7 @@ use crate::prelude::*;
 // Watch out! Events persist for two frames, which in this design is not a problem, but it's something
 // important to know.
 
+#[derive(Debug)]
 pub struct WantsToMove {
     pub entity: Entity,
     // Event type fields don't need to be components; in this case we don't need to use PointC, but
@@ -14,19 +15,25 @@ pub struct WantsToMove {
     pub destination: Point,
 }
 
+#[derive(Debug)]
 pub struct WantsToAttack {
     pub attacker: Entity,
     pub victim: Entity,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct SufferDamage {
     pub victim: Entity,
     pub damage: i32,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct WantsToPickupItem {
     pub item: Entity,
     pub collected_by: Entity,
+}
+
+#[derive(Debug)]
+pub struct WantsToDrinkPotion {
+    pub potion: Entity,
 }

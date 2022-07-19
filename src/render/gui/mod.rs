@@ -1,9 +1,18 @@
 use super::*;
+use bracket_lib::prelude::Rect;
+
+mod menus;
+pub use menus::*;
+
+mod boxes;
+pub use boxes::*;
 
 lazy_static! {
     pub static ref STAT_PANEL_BOX: Rect = Rect::with_exact(81, 0, 111, 30);
     pub static ref LOG_PANEL_BOX: Rect =
         Rect::with_exact(0, SCREEN_HEIGHT - 8, 80, SCREEN_HEIGHT - 1);
+    pub static ref MAP_PANEL_WIDTH: usize = SCREEN_WIDTH - STAT_PANEL_BOX.width() as usize;
+    pub static ref MAP_PANEL_HEIGHT: usize = SCREEN_HEIGHT - LOG_PANEL_BOX.height() as usize;
 }
 
 pub fn safe_print_color<T: ToString>(batch: &mut DrawBatch, pos: Point, text: T, color: ColorPair) {

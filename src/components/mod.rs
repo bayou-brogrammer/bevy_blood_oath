@@ -17,7 +17,7 @@ pub use description::Description;
 pub use fov::FieldOfView;
 pub use glyph::*;
 pub use items::*;
-pub use name::Name;
+pub use name::Naming;
 pub use position::Position;
 pub use stats::*;
 pub use tags::*;
