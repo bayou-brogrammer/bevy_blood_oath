@@ -8,7 +8,7 @@ mod boxes;
 pub use boxes::*;
 
 lazy_static! {
-    pub static ref STAT_PANEL_BOX: Rect = Rect::with_exact(81, 0, 111, 30);
+    pub static ref STAT_PANEL_BOX: Rect = Rect::with_exact(81, 0, 111, SCREEN_HEIGHT - 1);
     pub static ref LOG_PANEL_BOX: Rect =
         Rect::with_exact(0, SCREEN_HEIGHT - 8, 80, SCREEN_HEIGHT - 1);
     pub static ref MAP_PANEL_WIDTH: usize = SCREEN_WIDTH - STAT_PANEL_BOX.width() as usize;
@@ -38,19 +38,17 @@ pub fn render_panels(batch: &mut DrawBatch) {
     );
 }
 
-pub fn render_status(batch: &mut DrawBatch, world: &mut World) {
+pub fn render_status(batch: &mut DrawBatch, stats_q: Query<&CombatStats, With<Player>>) {
     batch.target(LAYER_TEXT); // Draw on the text layer
 
-    let mut query = world.query_filtered::<&CombatStats, With<Player>>();
-    for stats in query.iter(world) {
-        let health = format!(" HP: {} / {} ", stats.hp, stats.max_hp);
-        batch.print_color(Point::new(82, 3), &health, ColorPair::new(WHITE, BLACK));
-        batch.bar_horizontal(
-            Point::new(82 + health.len(), 3),
-            16,
-            stats.hp,
-            stats.max_hp,
-            ColorPair::new(RED, BLACK),
-        );
-    }
+    let stats = stats_q.single();
+    let health = format!(" HP: {} / {} ", stats.hp, stats.max_hp);
+    batch.print_color(Point::new(82, 3), &health, ColorPair::new(WHITE, BLACK));
+    batch.bar_horizontal(
+        Point::new(82 + health.len(), 3),
+        16,
+        stats.hp,
+        stats.max_hp,
+        ColorPair::new(RED, BLACK),
+    );
 }

@@ -13,7 +13,7 @@ pub enum TileType {
 }
 
 #[derive(Clone)]
-pub struct Tile {
+pub struct GameTile {
     pub glyph: FontCharType,
     pub color: ColorPair,
     pub blocked: bool,
@@ -22,7 +22,7 @@ pub struct Tile {
     pub contents: HashSet<Entity>,
 }
 
-impl Tile {
+impl GameTile {
     pub fn default() -> Self {
         Self {
             opaque: false,
@@ -78,16 +78,16 @@ impl Tile {
     //     }
     // }
 
-    // pub fn stairs_down() -> Self {
-    //     Self {
-    //         glyph: to_cp437('>'),
-    //         color: ColorPair::new(WHITE, BLACK),
-    //         blocked: false,
-    //         opaque: false,
-    //         tile_type: TileType::StairsDown,
-    //         contents: Vec::new(),
-    //     }
-    // }
+    pub fn stairs_down() -> Self {
+        Self {
+            opaque: false,
+            blocked: false,
+            contents: HashSet::new(),
+            glyph: to_cp437('>'),
+            tile_type: TileType::Wall,
+            color: ColorPair::new(WHITE, BLACK),
+        }
+    }
 
     // pub fn stairs_up() -> Self {
     //     Self {

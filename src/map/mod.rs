@@ -2,17 +2,17 @@ use crate::prelude::*;
 use bracket_lib::prelude::Rect;
 use std::cmp::{max, min};
 
-const MAPWIDTH: usize = 80;
-const MAPHEIGHT: usize = 60;
+pub const MAPWIDTH: usize = 80;
+pub const MAPHEIGHT: usize = 60;
 const MAPCOUNT: usize = MAPHEIGHT * MAPWIDTH;
 
 mod tile;
-use tile::{Tile, TileType};
+pub use tile::{GameTile, TileType};
 
 pub struct Map {
     pub width: i32,
     pub height: i32,
-    pub tiles: Vec<tile::Tile>,
+    pub tiles: Vec<tile::GameTile>,
     pub rooms: Vec<Rect>,
     pub visible: BitGrid,
     pub revealed: BitGrid,
@@ -23,7 +23,7 @@ impl Map {
     fn apply_room_to_map(&mut self, room: &Rect) {
         room.for_each(|pt| {
             let idx = self.point2d_to_index(pt);
-            self.tiles[idx] = Tile::floor();
+            self.tiles[idx] = GameTile::floor();
         });
     }
 
@@ -31,7 +31,7 @@ impl Map {
         for x in min(x1, x2)..=max(x1, x2) {
             let idx = self.point2d_to_index(Point::new(x, y));
             if self.tiles[idx as usize].tile_type == TileType::Wall {
-                self.tiles[idx as usize] = Tile::floor();
+                self.tiles[idx as usize] = GameTile::floor();
             }
         }
     }
@@ -40,7 +40,7 @@ impl Map {
         for y in min(y1, y2)..=max(y1, y2) {
             let idx = self.point2d_to_index(Point::new(x, y));
             if self.tiles[idx as usize].tile_type == TileType::Wall {
-                self.tiles[idx as usize] = Tile::floor();
+                self.tiles[idx as usize] = GameTile::floor();
             }
         }
     }
@@ -84,7 +84,7 @@ impl Map {
             rooms: Vec::new(),
             width: MAPWIDTH as i32,
             height: MAPHEIGHT as i32,
-            tiles: vec![Tile::wall(); MAPCOUNT],
+            tiles: vec![GameTile::wall(); MAPCOUNT],
             starting_point: Point::new(MAPWIDTH / 2, MAPHEIGHT / 2),
             visible: BitGrid::new(MAPWIDTH as i32, MAPHEIGHT as i32),
             revealed: BitGrid::new(MAPWIDTH as i32, MAPHEIGHT as i32),
@@ -130,10 +130,31 @@ impl Map {
             }
         }
 
+        Self::polish(&mut map);
+
         map
     }
 
     // Private
+    fn polish(map: &mut Map) {
+        let w = map.width - 1;
+        let h = map.height - 1;
+
+        // Make the boundaries walls
+        for x in 0..w {
+            let idx_lower = map.point2d_to_index(Point::new(x, 0));
+            let idx_upper = map.point2d_to_index(Point::new(x, h));
+            map.tiles[idx_lower] = GameTile::stairs_down();
+            map.tiles[idx_upper] = GameTile::stairs_down();
+        }
+        for y in 0..h {
+            let idx_lower = map.point2d_to_index(Point::new(0, y));
+            let idx_upper = map.point2d_to_index(Point::new(w, y));
+            map.tiles[idx_lower] = GameTile::stairs_down();
+            map.tiles[idx_upper] = GameTile::stairs_down();
+        }
+    }
+
     fn valid_exit(&self, loc: Point, delta: Point) -> Option<usize> {
         let destination = loc + delta;
         if self.in_bounds(destination) {

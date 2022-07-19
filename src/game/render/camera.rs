@@ -1,11 +1,5 @@
-use super::*;
+use super::{gui::safe_print_color, *};
 use bracket_lib::prelude::Rect;
-
-lazy_static! {
-    pub static ref CAMERA_VIEWPORT_WIDTH: i32 = 40;
-    pub static ref CAMERA_VIEWPORT_HEIGHT: i32 = 31;
-    pub static ref CAMERA_OFFSET: Point = Point::new(20, 15);
-}
 
 pub struct Camera {
     player_pos: Point,
@@ -14,19 +8,8 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(world: &mut World) -> Self {
-        let player_pos = world
-            .query_filtered::<&Position, With<Player>>()
-            .iter(world)
-            .next()
-            .unwrap()
-            .0;
-
-        let viewport = Rect::with_size(
-            player_pos.x - CAMERA_OFFSET.x,
-            player_pos.y - CAMERA_OFFSET.y,
-            *CAMERA_VIEWPORT_WIDTH,
-            *CAMERA_VIEWPORT_HEIGHT,
-        );
+        let player_pos = *world.resource::<Point>();
+        let viewport = Rect::with_size(player_pos.x - 20, player_pos.y - 15, 40, 31);
 
         Self {
             player_pos,
@@ -36,10 +19,10 @@ impl Camera {
 
     fn world_to_screen(&self, pt: Point) -> Point {
         let bot = pt - self.player_pos;
-        bot + *CAMERA_OFFSET
+        bot + Point::new(20, 15)
     }
 
-    fn _world_to_screen_text(&self, pt: Point) -> Point {
+    fn world_to_screen_text(&self, pt: Point) -> Point {
         let ws = self.world_to_screen(pt);
         ws * Point::new(2, 1)
     }
@@ -50,25 +33,21 @@ impl Camera {
 
     pub fn render_map(&self, map: &Map) {
         let mut batch = DrawBatch::new();
-        batch.target(LAYER_MAP_CHAR);
+        batch.target(LAYER_MAP);
 
         self.viewport.for_each(|pt| {
-            if map.in_bounds(pt) {
-                if map.revealed.get_bit(pt) {
-                    let tile = &map.tiles[map.point2d_to_index(pt)];
+            let idx = map.point2d_to_index(pt);
+            if map.in_bounds(pt) && map.revealed.get_bit(pt) {
+                let t = &map.tiles[idx];
 
-                    let tint = if map.visible.get_bit(pt) {
-                        GREEN
-                    } else {
-                        DARK_GRAY
-                    };
+                let tint = if map.visible.get_bit(pt) {
+                    GREEN
+                } else {
+                    DARK_GRAY
+                };
 
-                    batch.set(
-                        self.world_to_screen(pt),
-                        ColorPair::new(tint, tile.color.bg),
-                        tile.glyph,
-                    );
-                }
+                let color = ColorPair::new(tint, t.color.bg);
+                batch.set(self.world_to_screen(pt), color, t.glyph);
             }
         });
 
@@ -77,7 +56,7 @@ impl Camera {
 
     pub fn render_glyphs(&self, map: &Map, world: &mut World) {
         let mut batch = DrawBatch::new();
-        batch.target(LAYER_MAP_CHAR);
+        batch.target(LAYER_CHARS);
 
         let mut query = world.query::<(&Position, &Glyph)>();
         let mut entities = query.iter(&world).collect::<Vec<_>>();
@@ -93,20 +72,20 @@ impl Camera {
         batch.submit(4000).expect("Error batching map");
     }
 
-    pub fn render_tooltips(&self, ctx: &mut BTerm, map: &Map, world: &mut World) {
+    pub fn render_tooltips(&self, map: &Map, world: &mut World) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
 
-        let (mouse_x, mouse_y) = ctx.mouse_pos();
+        let (mouse_x, mouse_y) = world.resource::<Mouse>().mouse_pos;
         let map_pos = self.screen_to_world(mouse_x, mouse_y);
 
         let mut lines = Vec::new();
-        let mut query = world.query_filtered::<(
+        let mut query = world.query::<(
             &Position,
             &Naming,
             Option<&Description>,
             Option<&CombatStats>,
-        ), With<Player>>();
+        )>();
 
         query
             .iter(world)
@@ -118,6 +97,7 @@ impl Camera {
                     if let Some(desc) = desc {
                         lines.push((GRAY, desc.0.clone()));
                     }
+
                     if let Some(stats) = stats {
                         lines.push((GRAY, format!("{}/{} hp", stats.hp, stats.max_hp)));
                     }
@@ -127,14 +107,12 @@ impl Camera {
         if !lines.is_empty() {
             let height = lines.len() + 1;
             let width = lines.iter().map(|s| s.1.len()).max().unwrap() + 2;
-
-            let tip_x = if map_pos.x < map.width as i32 / 2 {
-                i32::min((mouse_x * 2) + 2, 111)
+            let tip_x = if map_pos.x < MAPWIDTH as i32 / 2 {
+                i32::min((mouse_x * 2) + 1, 111)
             } else {
                 i32::max(0, (mouse_x * 2) - (width as i32 + 1))
             };
-
-            let tip_y = if map_pos.y > map.height as i32 / 2 {
+            let tip_y = if map_pos.y > MAPHEIGHT as i32 / 2 {
                 mouse_y - height as i32
             } else {
                 mouse_y
