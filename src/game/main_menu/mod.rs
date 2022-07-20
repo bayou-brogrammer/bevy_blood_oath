@@ -1,7 +1,7 @@
 use super::{
     dungeon::DungeonMode,
     mode::{ModeControl, ModeResult},
-    render::gui::{center_box_with_title, Alignment, BoxConfig, BoxConfigWithTitle, TextConfig},
+    render::gui::{Alignment, BoxConfig, BoxConfigWithTitle, TextConfig},
     *,
 };
 
@@ -108,7 +108,7 @@ impl MainMenuMode {
         batch.target(LAYER_TEXT);
         batch.cls();
 
-        let box_rect = center_box_with_title(
+        let box_rect = render::gui::center_box_with_title(
             &mut batch,
             (SCREEN_WIDTH, SCREEN_HEIGHT),
             BoxConfigWithTitle {
@@ -120,11 +120,6 @@ impl MainMenuMode {
                 ),
             },
         );
-
-        let Point {
-            x: center_x,
-            y: center_y,
-        } = box_rect.center();
 
         let mut y = MAIN_MENU_SCREEN_HEIGHT / 2 - 10;
         batch.print_color_centered(
@@ -138,7 +133,7 @@ impl MainMenuMode {
             ColorPair::new(RGB::named(GRAY), RGB::named(BLACK)),
         );
 
-        y = center_y as usize - 2;
+        y = box_rect.center().y as usize - 2;
         for (i, action) in self.actions.iter().enumerate() {
             let color = if i == self.selection {
                 RGB::named(MAGENTA)

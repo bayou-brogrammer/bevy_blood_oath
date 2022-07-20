@@ -1,8 +1,9 @@
 use super::*;
 
 mod collection_system;
+mod drop_system;
+mod use_system;
+
 pub use collection_system::item_collection;
-
-mod item_use_system;
-pub use item_use_system::item_use;
-
+pub use drop_system::item_drop;
+pub use use_system::item_use;

@@ -10,6 +10,8 @@ pub use boxes::*;
 mod constants;
 pub use constants::*;
 
+////////////////////////////////////////////////////////////////////////////////
+
 pub struct GUIPlugin;
 impl Plugin for GUIPlugin {
     fn build(&self, app: &mut App) {
@@ -23,12 +25,15 @@ impl Plugin for GUIPlugin {
         app.add_system_set_to_stage(
             GameStage::Render,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::ShowInventory)
+                // .run_if_resource_equals(TurnState::ShowInventory)
+                .run_in_state(TurnState::ShowInventory)
                 .with_system(menus::show_inventory)
                 .into(),
         );
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 fn render_ui(stats_q: Query<&CombatStats, With<Player>>) {
     let mut gui_batch = DrawBatch::new();

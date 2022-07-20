@@ -94,7 +94,7 @@ impl Map {
         const MIN_SIZE: i32 = 6;
         const MAX_SIZE: i32 = 10;
 
-        let mut rng = crate::rng::RNG.write();
+        let mut rng = crate::rng::RNG.lock();
 
         for _i in 0..MAX_ROOMS {
             let w = rng.range(MIN_SIZE, MAX_SIZE);

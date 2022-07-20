@@ -38,3 +38,9 @@ pub struct WantsToDrinkPotion {
     pub potion: Entity,
     pub drinker: Entity,
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct WantsToDropItem {
+    pub item: Entity,
+    pub dropper: Entity,
+}

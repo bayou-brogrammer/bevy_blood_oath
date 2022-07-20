@@ -1,6 +1,6 @@
 use crate::prelude::*;
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 
 lazy_static! {
-    pub static ref RNG: RwLock<RandomNumberGenerator> = RwLock::new(RandomNumberGenerator::new());
+    pub static ref RNG: Mutex<RandomNumberGenerator> = Mutex::new(RandomNumberGenerator::new());
 }

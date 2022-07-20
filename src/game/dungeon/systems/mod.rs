@@ -1,4 +1,5 @@
 use super::*;
+use bevy::ecs::schedule::StateData;
 
 pub mod damage;
 pub mod end_turn;
@@ -10,24 +11,18 @@ pub mod monster_ai;
 pub mod movement;
 pub mod player;
 
-pub fn exit_on_esc_system(
-    key: Res<Option<VirtualKeyCode>>,
-    mut app_exit_events: EventWriter<AppExit>,
-) {
-    if let Some(key) = key.as_ref() {
-        if *key == VirtualKeyCode::Escape {
-            app_exit_events.send(AppExit);
-        }
+fn run_in_state<T: StateData>(current: Res<StateStack<T>>, state: T) -> bool {
+    if current.stack.is_empty() {
+        return false;
     }
+
+    current.stack.iter().any(|s| *s == state)
 }
 
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(
-            CoreStage::Update,
-            ConditionSet::new().with_system(exit_on_esc_system).into(),
-        );
+        app.add_system_set_to_stage(CoreStage::Update, ConditionSet::new().into());
     }
 }
 
@@ -37,7 +32,10 @@ impl Plugin for AwaitingInputPlugin {
         app.add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::AwaitingInput)
+                // .run_if_resource_equals(TurnState::AwaitingInput)
+                .run_if(|current: Res<StateStack<TurnState>>| {
+                    run_in_state(current, TurnState::AwaitingInput)
+                })
                 .with_system(player::player_input.chain(player::player_turn_done))
                 .with_system(fov::fov_system)
                 .into(),
@@ -49,20 +47,27 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set_to_stage(
-            GameStage::PlayerCombat,
+            GameStage::PlayerActions,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::PlayerTurn)
+                // .run_if_resource_equals(TurnState::PlayerTurn)
+                .run_if(|current: Res<StateStack<TurnState>>| {
+                    run_in_state(current, TurnState::PlayerTurn)
+                })
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .with_system(inventory::item_collection)
                 .with_system(inventory::item_use)
+                .with_system(inventory::item_drop)
                 .into(),
         );
 
         app.add_system_set_to_stage(
             GameStage::PlayerCleanup,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::PlayerTurn)
+                // .run_if_resource_equals(TurnState::PlayerTurn)
+                .run_if(|current: Res<StateStack<TurnState>>| {
+                    run_in_state(current, TurnState::PlayerTurn)
+                })
                 .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
@@ -77,14 +82,20 @@ impl Plugin for AIPlugin {
         app.add_system_set_to_stage(
             GameStage::GenerateAIMoves,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::AITurn)
+                // .run_if_resource_equals(TurnState::AITurn)
+                .run_if(|current: Res<StateStack<TurnState>>| {
+                    run_in_state(current, TurnState::AITurn)
+                })
                 .with_system(monster_ai::monster_ai)
                 .into(),
         )
         .add_system_set_to_stage(
-            GameStage::AICombat,
+            GameStage::AIActions,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::AITurn)
+                // .run_if_resource_equals(TurnState::AITurn)
+                .run_if(|current: Res<StateStack<TurnState>>| {
+                    run_in_state(current, TurnState::AITurn)
+                })
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .into(),
@@ -92,7 +103,10 @@ impl Plugin for AIPlugin {
         .add_system_set_to_stage(
             GameStage::AICleanup,
             ConditionSet::new()
-                .run_if_resource_equals(TurnState::AITurn)
+                // .run_if_resource_equals(TurnState::AITurn)
+                .run_if(|current: Res<StateStack<TurnState>>| {
+                    run_in_state(current, TurnState::AITurn)
+                })
                 .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(damage::damage_system)

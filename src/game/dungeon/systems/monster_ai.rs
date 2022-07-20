@@ -2,13 +2,14 @@ use super::*;
 
 pub fn monster_ai(
     mut map: ResMut<Map>,
-    turn_state: Res<TurnState>,
+    // turn_state: Res<TurnState>,
+    stack: Res<StateStack<TurnState>>,
     mut attack_events: EventWriter<WantsToAttack>,
     mut move_events: EventWriter<WantsToMove>,
     player_pos_q: Query<(Entity, &Position), (With<Player>, Without<Monster>)>,
     mut monster_q: Query<(Entity, &Position, &FieldOfView), (With<Monster>, Without<Player>)>,
 ) {
-    if *turn_state != TurnState::AITurn {
+    if *stack.current() != TurnState::AITurn {
         return;
     }
 

@@ -15,7 +15,7 @@ pub fn setup_dungeon_scheduler(app: &mut App) {
     setup_bevy_internals(app);
 
     app.add_plugin(systems::SystemsPlugin);
-    app.add_plugin(camera::CameraPlugin);
+    // app.add_plugin(camera::CameraPlugin);
     app.add_plugin(gui::GUIPlugin);
 }
 
@@ -29,18 +29,19 @@ fn setup_events(app: &mut App) {
         .add_event::<WantsToAttack>()
         .add_event::<SufferDamage>()
         .add_event::<WantsToPickupItem>()
-        .add_event::<WantsToDrinkPotion>();
+        .add_event::<WantsToDrinkPotion>()
+        .add_event::<WantsToDropItem>();
 }
 
 fn setup_stages(app: &mut App) {
     // Player Stages
     app.add_stage_after(
         CoreStage::Update,
-        GameStage::PlayerCombat,
+        GameStage::PlayerActions,
         SystemStage::parallel(),
     )
     .add_stage_after(
-        GameStage::PlayerCombat,
+        GameStage::PlayerActions,
         GameStage::PlayerCleanup,
         SystemStage::parallel(),
     )
@@ -52,17 +53,17 @@ fn setup_stages(app: &mut App) {
     // AI Stages
     .add_stage_after(
         GameStage::GenerateAIMoves,
-        GameStage::AICombat,
+        GameStage::AIActions,
         SystemStage::parallel(),
     )
     .add_stage_after(
-        GameStage::AICombat,
+        GameStage::AIActions,
         GameStage::AICleanup,
         SystemStage::parallel(),
     )
     // Render Stages
     .add_stage_after(
-        CoreStage::PostUpdate,
+        GameStage::AICleanup,
         GameStage::Render,
         SystemStage::parallel(),
     );

@@ -1,6 +1,7 @@
 use super::{
     dungeon::DungeonMode,
     mode::{ModeControl, ModeResult},
+    render::gui::{Alignment, BoxConfig, BoxConfigWithTitle, TextConfig},
     *,
 };
 
@@ -94,7 +95,40 @@ impl GameOverMode {
         batch.target(LAYER_TEXT);
         batch.cls();
 
-        batch.print_centered(SCREEN_HEIGHT / 2, "Game Over :(");
+        let box_rect = render::gui::center_box_with_title(
+            &mut batch,
+            (SCREEN_WIDTH, SCREEN_HEIGHT),
+            BoxConfigWithTitle {
+                box_config: BoxConfig::new((30, 20), ColorPair::new(WHITE, BLACK), true, false),
+                text_config: TextConfig::new(
+                    "GameOver",
+                    ColorPair::new(RED, BLACK),
+                    Alignment::Center,
+                ),
+            },
+        );
+
+        let mut y = MAIN_MENU_SCREEN_HEIGHT / 2 - 10;
+        batch.print_color_centered(
+            y + 1,
+            "Use Up/Down Arrows and Enter",
+            ColorPair::new(RGB::named(GRAY), RGB::named(BLACK)),
+        );
+
+        y = box_rect.center().y as usize - 2;
+        for (i, action) in self.actions.iter().enumerate() {
+            let color = if i == self.selection {
+                RGB::named(MAGENTA)
+            } else {
+                RGB::named(GRAY)
+            };
+
+            batch.print_color_centered(
+                y + i,
+                action.label(),
+                ColorPair::new(color, RGB::named(BLACK)),
+            );
+        }
 
         batch.submit(0).expect("Error batching title");
     }

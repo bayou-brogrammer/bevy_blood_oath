@@ -73,11 +73,12 @@ impl Camera {
         batch.submit(4000).expect("Error batching map");
     }
 
-    pub fn render_tooltips(&self, map: &Map, world: &mut World) {
+    pub fn render_tooltips(&self, map: &Map, ctx: &mut BTerm, world: &mut World) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
 
-        let (mouse_x, mouse_y) = world.resource::<Mouse>().mouse_pos;
+        // let (mouse_x, mouse_y) = world.resource::<Mouse>().mouse_pos;
+        let (mouse_x, mouse_y) = ctx.mouse_pos();
         let map_pos = self.screen_to_world(mouse_x, mouse_y);
 
         let mut lines = Vec::new();
@@ -147,28 +148,28 @@ impl Camera {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-pub struct CameraPlugin;
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_to_stage(
-            GameStage::Render,
-            render_camera.exclusive_system().with_run_criteria(
-                |state: Res<TurnState>| match *state {
-                    TurnState::GameOver => ShouldRun::No,
-                    _ => ShouldRun::Yes,
-                },
-            ),
-        );
-    }
-}
+// pub struct CameraPlugin;
+// impl Plugin for CameraPlugin {
+//     fn build(&self, app: &mut App) {
+//         app.add_system_to_stage(
+//             GameStage::Render,
+//             render_camera.exclusive_system().with_run_criteria(
+//                 |state: Res<TurnState>| match *state {
+//                     TurnState::GameOver => ShouldRun::No,
+//                     _ => ShouldRun::Yes,
+//                 },
+//             ),
+//         );
+//     }
+// }
 
-pub fn render_camera(world: &mut World) {
+pub fn render_camera(ctx: &mut BTerm, world: &mut World) {
     let camera = camera::Camera::new(world);
 
     world.resource_scope(|world, map: Mut<Map>| {
         camera.render_map(&map);
         camera.render_glyphs(&map, world);
-        camera.render_tooltips(&map, world);
+        camera.render_tooltips(&map, ctx, world);
     });
 }
 

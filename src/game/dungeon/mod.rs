@@ -1,9 +1,6 @@
 use super::*;
 use crate::game_over::GameOverMode;
-use bevy::{
-    app::AppExit,
-    ecs::{event::ManualEventReader, system::SystemState},
-};
+use bevy::{app::AppExit, ecs::system::SystemState};
 use setup::setup_dungeon_scheduler;
 
 mod setup;
@@ -28,7 +25,7 @@ impl std::fmt::Debug for DungeonMode {
 }
 
 struct CachedExitEvents<'w> {
-    state: SystemState<(Res<'w, TurnState>, Option<Res<'w, AppExit>>)>,
+    state: SystemState<(Res<'w, StateStack<TurnState>>, Option<Res<'w, AppExit>>)>,
 }
 
 /// The main gameplay mode.  The player can move around and explore the map, fight monsters and
@@ -40,7 +37,7 @@ impl DungeonMode {
 
         DungeonMode::setup_game(&mut app);
 
-        let system_state: SystemState<(Res<TurnState>, Option<Res<AppExit>>)> =
+        let system_state: SystemState<(Res<StateStack<TurnState>>, Option<Res<AppExit>>)> =
             SystemState::new(&mut app.world);
 
         app.insert_resource(CachedExitEvents {
@@ -97,20 +94,40 @@ impl DungeonMode {
 
         // Spawn Enemies
         map.rooms.iter().skip(1).for_each(|room| {
-            spawner::spawn_room(&mut app.world, room);
+            spawner::spawn_room(&mut app.world, room, true, true);
         });
 
-        let monsters = app
-            .world
-            .query::<&Monster>()
-            .iter(&app.world)
-            .collect::<Vec<_>>();
-        println!("Monsters Gen: {:?}", monsters.len());
+        let mut system_state: SystemState<(Query<&Monster>, Query<&Item>)> =
+            SystemState::new(&mut app.world);
+
+        let (monster_q, item_q) = system_state.get_mut(&mut app.world);
+
+        match (monster_q.iter().count(), item_q.iter().count()) {
+            (0, 0) => {
+                println!("No monsters or items found.  Generating new map.");
+                map.rooms.iter().skip(1).for_each(|room| {
+                    spawner::spawn_room(&mut app.world, room, true, true);
+                });
+            }
+            (0, _) => {
+                println!("No monsters found.  Generating new monsters.");
+                map.rooms.iter().skip(1).for_each(|room| {
+                    spawner::spawn_room(&mut app.world, room, true, false);
+                });
+            }
+            (_, 0) => {
+                println!("No items found.  Generating new items.");
+                map.rooms.iter().skip(1).for_each(|room| {
+                    spawner::spawn_room(&mut app.world, room, false, true);
+                })
+            }
+            _ => {}
+        }
 
         // Resource
         app.insert_resource(map);
         app.insert_resource(start_pos);
-        app.insert_resource(TurnState::AwaitingInput);
+        app.insert_resource(StateStack::new(TurnState::AwaitingInput));
 
         crate::gamelog::Logger::new()
             .append("Welcome to")
@@ -119,10 +136,10 @@ impl DungeonMode {
     }
 
     fn inject_context(&mut self, ctx: &mut BTerm) {
-        ctx.set_active_console(LAYER_MAP);
+        // ctx.set_active_console(LAYER_MAP);
         self.app.insert_resource(ctx.key);
-        self.app
-            .insert_resource(Mouse::new(ctx.mouse_pos(), ctx.left_click));
+        // self.app
+        //     .insert_resource(Mouse::new(ctx.mouse_pos(), ctx.left_click));
     }
 
     pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {
@@ -134,7 +151,7 @@ impl DungeonMode {
             .resource_scope(|world, mut cached_state: Mut<CachedExitEvents>| {
                 let (turn_state, exit_event) = cached_state.state.get(world);
 
-                match (exit_event, *turn_state) {
+                match (exit_event, *turn_state.current()) {
                     (None, TurnState::GameOver) => ModeControl::Switch(GameOverMode::new().into()),
                     (Some(_), _) => ModeControl::Pop(DungeonModeResult::Done.into()),
                     _ => ModeControl::Stay,
@@ -144,5 +161,6 @@ impl DungeonMode {
 
     pub fn draw(&mut self, ctx: &mut BTerm, _active: bool) {
         render::clear_all_consoles(ctx, &self.consoles);
+        render::camera::render_camera(ctx, &mut self.app.world);
     }
 }
