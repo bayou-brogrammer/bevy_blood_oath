@@ -77,20 +77,16 @@ impl DungeonMode {
             .insert(InBackpack(player))
             .remove::<Position>();
 
-        app.world
-            .spawn()
-            .insert_bundle(ItemBundle::new(
-                EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
-                RenderBundle::new(
-                    to_cp437('!'),
-                    ColorPair::new(MAGENTA, BLACK),
-                    RenderOrder::Item,
-                    start_pos,
-                ),
-                Potion { heal_amount: 8 },
-            ))
-            .insert(InBackpack(player))
-            .remove::<Position>();
+        app.world.spawn().insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
+            RenderBundle::new(
+                to_cp437('¡'),
+                ColorPair::new(MAGENTA, BLACK),
+                RenderOrder::Item,
+                start_pos,
+            ),
+            Potion { heal_amount: 8 },
+        ));
 
         // Spawn Enemies
         map.rooms.iter().skip(1).for_each(|room| {
@@ -101,21 +97,20 @@ impl DungeonMode {
             SystemState::new(&mut app.world);
 
         let (monster_q, item_q) = system_state.get_mut(&mut app.world);
-
-        match (monster_q.iter().count(), item_q.iter().count()) {
-            (0, 0) => {
+        match (monster_q.iter().len() > 0, item_q.iter().len() > 0) {
+            (true, true) => {
                 println!("No monsters or items found.  Generating new map.");
                 map.rooms.iter().skip(1).for_each(|room| {
                     spawner::spawn_room(&mut app.world, room, true, true);
                 });
             }
-            (0, _) => {
+            (true, _) => {
                 println!("No monsters found.  Generating new monsters.");
                 map.rooms.iter().skip(1).for_each(|room| {
                     spawner::spawn_room(&mut app.world, room, true, false);
                 });
             }
-            (_, 0) => {
+            (_, true) => {
                 println!("No items found.  Generating new items.");
                 map.rooms.iter().skip(1).for_each(|room| {
                     spawner::spawn_room(&mut app.world, room, false, true);

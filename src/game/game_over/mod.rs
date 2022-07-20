@@ -80,7 +80,6 @@ impl GameOverMode {
                         MenuAction::Quit => {
                             return ModeControl::Pop(GameOverModeResult::AppQuit.into())
                         }
-                        _ => {} // Don't Handle loading or options yet.
                     }
                 }
                 _ => {}
@@ -90,7 +89,7 @@ impl GameOverMode {
         ModeControl::Stay
     }
 
-    pub fn draw(&self, ctx: &mut BTerm, _active: bool) {
+    pub fn draw(&self, _ctx: &mut BTerm, _active: bool) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
         batch.cls();

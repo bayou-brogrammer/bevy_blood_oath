@@ -25,9 +25,15 @@ impl Plugin for GUIPlugin {
         app.add_system_set_to_stage(
             GameStage::Render,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::ShowInventory)
-                .run_in_state(TurnState::ShowInventory)
-                .with_system(menus::show_inventory)
+                .run_if(run_in_state(TurnState::ShowInventory))
+                .with_system(menus::show_inventory::<{ InventoryMenu::Main }>)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            GameStage::Render,
+            ConditionSet::new()
+                .run_if(run_in_state(TurnState::ShowDropMenu))
+                .with_system(menus::show_inventory::<{ InventoryMenu::Drop }>)
                 .into(),
         );
     }

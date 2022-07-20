@@ -76,7 +76,7 @@ pub fn random_monster(world: &mut World, rng: &mut RandomNumberGenerator, pt: Po
 }
 
 fn orc(world: &mut World, pt: Point) {
-    monster(world, pt, to_cp437('o'), "Orc", "An ugly powerful orc")
+    monster(world, pt, 157, "Orc", "An ugly powerful orc")
 }
 
 fn goblin(world: &mut World, pt: Point) {

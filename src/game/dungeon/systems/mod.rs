@@ -1,5 +1,4 @@
 use super::*;
-use bevy::ecs::schedule::StateData;
 
 pub mod damage;
 pub mod end_turn;
@@ -11,18 +10,46 @@ pub mod monster_ai;
 pub mod movement;
 pub mod player;
 
-fn run_in_state<T: StateData>(current: Res<StateStack<T>>, state: T) -> bool {
-    if current.stack.is_empty() {
-        return false;
-    }
-
-    current.stack.iter().any(|s| *s == state)
-}
-
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(CoreStage::Update, ConditionSet::new().into());
+        app.add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .with_system(map_indexing::map_indexing)
+                .into(),
+        );
+
+        // Damage Events
+        app.add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .run_on_event::<SufferDamage>()
+                .with_system(damage::damage_system)
+                .into(),
+        )
+        // Inventory Events
+        .add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .run_on_event::<WantsToPickupItem>()
+                .with_system(inventory::item_collection)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .run_on_event::<WantsToDrinkPotion>()
+                .with_system(inventory::item_use)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .run_on_event::<WantsToDropItem>()
+                .with_system(inventory::item_drop)
+                .into(),
+        );
     }
 }
 
@@ -32,10 +59,7 @@ impl Plugin for AwaitingInputPlugin {
         app.add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::AwaitingInput)
-                .run_if(|current: Res<StateStack<TurnState>>| {
-                    run_in_state(current, TurnState::AwaitingInput)
-                })
+                .run_if(run_in_state(TurnState::AwaitingInput))
                 .with_system(player::player_input.chain(player::player_turn_done))
                 .with_system(fov::fov_system)
                 .into(),
@@ -47,28 +71,18 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set_to_stage(
-            GameStage::PlayerActions,
+            GameStage::GeneratePlayerActions,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::PlayerTurn)
-                .run_if(|current: Res<StateStack<TurnState>>| {
-                    run_in_state(current, TurnState::PlayerTurn)
-                })
+                .run_if(run_in_state(TurnState::PlayerTurn))
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
-                .with_system(inventory::item_collection)
-                .with_system(inventory::item_use)
-                .with_system(inventory::item_drop)
                 .into(),
         );
 
         app.add_system_set_to_stage(
-            GameStage::PlayerCleanup,
+            GameStage::HandlePlayerActions,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::PlayerTurn)
-                .run_if(|current: Res<StateStack<TurnState>>| {
-                    run_in_state(current, TurnState::PlayerTurn)
-                })
-                .with_system(map_indexing::map_indexing)
+                .run_if(run_in_state(TurnState::PlayerTurn))
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
                 .into(),
@@ -80,22 +94,16 @@ pub struct AIPlugin;
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set_to_stage(
-            GameStage::GenerateAIMoves,
+            GameStage::GenerateAIActions,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::AITurn)
-                .run_if(|current: Res<StateStack<TurnState>>| {
-                    run_in_state(current, TurnState::AITurn)
-                })
+                .run_if(run_in_state(TurnState::AITurn))
                 .with_system(monster_ai::monster_ai)
                 .into(),
         )
         .add_system_set_to_stage(
-            GameStage::AIActions,
+            GameStage::HandleAIActions,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::AITurn)
-                .run_if(|current: Res<StateStack<TurnState>>| {
-                    run_in_state(current, TurnState::AITurn)
-                })
+                .run_if(run_in_state(TurnState::AITurn))
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .into(),
@@ -103,16 +111,18 @@ impl Plugin for AIPlugin {
         .add_system_set_to_stage(
             GameStage::AICleanup,
             ConditionSet::new()
-                // .run_if_resource_equals(TurnState::AITurn)
-                .run_if(|current: Res<StateStack<TurnState>>| {
-                    run_in_state(current, TurnState::AITurn)
-                })
-                .with_system(map_indexing::map_indexing)
+                .run_if(run_in_state(TurnState::AITurn))
                 .with_system(fov::fov_system)
-                .with_system(damage::damage_system)
                 .with_system(end_turn::end_turn)
                 .into(),
         );
+    }
+}
+
+pub struct CleanupPlugin;
+impl Plugin for CleanupPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set_to_stage(GameStage::Cleanup, ConditionSet::new().into());
     }
 }
 
@@ -122,6 +132,7 @@ impl Plugin for SystemsPlugin {
         app.add_plugin(TickingPlugin)
             .add_plugin(AwaitingInputPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(AIPlugin);
+            .add_plugin(AIPlugin)
+            .add_plugin(CleanupPlugin);
     }
 }

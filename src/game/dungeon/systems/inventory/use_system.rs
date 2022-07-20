@@ -7,6 +7,7 @@ pub fn item_use(
     player_q: Query<Entity, With<Player>>,
     mut drink_events: ResMut<Events<WantsToDrinkPotion>>,
 ) {
+    println!("Use items");
     for WantsToDrinkPotion { potion, drinker } in drink_events.drain() {
         if let Ok((potion, potion_name)) = potions.get(potion) {
             if let Ok(mut stats) = stats_q.get_mut(drinker) {

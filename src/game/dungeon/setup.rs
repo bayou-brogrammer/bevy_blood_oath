@@ -1,4 +1,4 @@
-use super::render::{camera, gui};
+use super::render::gui;
 use super::*;
 
 /**
@@ -13,9 +13,9 @@ pub fn setup_dungeon_scheduler(app: &mut App) {
     setup_events(app);
     setup_stages(app);
     setup_bevy_internals(app);
+    setup_debug_systems(app);
 
     app.add_plugin(systems::SystemsPlugin);
-    // app.add_plugin(camera::CameraPlugin);
     app.add_plugin(gui::GUIPlugin);
 }
 
@@ -37,28 +37,33 @@ fn setup_stages(app: &mut App) {
     // Player Stages
     app.add_stage_after(
         CoreStage::Update,
-        GameStage::PlayerActions,
+        GameStage::GeneratePlayerActions,
         SystemStage::parallel(),
     )
     .add_stage_after(
-        GameStage::PlayerActions,
-        GameStage::PlayerCleanup,
+        GameStage::GeneratePlayerActions,
+        GameStage::HandlePlayerActions,
         SystemStage::parallel(),
     )
     .add_stage_after(
-        GameStage::PlayerCleanup,
-        GameStage::GenerateAIMoves,
+        GameStage::HandlePlayerActions,
+        GameStage::GenerateAIActions,
         SystemStage::parallel(),
     )
     // AI Stages
     .add_stage_after(
-        GameStage::GenerateAIMoves,
-        GameStage::AIActions,
+        GameStage::GenerateAIActions,
+        GameStage::HandleAIActions,
         SystemStage::parallel(),
     )
     .add_stage_after(
-        GameStage::AIActions,
+        GameStage::HandleAIActions,
         GameStage::AICleanup,
+        SystemStage::parallel(),
+    )
+    .add_stage_after(
+        GameStage::HandleAIActions,
+        GameStage::Cleanup,
         SystemStage::parallel(),
     )
     // Render Stages
@@ -66,5 +71,23 @@ fn setup_stages(app: &mut App) {
         GameStage::AICleanup,
         GameStage::Render,
         SystemStage::parallel(),
+    );
+}
+
+fn setup_debug_systems(app: &mut App) {
+    app.add_system_set_to_stage(
+        CoreStage::Update,
+        ConditionSet::new()
+            .with_system(
+                |m_q: Query<&Position, Added<Monster>>, i_q: Query<&Position, Added<Item>>| {
+                    for pos in m_q.iter() {
+                        eprintln!("Monster Spawned at {:?}", pos)
+                    }
+                    for pos in i_q.iter() {
+                        eprintln!("Item Spawned at {:?}", pos)
+                    }
+                },
+            )
+            .into(),
     );
 }

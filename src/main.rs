@@ -1,3 +1,6 @@
+#![feature(adt_const_params)]
+#![allow(incomplete_features)]
+
 pub mod gamelog;
 pub mod spawner;
 
@@ -71,12 +74,14 @@ impl GameState for GameWorld {
     }
 }
 
-embedded_resource!(GAME_FONT, "../resources/game_tileset.png");
+embedded_resource!(FONT, "../resources/font.png");
 embedded_resource!(VGA_FONT, "../resources/vga.png");
+embedded_resource!(GAME_FONT, "../resources/game_font.png");
 
 fn main() -> BError {
-    link_resource!(GAME_FONT, "resources/game_tileset.png");
-    link_resource!(VGA_FONT, "resources/vga.png");
+    link_resource!(FONT, "resources/font.png");
+    link_resource!(FONT, "resources/font.png");
+    link_resource!(GAME_FONT, "resources/game_font.png");
 
     let mut context = BTermBuilder::new()
         .with_title("Secbot - 2022") // Set Window Title
@@ -84,9 +89,9 @@ fn main() -> BError {
         .with_dimensions(56, 31) // ..Assuming a console of this size
         .with_fps_cap(60.0) // Limit game speed
         ////////////////////////////////////////////////////////////////////////////////
-        .with_font("game_tileset.png", 16, 16) // load game font
-        .with_font("vga.png", 8, 16) // Load easy-to-read font
+        // .with_font("game_tileset.png", 16, 16) // load game font
         .with_font("font.png", 16, 16) // Load big font
+        .with_font("vga.png", 8, 16) // Load easy-to-read font
         ////////////////////////////////////////////////////////////////////////////////
         .with_simple_console(56, 31, "font.png") // Console 0: Base map
         .with_sparse_console_no_bg(56, 31, "font.png") // Console 1: Decorations

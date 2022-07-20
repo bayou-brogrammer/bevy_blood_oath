@@ -50,7 +50,7 @@ impl GameTile {
             opaque: false,
             blocked: false,
             contents: HashSet::new(),
-            glyph: to_cp437('.'),
+            glyph: to_cp437('~'),
             tile_type: TileType::Floor,
             color: ColorPair::new(WHITE, BLACK),
         }

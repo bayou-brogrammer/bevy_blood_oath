@@ -80,18 +80,3 @@ impl<ITEM: Component> ItemBundle<ITEM> {
         }
     }
 }
-
-#[derive(Bundle)]
-pub struct DeadBundle {
-    pub name: Naming,
-    pub glyph: Glyph,
-}
-
-impl DeadBundle {
-    pub fn new(glyph: Glyph, name: &str) -> Self {
-        Self {
-            glyph,
-            name: Naming(name.to_string()),
-        }
-    }
-}

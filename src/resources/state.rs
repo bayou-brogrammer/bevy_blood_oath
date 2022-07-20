@@ -7,6 +7,7 @@ pub enum TurnState {
     MainMenu,
     SetupDungeon,
     ShowInventory,
+    ShowDropMenu,
     GameOver,
 
     // Turn States
@@ -18,12 +19,13 @@ pub enum TurnState {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, StageLabel)]
 pub enum GameStage {
     // Player Stages
-    PlayerActions,
-    PlayerCleanup,
+    GeneratePlayerActions,
+    HandlePlayerActions,
     // AI Stages
-    GenerateAIMoves,
-    AIActions,
+    GenerateAIActions,
+    HandleAIActions,
     AICleanup,
+    Cleanup,
     // Render Is the last stage
     Render,
 }

@@ -11,3 +11,6 @@ pub struct BlocksTile;
 
 #[derive(Component)]
 pub struct Item;
+
+#[derive(Component)]
+pub struct Dead;

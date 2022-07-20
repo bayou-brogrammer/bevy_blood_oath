@@ -9,6 +9,7 @@ pub enum PlayerInputResult {
     TurnDone,
     // TryDescend,
     ShowInventory,
+    ShowDropMenu,
     // ShowPickUpMenu,
     // ShowInventoryShortcut(GameKey),
     // ShowEquipmentShortcut(GameKey),
@@ -46,6 +47,7 @@ pub fn player_input(
                 }
             },
             VirtualKeyCode::I => return PlayerInputResult::ShowInventory,
+            VirtualKeyCode::D => return PlayerInputResult::ShowDropMenu,
             _ => {}
         }
 
@@ -91,8 +93,7 @@ pub fn player_turn_done(
         PlayerInputResult::AppQuit => commands.insert_resource(AppExit),
         PlayerInputResult::TurnDone => stack.set(TurnState::PlayerTurn),
         PlayerInputResult::ShowInventory => stack.set(TurnState::ShowInventory),
-        // PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
-        // PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::ShowInventory),
+        PlayerInputResult::ShowDropMenu => stack.set(TurnState::ShowDropMenu),
     }
 }
 

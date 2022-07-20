@@ -1,5 +1,4 @@
 use super::*;
-use bevy::ecs::schedule::ShouldRun;
 use bracket_lib::prelude::Rect;
 
 pub struct Camera {
