@@ -51,15 +51,17 @@ pub struct TextConfig {
     pub alignment: Alignment,
     pub title_color: ColorPair,
     pub footer: Option<String>,
+    pub footer_color: Option<ColorPair>,
 }
 
 impl TextConfig {
-    pub fn new(title: String, title_color: ColorPair, alignment: Alignment) -> Self {
+    pub fn new<S: ToString>(title: S, title_color: ColorPair, alignment: Alignment) -> Self {
         Self {
-            title,
             alignment,
             title_color,
             footer: None,
+            footer_color: None,
+            title: title.to_string(),
         }
     }
 
@@ -67,13 +69,15 @@ impl TextConfig {
         title: S,
         footer: F,
         title_color: ColorPair,
+        footer_color: ColorPair,
         alignment: Alignment,
     ) -> Self {
         Self {
-            title: title.to_string(),
             alignment,
             title_color,
+            title: title.to_string(),
             footer: Some(footer.to_string()),
+            footer_color: Some(footer_color),
         }
     }
 }
@@ -82,27 +86,13 @@ impl TextConfig {
 /// Box Implementations
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn center_box(batch: &mut DrawBatch, config: BoxConfig) -> Rect {
-    batch.target(LAYER_TEXT); // Draw on the text layer
-
-    let BoxConfig {
-        color,
-        double,
-        hollow,
-        dimensions,
-    } = config;
-
-    let (width, height) = dimensions;
-    assert!(*MAP_PANEL_WIDTH / 2 > width);
-    assert!(*MAP_PANEL_HEIGHT / 2 > height);
-
-    let start_x = *MAP_PANEL_WIDTH / 2 - width / 2;
-    let start_y = *MAP_PANEL_HEIGHT / 2 - height / 2;
-    let end_x = width;
-    let end_y = height / 2;
-
-    let box_rect = Rect::with_size(start_x, start_y, end_x, end_y);
-
+fn draw_box(
+    batch: &mut DrawBatch,
+    box_rect: Rect,
+    double: bool,
+    hollow: bool,
+    color: ColorPair,
+) -> Rect {
     match (double, hollow) {
         (true, true) => batch.draw_hollow_double_box(box_rect, color),
         (true, false) => batch.draw_double_box(box_rect, color),
@@ -113,46 +103,15 @@ pub fn center_box(batch: &mut DrawBatch, config: BoxConfig) -> Rect {
     box_rect
 }
 
-pub fn center_box_with_title(batch: &mut DrawBatch, config: BoxConfigWithTitle) -> Rect {
-    batch.target(LAYER_TEXT); // Draw on the text layer
-
-    let BoxConfigWithTitle {
-        box_config,
-        text_config,
-    } = config;
-
-    let BoxConfig {
-        dimensions,
-        double,
-        hollow,
-        color,
-    } = box_config;
-    let (width, height) = dimensions;
-
-    assert!(*MAP_PANEL_WIDTH / 2 > width);
-    assert!(*MAP_PANEL_HEIGHT / 2 > height);
-
-    let start_x = *MAP_PANEL_WIDTH / 2 - width / 2;
-    let start_y = *MAP_PANEL_HEIGHT / 2 - height / 2;
-    let end_x = width;
-    let end_y = height;
-
-    let box_rect = Rect::with_size(start_x, start_y, end_x, end_y);
-
-    match (double, hollow) {
-        (true, true) => batch.draw_hollow_double_box(box_rect, color),
-        (true, false) => batch.draw_double_box(box_rect, color),
-        (false, true) => batch.draw_hollow_box(box_rect, color),
-        (false, false) => batch.draw_box(box_rect, color),
-    };
-
-    let TextConfig {
-        title,
-        alignment,
-        title_color,
-        footer,
-    } = text_config;
-
+fn draw_title(
+    batch: &mut DrawBatch,
+    box_rect: Rect,
+    title: String,
+    title_color: ColorPair,
+    footer: Option<String>,
+    footer_color: Option<ColorPair>,
+    alignment: Alignment,
+) {
     match alignment {
         Alignment::Left => {
             batch.print_color(Point::new(box_rect.x1 + 2, box_rect.y1), title, title_color);
@@ -166,7 +125,7 @@ pub fn center_box_with_title(batch: &mut DrawBatch, config: BoxConfigWithTitle) 
         }
         Alignment::Center => {
             batch.print_color_centered_at(
-                Point::new(box_rect.width() / 2, box_rect.y1),
+                Point::new(box_rect.x1 + box_rect.width() / 2, box_rect.y1),
                 title,
                 title_color,
             );
@@ -174,30 +133,152 @@ pub fn center_box_with_title(batch: &mut DrawBatch, config: BoxConfigWithTitle) 
     }
 
     if let Some(footer) = footer {
+        let footer_color = footer_color.unwrap_or(title_color);
+
         match alignment {
             Alignment::Left => {
                 batch.print_color(
                     Point::new(box_rect.x1 + 2, box_rect.y2),
                     footer,
-                    title_color,
+                    footer_color,
                 );
             }
             Alignment::Right => {
                 batch.print_color_right(
                     Point::new(box_rect.x2 - footer.len() as i32, box_rect.y2),
                     footer,
-                    title_color,
+                    footer_color,
                 );
             }
             Alignment::Center => {
                 batch.print_color_centered_at(
-                    Point::new(box_rect.width() / 2, box_rect.y2),
+                    Point::new(box_rect.x1 + box_rect.width() / 2, box_rect.y2),
                     footer,
-                    title_color,
+                    footer_color,
                 );
             }
         }
     }
+}
+
+pub fn box_with_title(batch: &mut DrawBatch, pt: Point, config: BoxConfigWithTitle) -> Rect {
+    assert!(pt.x >= 0 && pt.x <= SCREEN_WIDTH.try_into().unwrap());
+    assert!(pt.y >= 0 && pt.y <= SCREEN_HEIGHT.try_into().unwrap());
+
+    batch.target(LAYER_TEXT); // Draw on the text layer
+
+    let BoxConfigWithTitle {
+        box_config:
+            BoxConfig {
+                color,
+                double,
+                hollow,
+                dimensions: (width, height),
+            },
+        text_config:
+            TextConfig {
+                title,
+                alignment,
+                title_color,
+                footer,
+                footer_color,
+            },
+    } = config;
+
+    assert!(SCREEN_WIDTH > width);
+    assert!(SCREEN_HEIGHT > height);
+
+    let end_x = width;
+    let end_y = height / 2;
+    let box_rect = Rect::with_size(pt.x as usize, pt.y as usize, end_x, end_y);
+
+    draw_box(batch, box_rect, double, hollow, color);
+    draw_title(
+        batch,
+        box_rect,
+        title,
+        title_color,
+        footer,
+        footer_color,
+        alignment,
+    );
+
+    box_rect
+}
+
+pub fn center_box(batch: &mut DrawBatch, screen_bounds: (usize, usize), config: BoxConfig) -> Rect {
+    batch.target(LAYER_TEXT); // Draw on the text layer
+
+    let BoxConfig {
+        color,
+        double,
+        hollow,
+        dimensions,
+    } = config;
+
+    let (screen_w, screen_h) = screen_bounds;
+    let (width, height) = dimensions;
+
+    assert!(screen_w > width);
+    assert!(screen_h > height);
+
+    let start_x = screen_w / 2 - width / 2;
+    let start_y = screen_h / 2 - height / 2;
+    let end_x = width;
+    let end_y = height / 2;
+
+    let box_rect = Rect::with_size(start_x, start_y, end_x, end_y);
+    draw_box(batch, box_rect, double, hollow, color)
+}
+
+pub fn center_box_with_title(
+    batch: &mut DrawBatch,
+    screen_bounds: (usize, usize),
+    config: BoxConfigWithTitle,
+) -> Rect {
+    batch.target(LAYER_TEXT); // Draw on the text layer
+
+    let BoxConfigWithTitle {
+        box_config:
+            BoxConfig {
+                color,
+                double,
+                hollow,
+                dimensions,
+            },
+        text_config:
+            TextConfig {
+                title,
+                alignment,
+                title_color,
+                footer,
+                footer_color,
+            },
+    } = config;
+
+    let (screen_w, screen_h) = screen_bounds;
+    let (box_w, box_h) = dimensions;
+
+    assert!(screen_w > box_w);
+    assert!(screen_h > box_h);
+
+    let start_x = (screen_w / 2) - (box_w / 2);
+    let start_y = (screen_h / 2) - (box_h / 2);
+    let end_x = box_w;
+    let end_y = box_h;
+
+    let box_rect = Rect::with_size(start_x, start_y, end_x, end_y);
+
+    draw_box(batch, box_rect, double, hollow, color);
+    draw_title(
+        batch,
+        box_rect,
+        title,
+        title_color,
+        footer,
+        footer_color,
+        alignment,
+    );
 
     box_rect
 }

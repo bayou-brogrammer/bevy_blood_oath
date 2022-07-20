@@ -1,7 +1,6 @@
 use super::{
     dungeon::DungeonMode,
     mode::{ModeControl, ModeResult},
-    render::gui::{center_box_with_title, Alignment, BoxConfig, BoxConfigWithTitle, TextConfig},
     *,
 };
 
@@ -9,15 +8,13 @@ pub const MAIN_MENU_SCREEN_WIDTH: usize = 80;
 pub const MAIN_MENU_SCREEN_HEIGHT: usize = 31;
 
 #[derive(Debug)]
-pub enum MainMenuModeResult {
+pub enum GameOverModeResult {
     AppQuit,
 }
 
 #[derive(Debug)]
 pub enum MenuAction {
     NewGame,
-    LoadGame,
-    Options,
     Quit,
 }
 
@@ -25,34 +22,23 @@ impl MenuAction {
     fn label(&self) -> &'static str {
         match self {
             MenuAction::NewGame => "New Game",
-            MenuAction::LoadGame => "Load Game",
-            MenuAction::Options => "Options",
             MenuAction::Quit => "Quit",
         }
     }
 }
 
 #[derive(Debug)]
-pub struct MainMenuMode {
+pub struct GameOverMode {
     selection: usize,
     actions: Vec<MenuAction>,
 }
 
 /// Show the title screen of the game with a menu that leads into the game proper.
-impl MainMenuMode {
+impl GameOverMode {
     pub fn new() -> Self {
         BTerm::cls_all();
 
         let mut actions = vec![MenuAction::NewGame];
-
-        // There's no obvious way to get Emscripten to load the IndexedDB filesystem in time to
-        // realize that a save file exists, so always include the Load Game option for it and just
-        // check if there really is a save file when the option is chosen instead.
-        if cfg!(target_os = "emscripten") {
-            actions.push(MenuAction::LoadGame);
-        }
-
-        actions.push(MenuAction::Options);
 
         #[cfg(not(target_arch = "wasm32"))]
         actions.push(MenuAction::Quit);
@@ -67,7 +53,7 @@ impl MainMenuMode {
         if let Some(key) = ctx.key {
             match key {
                 VirtualKeyCode::Escape => {
-                    return ModeControl::Pop(MainMenuModeResult::AppQuit.into())
+                    return ModeControl::Pop(GameOverModeResult::AppQuit.into())
                 }
                 VirtualKeyCode::Down => {
                     if self.selection < self.actions.len().saturating_sub(1) {
@@ -91,7 +77,7 @@ impl MainMenuMode {
                             return ModeControl::Switch(DungeonMode::new().into());
                         }
                         MenuAction::Quit => {
-                            return ModeControl::Pop(MainMenuModeResult::AppQuit.into())
+                            return ModeControl::Pop(GameOverModeResult::AppQuit.into())
                         }
                         _ => {} // Don't Handle loading or options yet.
                     }
@@ -103,55 +89,12 @@ impl MainMenuMode {
         ModeControl::Stay
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _active: bool) {
+    pub fn draw(&self, ctx: &mut BTerm, _active: bool) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
         batch.cls();
 
-        let box_rect = center_box_with_title(
-            &mut batch,
-            (SCREEN_WIDTH, SCREEN_HEIGHT),
-            BoxConfigWithTitle {
-                box_config: BoxConfig::new((40, 20), ColorPair::new(WHITE, BLACK), true, false),
-                text_config: TextConfig::new(
-                    "BloodOath",
-                    ColorPair::new(RED, BLACK),
-                    Alignment::Center,
-                ),
-            },
-        );
-
-        let Point {
-            x: center_x,
-            y: center_y,
-        } = box_rect.center();
-
-        let mut y = MAIN_MENU_SCREEN_HEIGHT / 2 - 10;
-        batch.print_color_centered(
-            y + 1,
-            "by Jacob LeCoq",
-            ColorPair::new(RGB::named(CYAN), RGB::named(BLACK)),
-        );
-        batch.print_color_centered(
-            y + 2,
-            "Use Up/Down Arrows and Enter",
-            ColorPair::new(RGB::named(GRAY), RGB::named(BLACK)),
-        );
-
-        y = center_y as usize - 2;
-        for (i, action) in self.actions.iter().enumerate() {
-            let color = if i == self.selection {
-                RGB::named(MAGENTA)
-            } else {
-                RGB::named(GRAY)
-            };
-
-            batch.print_color_centered(
-                y + i,
-                action.label(),
-                ColorPair::new(color, RGB::named(BLACK)),
-            );
-        }
+        batch.print_centered(SCREEN_HEIGHT / 2, "Game Over :(");
 
         batch.submit(0).expect("Error batching title");
     }

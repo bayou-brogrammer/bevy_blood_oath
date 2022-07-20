@@ -79,22 +79,14 @@ fn main() -> BError {
     link_resource!(VGA_FONT, "resources/vga.png");
 
     let mut context = BTermBuilder::new()
-        .with_title("Secbot - 2021 7DRL") // Set Window Title
+        .with_title("Secbot - 2022") // Set Window Title
         .with_tile_dimensions(16, 16) // Calculate window size with this...
         .with_dimensions(56, 31) // ..Assuming a console of this size
         .with_fps_cap(60.0) // Limit game speed
+        ////////////////////////////////////////////////////////////////////////////////
         .with_font("game_tileset.png", 16, 16) // load game font
         .with_font("vga.png", 8, 16) // Load easy-to-read font
         .with_font("font.png", 16, 16) // Load big font
-        ////////////////////////////////////////////////////////////////////////////////
-        // // Map + Entities Layer - #0
-        // .with_simple_console(56, 31, "font.png")
-        // // Decorations Layer - #1
-        // .with_sparse_console_no_bg(56, 31, "font.png")
-        // // Items Layer - #2
-        // .with_sparse_console_no_bg(56, 31, "font.png")
-        // // UI Layer - #3
-        // .with_sparse_console(112, 31, "vga.png")
         ////////////////////////////////////////////////////////////////////////////////
         .with_simple_console(56, 31, "font.png") // Console 0: Base map
         .with_sparse_console_no_bg(56, 31, "font.png") // Console 1: Decorations

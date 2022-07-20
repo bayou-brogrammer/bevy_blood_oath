@@ -1,9 +1,10 @@
-use super::{gui::safe_print_color, *};
+use super::*;
+use bevy::ecs::schedule::ShouldRun;
 use bracket_lib::prelude::Rect;
 
 pub struct Camera {
-    player_pos: Point,
     viewport: Rect,
+    player_pos: Point,
 }
 
 impl Camera {
@@ -12,8 +13,8 @@ impl Camera {
         let viewport = Rect::with_size(player_pos.x - 20, player_pos.y - 15, 40, 31);
 
         Self {
-            player_pos,
             viewport,
+            player_pos,
         }
     }
 
@@ -22,7 +23,7 @@ impl Camera {
         bot + Point::new(20, 15)
     }
 
-    fn world_to_screen_text(&self, pt: Point) -> Point {
+    fn _world_to_screen_text(&self, pt: Point) -> Point {
         let ws = self.world_to_screen(pt);
         ws * Point::new(2, 1)
     }
@@ -36,8 +37,8 @@ impl Camera {
         batch.target(LAYER_MAP);
 
         self.viewport.for_each(|pt| {
-            let idx = map.point2d_to_index(pt);
             if map.in_bounds(pt) && map.revealed.get_bit(pt) {
+                let idx = map.point2d_to_index(pt);
                 let t = &map.tiles[idx];
 
                 let tint = if map.visible.get_bit(pt) {
@@ -143,3 +144,32 @@ impl Camera {
         batch.submit(100_000).expect("Error batching tooltips");
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+pub struct CameraPlugin;
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_to_stage(
+            GameStage::Render,
+            render_camera.exclusive_system().with_run_criteria(
+                |state: Res<TurnState>| match *state {
+                    TurnState::GameOver => ShouldRun::No,
+                    _ => ShouldRun::Yes,
+                },
+            ),
+        );
+    }
+}
+
+pub fn render_camera(world: &mut World) {
+    let camera = camera::Camera::new(world);
+
+    world.resource_scope(|world, map: Mut<Map>| {
+        camera.render_map(&map);
+        camera.render_glyphs(&map, world);
+        camera.render_tooltips(&map, world);
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////

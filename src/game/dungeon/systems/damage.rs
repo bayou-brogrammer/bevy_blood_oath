@@ -10,16 +10,18 @@ pub fn damage_system(
             stats.hp -= damage;
 
             // Kill! >:)
-            if stats.hp < 1 && player.is_none() {
-                commands.entity(victim).remove_bundle::<MonsterBundle>();
-                commands.entity(victim).insert_bundle(DeadBundle {
-                    name: Naming(format!("Dead {}", name.0)),
-                    glyph: Glyph::new(
-                        to_cp437('%'),
-                        ColorPair::new(GRAY, BLACK),
-                        RenderOrder::Corpse,
-                    ),
-                });
+            if stats.hp < 1 {
+                if player.is_none() {
+                    commands.entity(victim).remove_bundle::<MonsterBundle>();
+                    commands.entity(victim).insert_bundle(DeadBundle {
+                        name: Naming(format!("Dead {}", name.0)),
+                        glyph: Glyph::new(
+                            to_cp437('%'),
+                            ColorPair::new(GRAY, BLACK),
+                            RenderOrder::Corpse,
+                        ),
+                    });
+                }
             }
         }
     }

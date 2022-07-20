@@ -1,10 +1,13 @@
 use super::*;
+use crate::game_over::GameOverMode;
+use bevy::{
+    app::AppExit,
+    ecs::{event::ManualEventReader, system::SystemState},
+};
+use setup::setup_dungeon_scheduler;
 
 mod setup;
 mod systems;
-
-use bevy::app::AppExit;
-use setup::setup_dungeon_scheduler;
 
 #[derive(Debug)]
 pub enum DungeonModeResult {
@@ -12,8 +15,8 @@ pub enum DungeonModeResult {
 }
 
 pub struct DungeonMode {
-    pub app: App,
-    pub consoles: Vec<usize>,
+    app: App,
+    consoles: Vec<usize>,
 }
 
 impl std::fmt::Debug for DungeonMode {
@@ -24,15 +27,25 @@ impl std::fmt::Debug for DungeonMode {
     }
 }
 
+struct CachedExitEvents<'w> {
+    state: SystemState<(Res<'w, TurnState>, Option<Res<'w, AppExit>>)>,
+}
+
 /// The main gameplay mode.  The player can move around and explore the map, fight monsters and
 /// perform other actions while alive, directly or indirectly.
 impl DungeonMode {
     pub fn new() -> Self {
         BTerm::cls_all();
-
         let mut app = App::new();
 
         DungeonMode::setup_game(&mut app);
+
+        let system_state: SystemState<(Res<TurnState>, Option<Res<AppExit>>)> =
+            SystemState::new(&mut app.world);
+
+        app.insert_resource(CachedExitEvents {
+            state: system_state,
+        });
 
         Self {
             app,
@@ -92,7 +105,7 @@ impl DungeonMode {
             .query::<&Monster>()
             .iter(&app.world)
             .collect::<Vec<_>>();
-        println!("{:?}", monsters.len());
+        println!("Monsters Gen: {:?}", monsters.len());
 
         // Resource
         app.insert_resource(map);
@@ -105,26 +118,31 @@ impl DungeonMode {
             .log();
     }
 
-    pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {
-        self.inject_context(ctx);
-        self.app.update();
-
-        // Handle Quit Events
-        if let Some(_) = self.app.world.get_resource::<AppExit>() {
-            return ModeControl::Pop(DungeonModeResult::Done.into());
-        }
-
-        ModeControl::Stay
-    }
-
-    pub fn draw(&mut self, ctx: &mut BTerm, _active: bool) {
-        render::clear_all_consoles(ctx, &self.consoles);
-    }
-
     fn inject_context(&mut self, ctx: &mut BTerm) {
         ctx.set_active_console(LAYER_MAP);
         self.app.insert_resource(ctx.key);
         self.app
             .insert_resource(Mouse::new(ctx.mouse_pos(), ctx.left_click));
+    }
+
+    pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {
+        self.inject_context(ctx);
+        self.app.update();
+
+        self.app
+            .world
+            .resource_scope(|world, mut cached_state: Mut<CachedExitEvents>| {
+                let (turn_state, exit_event) = cached_state.state.get(world);
+
+                match (exit_event, *turn_state) {
+                    (None, TurnState::GameOver) => ModeControl::Switch(GameOverMode::new().into()),
+                    (Some(_), _) => ModeControl::Pop(DungeonModeResult::Done.into()),
+                    _ => ModeControl::Stay,
+                }
+            })
+    }
+
+    pub fn draw(&mut self, ctx: &mut BTerm, _active: bool) {
+        render::clear_all_consoles(ctx, &self.consoles);
     }
 }

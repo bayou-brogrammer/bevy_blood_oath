@@ -7,20 +7,37 @@ pub use menus::*;
 mod boxes;
 pub use boxes::*;
 
-lazy_static! {
-    pub static ref STAT_PANEL_BOX: Rect = Rect::with_exact(81, 0, 111, SCREEN_HEIGHT - 1);
-    pub static ref LOG_PANEL_BOX: Rect =
-        Rect::with_exact(0, SCREEN_HEIGHT - 8, 80, SCREEN_HEIGHT - 1);
-    pub static ref MAP_PANEL_WIDTH: usize = SCREEN_WIDTH - STAT_PANEL_BOX.width() as usize;
-    pub static ref MAP_PANEL_HEIGHT: usize = SCREEN_HEIGHT - LOG_PANEL_BOX.height() as usize;
+mod constants;
+pub use constants::*;
+
+pub struct GUIPlugin;
+impl Plugin for GUIPlugin {
+    fn build(&self, app: &mut App) {
+        // GUI Ticking Systems
+        app.add_system_set_to_stage(
+            GameStage::Render,
+            ConditionSet::new().with_system(render_ui).into(),
+        );
+
+        // GUI Inventory Systems
+        app.add_system_set_to_stage(
+            GameStage::Render,
+            ConditionSet::new()
+                .run_if_resource_equals(TurnState::ShowInventory)
+                .with_system(menus::show_inventory)
+                .into(),
+        );
+    }
 }
 
-pub fn safe_print_color<T: ToString>(batch: &mut DrawBatch, pos: Point, text: T, color: ColorPair) {
-    let len = text.to_string().len();
-    if pos.x > 0 && pos.y > 0 && len > 0 {
-        //println!("Batched text[{}] at {:?}", text.to_string(), pos);
-        batch.print_color(pos, text, color);
-    }
+fn render_ui(stats_q: Query<&CombatStats, With<Player>>) {
+    let mut gui_batch = DrawBatch::new();
+
+    gui::render_panels(&mut gui_batch);
+    gui::render_status(&mut gui_batch, stats_q);
+    gamelog::print_log(&mut gui_batch, Point::new(1, LOG_PANEL_BOX.y1 + 1));
+
+    gui_batch.submit(40_000).expect("Batch error"); // On top of everything
 }
 
 pub fn render_panels(batch: &mut DrawBatch) {

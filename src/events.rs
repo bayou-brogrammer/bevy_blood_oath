@@ -36,4 +36,5 @@ pub struct WantsToPickupItem {
 #[derive(Debug)]
 pub struct WantsToDrinkPotion {
     pub potion: Entity,
+    pub drinker: Entity,
 }

@@ -5,6 +5,7 @@ pub enum TurnState {
     MainMenu,
     SetupDungeon,
     ShowInventory,
+    GameOver,
 
     // Turn States
     AwaitingInput,
@@ -14,9 +15,13 @@ pub enum TurnState {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, StageLabel)]
 pub enum GameStage {
-    PlayerStage,
+    // Player Stages
+    PlayerCombat,
+    PlayerCleanup,
+    // AI Stages
     GenerateAIMoves,
-    AIStage,
+    AICombat,
+    AICleanup,
+    // Render Is the last stage
     Render,
-    RenderBatch,
 }

@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 use dungeon::{DungeonMode, DungeonModeResult};
+use game_over::{GameOverMode, GameOverModeResult};
 use main_menu::{MainMenuMode, MainMenuModeResult};
 
 /// Return value for `update` callback sent into [run] that controls the main event loop.
@@ -29,10 +30,12 @@ pub enum Mode {
     // AppQuitDialogMode(AppQuitDialogMode),
     DungeonMode(DungeonMode),
     MainMenuMode(MainMenuMode),
+    GameOverMode(GameOverMode),
 }
 
 impl_from!(Mode, DungeonMode);
 impl_from!(Mode, MainMenuMode);
+impl_from!(Mode, GameOverMode);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -41,11 +44,13 @@ pub enum ModeResult {
     // AppQuitDialogModeResult(AppQuitDialogModeResult),
     DungeonModeResult(DungeonModeResult),
     MainMenuModeResult(MainMenuModeResult),
+    GameOverModeResult(GameOverModeResult),
 }
 
 // impl_from!(ModeResult, AppQuitDialogModeResult);
 impl_from!(ModeResult, DungeonModeResult);
 impl_from!(ModeResult, MainMenuModeResult);
+impl_from!(ModeResult, GameOverModeResult);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +72,7 @@ impl Mode {
         match self {
             Mode::DungeonMode(x) => x.tick(ctx, pop_result),
             Mode::MainMenuMode(x) => x.tick(ctx, pop_result),
+            Mode::GameOverMode(x) => x.tick(ctx, pop_result),
         }
     }
 
@@ -74,6 +80,7 @@ impl Mode {
         match self {
             Mode::MainMenuMode(x) => x.draw(ctx, active),
             Mode::DungeonMode(x) => x.draw(ctx, active),
+            Mode::GameOverMode(x) => x.draw(ctx, active),
         }
     }
 }

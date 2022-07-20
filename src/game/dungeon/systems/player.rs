@@ -60,7 +60,7 @@ pub fn player_input(
                     hit_something = true;
 
                     attack_events.send(WantsToAttack {
-                        attacker: entity,
+                        attacker: player,
                         victim: entity,
                     });
                 }
