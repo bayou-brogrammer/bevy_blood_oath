@@ -2,11 +2,18 @@ use super::*;
 
 #[derive(PartialEq, Eq)]
 pub enum InventoryMenu {
-    Main,
-    Drop,
+    Main = 0,
+    Drop = 1,
 }
 
 impl InventoryMenu {
+    pub fn menu_type(menu_type: u8) -> InventoryMenu {
+        match menu_type {
+            1 => InventoryMenu::Drop,
+            _ => InventoryMenu::Main,
+        }
+    }
+
     pub fn label(&self) -> &'static str {
         match self {
             InventoryMenu::Main => "Inventory",
@@ -15,7 +22,8 @@ impl InventoryMenu {
     }
 }
 
-pub fn show_inventory<const MENU_TYPE: InventoryMenu>(
+// pub fn show_inventory<const MENU_TYPE: InventoryMenu>(
+pub fn show_inventory<const MENU_TYPE: u8>(
     mut selection: Local<usize>,
     key: Res<Option<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
@@ -35,9 +43,10 @@ pub fn show_inventory<const MENU_TYPE: InventoryMenu>(
         .filter(|(_, _, backpack)| backpack.0 == player)
         .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone())));
 
+    let menu_type = InventoryMenu::menu_type(MENU_TYPE);
     match item_result_menu(
         &mut draw_batch,
-        MENU_TYPE.label(),
+        menu_type.label(),
         items.len(),
         &items,
         *key,
@@ -55,7 +64,7 @@ pub fn show_inventory<const MENU_TYPE: InventoryMenu>(
             }
         }
         ItemMenuResult::Selected(item) => {
-            match MENU_TYPE {
+            match menu_type {
                 InventoryMenu::Main => {
                     drink_event.send(WantsToDrinkPotion {
                         potion: item,

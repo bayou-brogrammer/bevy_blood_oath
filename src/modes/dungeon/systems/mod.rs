@@ -8,6 +8,7 @@ pub mod melee_combat;
 pub mod monster_ai;
 pub mod movement;
 pub mod player;
+pub mod render;
 
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
@@ -60,7 +61,6 @@ impl Plugin for AwaitingInputPlugin {
             ConditionSet::new()
                 .run_if(run_in_state(TurnState::AwaitingInput))
                 .with_system(player::player_input.chain(player::player_turn_done))
-                .with_system(fov::fov_system)
                 .into(),
         );
     }

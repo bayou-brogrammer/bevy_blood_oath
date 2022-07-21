@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub mod camera;
-pub mod gui;
+mod gui;
 
 pub struct RenderPlugin;
 impl Plugin for RenderPlugin {

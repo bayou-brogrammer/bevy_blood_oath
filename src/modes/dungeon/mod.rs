@@ -3,9 +3,10 @@ use crate::game_over::GameOverMode;
 use bevy::{app::AppExit, ecs::system::SystemState};
 use setup::setup_dungeon_scheduler;
 
-mod render;
 mod setup;
 mod systems;
+
+pub use systems::render;
 
 #[derive(Debug)]
 pub enum DungeonModeResult {
@@ -70,6 +71,7 @@ impl DungeonMode {
         // Resource
         app.insert_resource(map);
         app.insert_resource(start_pos);
+        app.insert_resource(render::camera::GameCamera::new(start_pos));
         app.insert_resource(StateStack::new(TurnState::AwaitingInput));
 
         crate::gamelog::Logger::new()
@@ -79,8 +81,9 @@ impl DungeonMode {
     }
 
     fn inject_context(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(LAYER_MAP);
         self.app.insert_resource(ctx.key);
-        self.app.insert_resource(ctx.mouse_pos);
+        self.app.insert_resource(ctx.mouse_pos());
     }
 
     pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {

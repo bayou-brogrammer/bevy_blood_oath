@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{dungeon::render::camera::GameCamera, prelude::*};
 
 pub fn movement(
     map: Res<Map>,
@@ -26,6 +26,7 @@ pub fn movement(
 
                 if let Some(_) = player {
                     commands.insert_resource(destination);
+                    commands.insert_resource(GameCamera::new(destination));
                 }
             }
         }

@@ -56,6 +56,18 @@ pub fn run_in_state<T: StateData>(
     }
 }
 
+pub fn run_not_in_state<T: StateData>(
+    state: T,
+) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
+    move |current: Res<StateStack<T>>| -> bool {
+        if current.stack.is_empty() {
+            return false;
+        }
+
+        !current.stack.iter().any(|s| *s == state)
+    }
+}
+
 pub fn run_in_state_bevy<T: StateData>(
     state: T,
 ) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
