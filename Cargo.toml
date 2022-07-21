@@ -18,6 +18,10 @@ default = ["debug"]
 debug = []
 
 [dependencies]
+bo_ecs = { path = "bo_ecs/" }
+bo_map = { path = "bo_map/" }
+bo_utils = { path = "bo_utils/" }
+
 bracket-lib = { version = "~0.8.1", features = ["serde"] }
 bevy = { version = "~0.7.0", default-features = false, features = ["dynamic"] }
 iyes_loopless = "~0.6.1"
@@ -32,3 +36,5 @@ embed-resource = "1.7.3"
 
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!
+
+members = ["bo_map", "bo_ecs", "bo_utils"]

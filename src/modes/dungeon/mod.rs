@@ -3,6 +3,7 @@ use crate::game_over::GameOverMode;
 use bevy::{app::AppExit, ecs::system::SystemState};
 use setup::setup_dungeon_scheduler;
 
+mod render;
 mod setup;
 mod systems;
 
@@ -155,7 +156,7 @@ impl DungeonMode {
     }
 
     pub fn draw(&mut self, ctx: &mut BTerm, _active: bool) {
-        render::clear_all_consoles(ctx, &self.consoles);
+        ctx.clear_consoles(&self.consoles);
         render::camera::render_camera(ctx, &mut self.app.world);
     }
 }

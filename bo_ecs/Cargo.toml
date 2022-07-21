@@ -1,0 +1,11 @@
+[package]
+name = "bo_ecs"
+version = "0.1.0"
+authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+bracket-geometry = "^0.8.3"
+bracket-color = "^0.8.2"
+bracket-terminal = "^0.8.5"
+bevy_ecs = "^0.7.0"

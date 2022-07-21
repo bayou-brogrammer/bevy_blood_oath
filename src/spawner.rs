@@ -101,7 +101,7 @@ pub fn health_potion(world: &mut World, pt: Point) {
     world.spawn().insert_bundle(ItemBundle::new(
         EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
         RenderBundle::new(
-            to_cp437('!'),
+            to_cp437('¡'),
             ColorPair::new(MAGENTA, BLACK),
             RenderOrder::Item,
             pt,

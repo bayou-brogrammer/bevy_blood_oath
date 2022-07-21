@@ -4,11 +4,7 @@
 pub mod gamelog;
 pub mod spawner;
 
-mod bitgrid;
-mod components;
-mod events;
-mod game;
-mod map;
+mod modes;
 mod resources;
 mod rng;
 mod utils;
@@ -24,14 +20,14 @@ mod prelude {
     pub use lazy_static::*;
     pub use rayon::prelude::*;
 
+    pub use bo_ecs::prelude::*;
+    pub use bo_map::prelude::*;
+    pub use bo_utils::prelude::*;
+
     pub use crate::gamelog;
     pub use crate::spawner;
 
-    pub use crate::bitgrid::*;
-    pub use crate::components::*;
-    pub use crate::events::*;
-    pub use crate::game::*;
-    pub use crate::map::*;
+    pub use crate::modes::*;
     pub use crate::resources::*;
     pub use crate::rng::*;
     pub use crate::utils::*;
