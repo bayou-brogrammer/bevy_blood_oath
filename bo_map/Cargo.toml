@@ -11,6 +11,6 @@ bracket-pathfinding = "^0.8.4"
 bracket-random = "^0.8.2"
 
 bitvec = "^1.0.1"
-bevy_ecs = "^0.7.0"
 lazy_static = "^1.4.0"
 parking_lot = "^0.12.1"
+bevy = { version = "~0.7.0", default-features = false, features = ["dynamic"] }

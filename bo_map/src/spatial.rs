@@ -1,13 +1,12 @@
 use crate::prelude::*;
 
-use bevy_ecs::prelude::Entity;
-use bevy_ecs::schedule::StateData;
+use bevy::{ecs::schedule::StateData, prelude::Entity};
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
-struct SpatialMap {
-    blocked: Vec<(bool, bool)>,
-    tile_content: Vec<Vec<(Entity, bool)>>,
+pub struct SpatialMap {
+    pub blocked: Vec<(bool, bool)>,
+    pub tile_content: Vec<Vec<(Entity, bool)>>,
 }
 
 impl SpatialMap {
@@ -20,7 +19,7 @@ impl SpatialMap {
 }
 
 lazy_static! {
-    static ref SPATIAL_MAP: Mutex<SpatialMap> = Mutex::new(SpatialMap::new());
+    pub static ref SPATIAL_MAP: Mutex<SpatialMap> = Mutex::new(SpatialMap::new());
 }
 
 pub fn set_size(map_tile_count: usize) {

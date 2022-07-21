@@ -8,4 +8,4 @@ edition = "2021"
 bracket-geometry = "^0.8.3"
 bracket-color = "^0.8.2"
 bracket-terminal = "^0.8.5"
-bevy_ecs = "^0.7.0"
+bevy = { version = "~0.7.0", default-features = false, features = ["dynamic"] }

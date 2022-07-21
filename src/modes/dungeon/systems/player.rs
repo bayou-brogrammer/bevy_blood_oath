@@ -91,7 +91,9 @@ pub fn player_turn_done(
     match result {
         PlayerInputResult::NoResult => {}
         PlayerInputResult::AppQuit => commands.insert_resource(AppExit),
-        PlayerInputResult::TurnDone => stack.set(TurnState::PlayerTurn),
+        PlayerInputResult::TurnDone => {
+            commands.insert_resource(StateStack::new(TurnState::PlayerTurn))
+        }
         PlayerInputResult::ShowInventory => stack.set(TurnState::ShowInventory),
         PlayerInputResult::ShowDropMenu => stack.set(TurnState::ShowDropMenu),
     }

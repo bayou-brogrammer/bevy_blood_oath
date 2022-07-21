@@ -628,7 +628,7 @@ checksum = "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a"
 name = "bo_ecs"
 version = "0.1.0"
 dependencies = [
- "bevy_ecs",
+ "bevy",
  "bracket-color",
  "bracket-geometry",
  "bracket-terminal",
@@ -638,7 +638,7 @@ dependencies = [
 name = "bo_map"
 version = "0.1.0"
 dependencies = [
- "bevy_ecs",
+ "bevy",
  "bitvec",
  "bracket-geometry",
  "bracket-pathfinding",

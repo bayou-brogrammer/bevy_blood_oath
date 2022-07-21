@@ -1,5 +1,3 @@
-use bevy_ecs::{schedule::StateData, system::Res};
-
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub struct StateStack<T> {
     pub stack: Vec<T>,
@@ -53,3 +51,5 @@ pub fn run_in_state<T: StateData>(
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
+
+use bevy::{ecs::schedule::StateData, prelude::Res};

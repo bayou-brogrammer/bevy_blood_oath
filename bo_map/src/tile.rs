@@ -18,7 +18,6 @@ pub struct GameTile {
     pub opaque: bool,
     pub walkable: bool,
     pub tile_type: TileType,
-    // pub contents: HashSet<Entity>,
 }
 
 impl GameTile {

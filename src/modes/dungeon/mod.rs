@@ -61,33 +61,7 @@ impl DungeonMode {
         let start_pos = map.starting_point;
 
         // Spawn Player
-        let player = spawner::spawn_player(&mut app.world, start_pos);
-
-        app.world
-            .spawn()
-            .insert_bundle(ItemBundle::new(
-                EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
-                RenderBundle::new(
-                    to_cp437('!'),
-                    ColorPair::new(MAGENTA, BLACK),
-                    RenderOrder::Item,
-                    start_pos,
-                ),
-                Potion { heal_amount: 8 },
-            ))
-            .insert(InBackpack(player))
-            .remove::<Position>();
-
-        app.world.spawn().insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
-            RenderBundle::new(
-                to_cp437('¡'),
-                ColorPair::new(MAGENTA, BLACK),
-                RenderOrder::Item,
-                start_pos,
-            ),
-            Potion { heal_amount: 8 },
-        ));
+        spawner::spawn_player(&mut app.world, start_pos);
 
         // Spawn Enemies
         map.rooms.iter().skip(1).for_each(|room| {
@@ -132,10 +106,7 @@ impl DungeonMode {
     }
 
     fn inject_context(&mut self, ctx: &mut BTerm) {
-        // ctx.set_active_console(LAYER_MAP);
         self.app.insert_resource(ctx.key);
-        // self.app
-        //     .insert_resource(Mouse::new(ctx.mouse_pos(), ctx.left_click));
     }
 
     pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {

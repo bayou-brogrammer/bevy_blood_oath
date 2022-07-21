@@ -16,6 +16,8 @@ pub fn setup_dungeon_scheduler(app: &mut App) {
 
     app.add_plugin(systems::SystemsPlugin);
     app.add_plugin(gui::GUIPlugin);
+
+    app.insert_resource(TurnState::AwaitingInput);
 }
 
 fn setup_bevy_internals(app: &mut App) {

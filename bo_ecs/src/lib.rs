@@ -4,7 +4,7 @@ mod events;
 mod state;
 
 pub mod prelude {
-    pub use bevy_ecs::prelude::{Component, Entity};
+    pub use bevy::prelude::{Component, Entity};
 
     pub use crate::bundle::*;
     pub use crate::components::*;

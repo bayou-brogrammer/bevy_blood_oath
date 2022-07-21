@@ -70,7 +70,8 @@ impl Map {
     }
 
     pub fn can_enter_tile(&self, pt: Point) -> bool {
-        self.in_bounds(pt) && !crate::spatial::is_blocked(self.point2d_to_index(pt))
+        let idx = self.point2d_to_index(pt);
+        self.in_bounds(pt) && !crate::spatial::is_blocked(idx)
     }
 
     /// Generates an empty map, consisting entirely of solid walls
