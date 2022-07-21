@@ -72,15 +72,10 @@ impl Camera {
         batch.submit(4000).expect("Error batching map");
     }
 
-    pub fn render_tooltips(&self, map: &Map, ctx: &mut BTerm, world: &mut World) {
+    pub fn render_tooltips(&self, map: &Map, world: &mut World) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
 
-        // let (mouse_x, mouse_y) = world.resource::<Mouse>().mouse_pos;
-        let (mouse_x, mouse_y) = ctx.mouse_pos();
-        let map_pos = self.screen_to_world(mouse_x, mouse_y);
-
-        let mut lines = Vec::new();
         let mut query = world.query::<(
             &Position,
             &Naming,
@@ -88,6 +83,10 @@ impl Camera {
             Option<&CombatStats>,
         )>();
 
+        let (mouse_x, mouse_y) = world.resource::<(i32, i32)>();
+        let map_pos = self.screen_to_world(*mouse_x, *mouse_y);
+
+        let mut lines = Vec::new();
         query
             .iter(world)
             .filter(|(pos, _, _, _)| pos.0 == map_pos)
@@ -116,7 +115,7 @@ impl Camera {
             let tip_y = if map_pos.y > MAPHEIGHT as i32 / 2 {
                 mouse_y - height as i32
             } else {
-                mouse_y
+                *mouse_y
             };
 
             batch.draw_box(
@@ -147,13 +146,28 @@ impl Camera {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-pub fn render_camera(ctx: &mut BTerm, world: &mut World) {
+pub struct CameraPlugin;
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set_to_stage(
+            GameStage::Render,
+            SystemSet::new().with_system(
+                render_camera
+                    .exclusive_system()
+                    .after(StateLabel::Fov)
+                    .with_run_criteria(run_not_in_state_bevy(TurnState::GameOver)),
+            ),
+        );
+    }
+}
+
+pub fn render_camera(world: &mut World) {
     let camera = camera::Camera::new(world);
 
     world.resource_scope(|world, map: Mut<Map>| {
         camera.render_map(&map);
         camera.render_glyphs(&map, world);
-        camera.render_tooltips(&map, ctx, world);
+        camera.render_tooltips(&map, world);
     });
 }
 

@@ -80,6 +80,7 @@ impl DungeonMode {
 
     fn inject_context(&mut self, ctx: &mut BTerm) {
         self.app.insert_resource(ctx.key);
+        self.app.insert_resource(ctx.mouse_pos);
     }
 
     pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {
@@ -101,6 +102,5 @@ impl DungeonMode {
 
     pub fn draw(&mut self, ctx: &mut BTerm, _active: bool) {
         ctx.clear_consoles(&self.consoles);
-        render::camera::render_camera(ctx, &mut self.app.world);
     }
 }

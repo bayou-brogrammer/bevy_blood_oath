@@ -1,6 +1,5 @@
 use super::*;
 
-pub mod damage;
 pub mod end_turn;
 pub mod fov;
 pub mod inventory;
@@ -13,23 +12,23 @@ pub mod player;
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
     fn build(&self, app: &mut App) {
+        app.add_system_set(
+            ConditionSet::new()
+                .label(StateLabel::Fov)
+                .run_unless_resource_equals(TurnState::GameOver)
+                .with_system(fov::fov_system)
+                .into(),
+        );
+
         app.add_system_set_to_stage(
-            CoreStage::Update,
+            GameStage::Effects,
             ConditionSet::new()
                 .with_system(map_indexing::map_indexing)
                 .into(),
         );
 
-        // Damage Events
-        app.add_system_set_to_stage(
-            CoreStage::Update,
-            ConditionSet::new()
-                .run_on_event::<SufferDamage>()
-                .with_system(damage::damage_system)
-                .into(),
-        )
         // Inventory Events
-        .add_system_set_to_stage(
+        app.add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
                 .run_on_event::<WantsToPickupItem>()
@@ -83,6 +82,7 @@ impl Plugin for PlayerPlugin {
             GameStage::HandlePlayerActions,
             ConditionSet::new()
                 .run_if(run_in_state(TurnState::PlayerTurn))
+                .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
                 .into(),
@@ -112,6 +112,7 @@ impl Plugin for AIPlugin {
             GameStage::AICleanup,
             ConditionSet::new()
                 .run_if(run_in_state(TurnState::AITurn))
+                .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
                 .into(),

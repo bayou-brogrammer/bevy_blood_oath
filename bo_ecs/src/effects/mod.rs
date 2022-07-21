@@ -70,13 +70,12 @@ pub fn effects_queue(
     mut affect_entity_event: EventWriter<AffectEntity>,
     mut affect_tile_event: EventWriter<AffectTile>,
 ) {
-    loop {
-        let effect: Option<EffectSpawner> = EFFECT_QUEUE.lock().pop_front();
-        if let Some(effect) = effect {
-            target_applicator(&effect, &mut affect_entity_event, &mut affect_tile_event);
-        } else {
-            break;
-        }
+    if EFFECT_QUEUE.lock().is_empty() {
+        return;
+    }
+
+    for effect in EFFECT_QUEUE.lock().drain(..) {
+        target_applicator(&effect, &mut affect_entity_event, &mut affect_tile_event);
     }
 }
 

@@ -27,3 +27,8 @@ pub enum GameStage {
     // Render Is the last stage
     Render,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
+pub enum StateLabel {
+    Fov,
+}

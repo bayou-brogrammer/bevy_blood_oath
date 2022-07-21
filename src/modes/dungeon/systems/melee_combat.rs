@@ -3,7 +3,6 @@ use super::*;
 pub fn combat(
     stats_query: Query<(&CombatStats, &Naming)>,
     mut attack_events: ResMut<Events<WantsToAttack>>,
-    mut damage_event: EventWriter<SufferDamage>,
 ) {
     for WantsToAttack { victim, attacker } in attack_events.drain() {
         if let Ok((attacker_stats, attacker_name)) = stats_query.get(attacker) {
@@ -30,7 +29,11 @@ pub fn combat(
                             .append("hp.")
                             .log();
 
-                        damage_event.send(SufferDamage { victim, damage });
+                        add_effect(
+                            Some(attacker),
+                            EffectType::Damage { amount: damage },
+                            Targets::Single { target: victim },
+                        );
                     }
                 }
             }

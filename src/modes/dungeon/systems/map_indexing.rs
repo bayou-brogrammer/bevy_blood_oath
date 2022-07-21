@@ -3,7 +3,7 @@ use super::*;
 pub fn map_indexing(
     mut map: ResMut<Map>,
     dead_q: Query<Entity, Added<Dead>>,
-    blocking_q: Query<(Entity, &Position, Option<&BlocksTile>), Changed<Position>>,
+    blocking_q: Query<(Entity, &Position, Option<&BlocksTile>)>,
 ) {
     if blocking_q.is_empty() && dead_q.is_empty() {
         return;

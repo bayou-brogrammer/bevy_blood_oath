@@ -1,4 +1,7 @@
-use bevy_ecs::{schedule::StateData, system::Res};
+use bevy_ecs::{
+    schedule::{ShouldRun, StateData},
+    system::Res,
+};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub struct StateStack<T> {
@@ -50,6 +53,36 @@ pub fn run_in_state<T: StateData>(
         }
 
         current.stack.iter().any(|s| *s == state)
+    }
+}
+
+pub fn run_in_state_bevy<T: StateData>(
+    state: T,
+) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
+    move |current: Res<StateStack<T>>| -> ShouldRun {
+        if current.stack.is_empty() {
+            return ShouldRun::No;
+        }
+
+        match current.stack.iter().any(|s| *s == state) {
+            true => ShouldRun::Yes,
+            false => ShouldRun::No,
+        }
+    }
+}
+
+pub fn run_not_in_state_bevy<T: StateData>(
+    state: T,
+) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
+    move |current: Res<StateStack<T>>| -> ShouldRun {
+        if current.stack.is_empty() {
+            return ShouldRun::No;
+        }
+
+        match current.stack.iter().any(|s| *s == state) {
+            true => ShouldRun::No,
+            false => ShouldRun::Yes,
+        }
     }
 }
 ////////////////////////////////////////////////////////////////////////////////

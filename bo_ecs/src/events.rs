@@ -23,12 +23,6 @@ pub struct WantsToAttack {
 }
 
 #[derive(Debug)]
-pub struct SufferDamage {
-    pub victim: Entity,
-    pub damage: i32,
-}
-
-#[derive(Debug)]
 pub struct WantsToPickupItem {
     pub item: Entity,
     pub collected_by: Entity,

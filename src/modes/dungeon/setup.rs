@@ -1,4 +1,4 @@
-use super::{render::gui, *};
+use super::*;
 
 /**
  * We need multiple stages to handle the following:
@@ -12,29 +12,16 @@ pub fn setup_dungeon_scheduler(app: &mut App) {
     setup_events(app);
     setup_stages(app);
     setup_bevy_internals(app);
-    setup_debug_systems(app);
+    setup_effect_system(app);
 
     app.add_plugin(systems::SystemsPlugin);
-    app.add_plugin(gui::GUIPlugin);
-
-    app.add_system_set_to_stage(
-        GameStage::Effects,
-        ConditionSet::new().with_system(effects_queue).into(),
-    );
-
-    app.add_system_set_to_stage(
-        GameStage::Effects,
-        ConditionSet::new()
-            .with_system(affect_entity)
-            .with_system(inflict_damage)
-            .with_system(death)
-            .into(),
-    );
-
+    app.add_plugin(render::RenderPlugin);
     app.insert_resource(TurnState::AwaitingInput);
 }
 
 fn setup_bevy_internals(app: &mut App) {
+    setup_debug_systems(app);
+
     app.init_resource::<Time>();
     app.add_system(|mut time: ResMut<Time>| time.update());
 }
@@ -42,7 +29,6 @@ fn setup_bevy_internals(app: &mut App) {
 fn setup_events(app: &mut App) {
     app.add_event::<WantsToMove>()
         .add_event::<WantsToAttack>()
-        .add_event::<SufferDamage>()
         .add_event::<WantsToPickupItem>()
         .add_event::<WantsToDrinkPotion>()
         .add_event::<WantsToDropItem>()
@@ -107,6 +93,37 @@ fn setup_debug_systems(app: &mut App) {
                     }
                 },
             )
+            .into(),
+    );
+}
+
+fn setup_effect_system(app: &mut App) {
+    app.add_system_set_to_stage(
+        GameStage::Effects,
+        ConditionSet::new().with_system(effects_queue).into(),
+    );
+
+    app.add_system_set_to_stage(
+        GameStage::Effects,
+        ConditionSet::new()
+            .run_on_event::<AffectEntity>()
+            .with_system(affect_entity)
+            .into(),
+    );
+
+    app.add_system_set_to_stage(
+        GameStage::Effects,
+        ConditionSet::new()
+            .run_on_event::<DamageEvent>()
+            .with_system(inflict_damage)
+            .into(),
+    );
+
+    app.add_system_set_to_stage(
+        GameStage::Effects,
+        ConditionSet::new()
+            .run_on_event::<DeathEvent>()
+            .with_system(death)
             .into(),
     );
 }
