@@ -119,20 +119,12 @@ impl Plugin for AIPlugin {
     }
 }
 
-pub struct CleanupPlugin;
-impl Plugin for CleanupPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(GameStage::Cleanup, ConditionSet::new().into());
-    }
-}
-
 pub struct SystemsPlugin;
 impl Plugin for SystemsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(TickingPlugin)
             .add_plugin(AwaitingInputPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(AIPlugin)
-            .add_plugin(CleanupPlugin);
+            .add_plugin(AIPlugin);
     }
 }

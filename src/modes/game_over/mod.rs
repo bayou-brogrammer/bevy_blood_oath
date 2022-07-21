@@ -32,7 +32,7 @@ pub struct GameOverMode {
 /// Show the title screen of the game with a menu that leads into the game proper.
 impl GameOverMode {
     pub fn new() -> Self {
-        BTerm::cls_all();
+        BTerm::clear_all_internal_consoles();
 
         let mut actions = vec![MenuAction::NewGame];
 

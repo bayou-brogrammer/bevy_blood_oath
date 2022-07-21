@@ -17,6 +17,20 @@ pub fn setup_dungeon_scheduler(app: &mut App) {
     app.add_plugin(systems::SystemsPlugin);
     app.add_plugin(gui::GUIPlugin);
 
+    app.add_system_set_to_stage(
+        GameStage::Effects,
+        ConditionSet::new().with_system(effects_queue).into(),
+    );
+
+    app.add_system_set_to_stage(
+        GameStage::Effects,
+        ConditionSet::new()
+            .with_system(affect_entity)
+            .with_system(inflict_damage)
+            .with_system(death)
+            .into(),
+    );
+
     app.insert_resource(TurnState::AwaitingInput);
 }
 
@@ -31,7 +45,11 @@ fn setup_events(app: &mut App) {
         .add_event::<SufferDamage>()
         .add_event::<WantsToPickupItem>()
         .add_event::<WantsToDrinkPotion>()
-        .add_event::<WantsToDropItem>();
+        .add_event::<WantsToDropItem>()
+        .add_event::<DamageEvent>()
+        .add_event::<AffectEntity>()
+        .add_event::<AffectTile>()
+        .add_event::<DeathEvent>();
 }
 
 fn setup_stages(app: &mut App) {
@@ -64,12 +82,12 @@ fn setup_stages(app: &mut App) {
     )
     .add_stage_after(
         GameStage::HandleAIActions,
-        GameStage::Cleanup,
+        GameStage::Effects,
         SystemStage::parallel(),
     )
     // Render Stages
     .add_stage_after(
-        GameStage::AICleanup,
+        GameStage::Effects,
         GameStage::Render,
         SystemStage::parallel(),
     );

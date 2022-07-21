@@ -23,7 +23,7 @@ pub enum GameStage {
     GenerateAIActions,
     HandleAIActions,
     AICleanup,
-    Cleanup,
+    Effects,
     // Render Is the last stage
     Render,
 }

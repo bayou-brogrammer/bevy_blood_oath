@@ -1,6 +1,5 @@
 use crate::prelude::*;
 
-use bevy::prelude::Bundle;
 use bracket_color::prelude::ColorPair;
 use bracket_geometry::prelude::Point;
 use bracket_terminal::FontCharType;

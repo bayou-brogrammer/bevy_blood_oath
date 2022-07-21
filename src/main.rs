@@ -7,7 +7,6 @@ pub mod spawner;
 mod modes;
 mod resources;
 mod rng;
-mod utils;
 
 mod prelude {
     pub use bevy::ecs::event::Events;
@@ -30,7 +29,6 @@ mod prelude {
     pub use crate::modes::*;
     pub use crate::resources::*;
     pub use crate::rng::*;
-    pub use crate::utils::*;
 
     pub const LAYER_MAP: usize = 0;
     pub const LAYER_DECOR: usize = 1;

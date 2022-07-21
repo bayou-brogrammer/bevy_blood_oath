@@ -33,7 +33,6 @@ struct CachedExitEvents<'w> {
 /// perform other actions while alive, directly or indirectly.
 impl DungeonMode {
     pub fn new() -> Self {
-        BTerm::cls_all();
         let mut app = App::new();
 
         DungeonMode::setup_game(&mut app);
@@ -52,7 +51,7 @@ impl DungeonMode {
     }
 
     pub fn setup_game(app: &mut App) {
-        BTerm::cls_all();
+        BTerm::clear_all_internal_consoles();
 
         // Setup Scheduler
         setup_dungeon_scheduler(app);
@@ -67,32 +66,6 @@ impl DungeonMode {
         map.rooms.iter().skip(1).for_each(|room| {
             spawner::spawn_room(&mut app.world, room, true, true);
         });
-
-        let mut system_state: SystemState<(Query<&Monster>, Query<&Item>)> =
-            SystemState::new(&mut app.world);
-
-        let (monster_q, item_q) = system_state.get_mut(&mut app.world);
-        match (monster_q.iter().len() > 0, item_q.iter().len() > 0) {
-            (true, true) => {
-                println!("No monsters or items found.  Generating new map.");
-                map.rooms.iter().skip(1).for_each(|room| {
-                    spawner::spawn_room(&mut app.world, room, true, true);
-                });
-            }
-            (true, _) => {
-                println!("No monsters found.  Generating new monsters.");
-                map.rooms.iter().skip(1).for_each(|room| {
-                    spawner::spawn_room(&mut app.world, room, true, false);
-                });
-            }
-            (_, true) => {
-                println!("No items found.  Generating new items.");
-                map.rooms.iter().skip(1).for_each(|room| {
-                    spawner::spawn_room(&mut app.world, room, false, true);
-                })
-            }
-            _ => {}
-        }
 
         // Resource
         app.insert_resource(map);

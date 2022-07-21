@@ -31,7 +31,6 @@ macro_rules! impl_from {
 
 #[derive(Debug)]
 pub enum Mode {
-    // AppQuitDialogMode(AppQuitDialogMode),
     DungeonMode(DungeonMode),
     MainMenuMode(MainMenuMode),
     GameOverMode(GameOverMode),

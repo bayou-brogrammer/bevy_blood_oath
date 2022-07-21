@@ -40,8 +40,17 @@ pub struct WantsToDrinkPotion {
     pub drinker: Entity,
 }
 
-#[derive(Component, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct WantsToDropItem {
     pub item: Entity,
     pub dropper: Entity,
 }
+
+#[derive(Debug)]
+pub struct DamageEvent {
+    pub target: Entity,
+    pub effect: EffectSpawner,
+}
+
+#[derive(Debug)]
+pub struct DeathEvent(pub Entity);
