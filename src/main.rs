@@ -1,20 +1,28 @@
 pub mod spawner;
 
-mod modes;
+mod effects;
+mod render;
 mod resources;
 mod rng;
+mod setup;
+mod systems;
+mod turn;
 
 mod prelude {
+    // Bevy
     pub use bevy::ecs::event::Events;
     pub use bevy::prelude::*;
+    pub use bevy::{app::AppExit, ecs::system::SystemState};
     pub use iyes_loopless::prelude::*;
 
+    // Bracket Lib
     pub use bracket_lib::prelude::Rect;
     pub use bracket_lib::prelude::*;
 
-    pub use lazy_static::*;
+    // Random Helper Crates
     pub use rayon::prelude::*;
 
+    // Local Helper Libs
     pub use bo_ecs::prelude::*;
     pub use bo_logging::prelude::*;
     pub use bo_map::prelude::*;
@@ -22,9 +30,13 @@ mod prelude {
 
     pub use crate::spawner;
 
-    pub use crate::modes::*;
+    pub use crate::effects::*;
+    pub use crate::render::*;
     pub use crate::resources::*;
     pub use crate::rng::*;
+    pub use crate::setup::*;
+    pub use crate::systems::*;
+    pub use crate::turn::*;
 
     pub const SCREEN_WIDTH: usize = 112;
     pub const SCREEN_HEIGHT: usize = 31;
@@ -48,30 +60,6 @@ mod prelude {
 
 pub use prelude::*;
 
-pub struct GameWorld {
-    pub mode_stack: ModeStack,
-}
-
-impl GameWorld {
-    pub fn new() -> Self {
-        Self { mode_stack: ModeStack::new(vec![main_menu::MainMenuMode::new().into()]) }
-    }
-}
-
-impl GameState for GameWorld {
-    fn tick(&mut self, ctx: &mut BTerm) {
-        match self.mode_stack.tick(ctx) {
-            RunControl::Quit => {
-                println!("Run Control Quit");
-                ctx.quit();
-            }
-            RunControl::Update => {}
-        }
-
-        render_draw_buffer(ctx).expect("Render error");
-    }
-}
-
 embedded_resource!(FONT, "../resources/font.png");
 embedded_resource!(VGA_FONT, "../resources/vga.png");
 embedded_resource!(GAME_FONT, "../resources/game_font.png");
@@ -87,7 +75,6 @@ fn main() -> BError {
         .with_dimensions(56, 31) // ..Assuming a console of this size
         .with_fps_cap(60.0) // Limit game speed
         ////////////////////////////////////////////////////////////////////////////////
-        // .with_font("game_tileset.png", 16, 16) // load game font
         .with_font("font.png", 16, 16) // Load big font
         .with_font("vga.png", 8, 16) // Load easy-to-read font
         ////////////////////////////////////////////////////////////////////////////////

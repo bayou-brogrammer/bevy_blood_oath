@@ -1,31 +1,11 @@
 use super::{dungeon::DungeonMode, ModeControl, ModeResult, *};
 
-pub const MAIN_MENU_SCREEN_WIDTH: usize = 80;
-pub const MAIN_MENU_SCREEN_HEIGHT: usize = 31;
-
 #[derive(Debug)]
 pub enum MainMenuModeResult {
     AppQuit,
 }
 
-#[derive(Debug)]
-pub enum MenuAction {
-    NewGame,
-    LoadGame,
-    Options,
-    Quit,
-}
 
-impl MenuAction {
-    fn label(&self) -> &'static str {
-        match self {
-            MenuAction::NewGame => "New Game",
-            MenuAction::LoadGame => "Load Game",
-            MenuAction::Options => "Options",
-            MenuAction::Quit => "Quit",
-        }
-    }
-}
 
 #[derive(Debug)]
 pub struct MainMenuMode {

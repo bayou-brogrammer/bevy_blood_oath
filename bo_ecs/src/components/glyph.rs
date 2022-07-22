@@ -1,6 +1,5 @@
 use crate::prelude::*;
-use bracket_color::prelude::ColorPair;
-use bracket_terminal::FontCharType;
+use bracket_terminal::prelude::{ColorPair, FontCharType};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum RenderOrder {

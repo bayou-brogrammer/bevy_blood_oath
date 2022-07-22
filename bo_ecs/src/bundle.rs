@@ -1,9 +1,8 @@
 use crate::prelude::*;
 
 use bo_utils::impl_new;
-use bracket_color::prelude::ColorPair;
 use bracket_geometry::prelude::Point;
-use bracket_terminal::FontCharType;
+use bracket_terminal::prelude::{ColorPair, FontCharType};
 
 #[derive(Bundle, Component)]
 pub struct RenderBundle {

@@ -635,7 +635,6 @@ dependencies = [
  "bo_map",
  "bo_utils",
  "bracket-algorithm-traits",
- "bracket-color",
  "bracket-geometry",
  "bracket-terminal",
  "iyes_loopless",

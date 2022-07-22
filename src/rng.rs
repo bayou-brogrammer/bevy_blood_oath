@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
 lazy_static! {

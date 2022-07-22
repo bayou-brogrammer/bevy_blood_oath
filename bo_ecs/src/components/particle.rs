@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use bo_utils::impl_new;
 use bracket_geometry::prelude::Point;
+use bracket_terminal::prelude::*;
 
 #[derive(Clone)]
 pub struct ParticleAnimation {
@@ -17,3 +18,26 @@ pub struct ParticleLifetime {
 }
 
 impl_new!(ParticleLifetime, lifetime_ms: f32, animation: Option<ParticleAnimation>);
+
+pub struct ParticleRequest {
+    pub pt: Point,
+    pub color: ColorPair,
+    pub glyph: FontCharType,
+    pub lifetime: f32,
+}
+
+impl_new!(ParticleRequest, pt: Point, color: ColorPair, glyph: FontCharType, lifetime: f32);
+
+pub struct ParticleBuilder {
+    pub requests: Vec<ParticleRequest>,
+}
+
+impl ParticleBuilder {
+    pub fn new() -> ParticleBuilder {
+        ParticleBuilder { requests: Vec::new() }
+    }
+
+    pub fn request(&mut self, pt: Point, color: ColorPair, glyph: FontCharType, lifetime: f32) {
+        self.requests.push(ParticleRequest::new(pt, color, glyph, lifetime));
+    }
+}
