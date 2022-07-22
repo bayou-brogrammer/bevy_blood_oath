@@ -1,6 +1,4 @@
 use crate::prelude::*;
 
 #[derive(Component, Debug)]
-pub struct Potion {
-    pub heal_amount: i32,
-}
+pub struct ProvidesHealing(pub i32);

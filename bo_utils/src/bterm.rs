@@ -12,11 +12,7 @@ impl BTermClear for BTerm {
     }
 
     fn clear_all_internal_consoles() {
-        BACKEND_INTERNAL
-            .lock()
-            .consoles
-            .iter_mut()
-            .for_each(|c| c.console.cls());
+        BACKEND_INTERNAL.lock().consoles.iter_mut().for_each(|c| c.console.cls());
     }
 
     fn clear_consoles(&mut self, consoles: &Vec<usize>) {

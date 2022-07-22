@@ -14,7 +14,7 @@ pub enum TurnState {
     AITurn,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, StageLabel)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]
 pub enum GameStage {
     // Player Stages
     GeneratePlayerActions,
@@ -24,6 +24,7 @@ pub enum GameStage {
     HandleAIActions,
     AICleanup,
     Effects,
+    Cleanup,
     // Render Is the last stage
     Render,
 }

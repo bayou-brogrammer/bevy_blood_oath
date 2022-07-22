@@ -14,10 +14,7 @@ impl GameCamera {
     pub fn new(player_pos: Point) -> Self {
         let viewport = Rect::with_size(player_pos.x - 20, player_pos.y - 15, 40, 31);
 
-        Self {
-            viewport,
-            player_pos,
-        }
+        Self { viewport, player_pos }
     }
 
     fn world_to_screen(&self, pt: Point) -> Point {
@@ -25,7 +22,7 @@ impl GameCamera {
         bot + Point::new(20, 15)
     }
 
-    fn _world_to_screen_text(&self, pt: Point) -> Point {
+    fn world_to_screen_text(&self, pt: Point) -> Point {
         let ws = self.world_to_screen(pt);
         ws * Point::new(2, 1)
     }
@@ -46,6 +43,8 @@ impl Plugin for CameraPlugin {
                 .after(StateLabel::Fov)
                 .with_system(map_renderer::map_render)
                 .with_system(entity_renderer::entity_render)
+                .with_system(entity_renderer::item_render)
+                .with_system(entity_renderer::particle_render)
                 .with_system(tooltips::render_tooltips)
                 .into(),
         );

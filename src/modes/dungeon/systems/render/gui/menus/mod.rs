@@ -22,22 +22,10 @@ pub fn menu_option<T: ToString>(
 ) {
     let color = if selected { LIGHTBLUE } else { WHITE };
 
-    draw_batch.set(
-        Point::new(x, y),
-        ColorPair::new(WHITE, BLACK),
-        to_cp437('('),
-    );
+    draw_batch.set(Point::new(x, y), ColorPair::new(WHITE, BLACK), to_cp437('('));
     draw_batch.set(Point::new(x + 1, y), ColorPair::new(color, BLACK), hotkey);
-    draw_batch.set(
-        Point::new(x + 2, y),
-        ColorPair::new(WHITE, BLACK),
-        to_cp437(')'),
-    );
-    draw_batch.print_color(
-        Point::new(x + 5, y),
-        &text.to_string(),
-        ColorPair::new(color, BLACK),
-    );
+    draw_batch.set(Point::new(x + 2, y), ColorPair::new(WHITE, BLACK), to_cp437(')'));
+    draw_batch.print_color(Point::new(x + 5, y), &text.to_string(), ColorPair::new(color, BLACK));
 }
 
 pub fn item_result_menu<S: ToString>(
@@ -60,12 +48,7 @@ pub fn item_result_menu<S: ToString>(
         draw_batch,
         (*MAP_PANEL_WIDTH, *MAP_PANEL_HEIGHT),
         BoxConfigWithTitle {
-            box_config: BoxConfig::new(
-                (max_width, max_height),
-                ColorPair::new(WHITE, BLACK),
-                true,
-                false,
-            ),
+            box_config: BoxConfig::new((max_width, max_height), ColorPair::new(WHITE, BLACK), true, false),
             text_config: TextConfig::with_footer(
                 title,
                 "[Esc] to cancel",
@@ -88,14 +71,7 @@ pub fn item_result_menu<S: ToString>(
     }
 
     for (j, item) in items.iter().enumerate() {
-        menu_option(
-            draw_batch,
-            x + 1,
-            y + 2,
-            97 + j as FontCharType,
-            &item.1,
-            selection == j,
-        );
+        menu_option(draw_batch, x + 1, y + 2, 97 + j as FontCharType, &item.1, selection == j);
         y += 1;
     }
 
@@ -105,11 +81,7 @@ pub fn item_result_menu<S: ToString>(
             VirtualKeyCode::Up => ItemMenuResult::UpSelection,
             VirtualKeyCode::Down => ItemMenuResult::DownSelection,
             key => {
-                let selection = if key == VirtualKeyCode::Return {
-                    selection as i32
-                } else {
-                    letter_to_option(key)
-                };
+                let selection = if key == VirtualKeyCode::Return { selection as i32 } else { letter_to_option(key) };
 
                 if selection > -1 && selection < count as i32 {
                     return ItemMenuResult::Selected(items[selection as usize].0);

@@ -12,5 +12,8 @@ pub struct BlocksTile;
 #[derive(Component)]
 pub struct Item;
 
+#[derive(Component, Debug)]
+pub struct Consumable;
+
 #[derive(Component)]
 pub struct Dead;

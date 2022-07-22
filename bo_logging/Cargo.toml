@@ -1,0 +1,10 @@
+[package]
+name = "bo_logging"
+version = "0.1.0"
+authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+bracket-terminal = "^0.8.5"
+parking_lot = "^0.12.1"
+lazy_static = "^1.4.0"

@@ -2,6 +2,7 @@ mod bundle;
 mod components;
 mod effects;
 mod events;
+mod setup;
 mod state;
 
 pub mod queries;
@@ -14,5 +15,6 @@ pub mod prelude {
     pub use crate::effects::*;
     pub use crate::events::*;
     pub use crate::queries::*;
+    pub use crate::setup::*;
     pub use crate::state::*;
 }

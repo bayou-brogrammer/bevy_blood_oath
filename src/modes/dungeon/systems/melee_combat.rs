@@ -1,9 +1,6 @@
 use super::*;
 
-pub fn combat(
-    stats_query: Query<(&CombatStats, &Naming)>,
-    mut attack_events: ResMut<Events<WantsToAttack>>,
-) {
+pub fn combat(stats_query: Query<(&CombatStats, &Naming)>, mut attack_events: ResMut<Events<WantsToAttack>>) {
     for WantsToAttack { victim, attacker } in attack_events.drain() {
         if let Ok((attacker_stats, attacker_name)) = stats_query.get(attacker) {
             if attacker_stats.hp > 0 {
@@ -13,14 +10,14 @@ pub fn combat(
                     let damage = i32::max(0, attacker_stats.power - target_stats.defense);
 
                     if damage == 0 {
-                        crate::gamelog::Logger::new()
+                        bo_logging::Logger::new()
                             .npc_name(&attacker_name.0)
                             .append("atacks")
                             .npc_name(&target_name.0)
                             .append("but can't connect.")
                             .log();
                     } else {
-                        crate::gamelog::Logger::new()
+                        bo_logging::Logger::new()
                             .npc_name(&attacker_name.0)
                             .append("hits")
                             .npc_name(&target_name.0)

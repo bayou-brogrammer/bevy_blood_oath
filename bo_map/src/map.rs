@@ -113,10 +113,7 @@ impl Map {
 
                 if !map.rooms.is_empty() {
                     let Point { x: new_x, y: new_y } = new_room.center();
-                    let Point {
-                        x: prev_x,
-                        y: prev_y,
-                    } = map.rooms[map.rooms.len() - 1].center();
+                    let Point { x: prev_x, y: prev_y } = map.rooms[map.rooms.len() - 1].center();
 
                     if rng.range(0, 2) == 1 {
                         map.apply_horizontal_tunnel(prev_x, new_x, prev_y);

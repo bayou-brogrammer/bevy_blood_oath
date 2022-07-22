@@ -6,10 +6,17 @@ edition = "2021"
 
 [dependencies]
 bo_map = { path = "../bo_map" }
+bo_utils = { path = "../bo_utils" }
+bo_logging = { path = "../bo_logging" }
+
 bracket-geometry = "^0.8.3"
 bracket-color = "^0.8.2"
 bracket-terminal = "^0.8.5"
-bevy_ecs = { version = "~0.7.0" }
+bracket-algorithm-traits = "^0.8.2"
+
+bevy_ecs = { version = "^0.7.0" }
+bevy_app = { version = "^0.7.0" }
+iyes_loopless = "^0.6.1"
 
 parking_lot = "^0.12.1"
 lazy_static = "^1.4.0"

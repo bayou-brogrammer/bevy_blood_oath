@@ -7,11 +7,7 @@ pub fn movement(
     mut move_events: ResMut<Events<WantsToMove>>,
     mut option_q: Query<(Option<&mut FieldOfView>, Option<&Player>)>,
 ) {
-    for WantsToMove {
-        entity,
-        destination,
-    } in move_events.drain()
-    {
+    for WantsToMove { entity, destination } in move_events.drain() {
         if map.in_bounds(destination) && map.can_enter_tile(destination) {
             let pos = positions.get(entity).unwrap();
             let start_idx = map.point2d_to_index(pos.0);

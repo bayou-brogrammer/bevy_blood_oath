@@ -2,26 +2,31 @@ use super::*;
 
 pub fn item_use(
     mut commands: Commands,
-    potions: Query<(&Potion, &Naming)>,
+    items: Query<(&Consumable, &Naming)>,
     mut stats_q: Query<&mut CombatStats>,
     player_q: Query<Entity, With<Player>>,
-    mut drink_events: ResMut<Events<WantsToDrinkPotion>>,
+    mut use_events: ResMut<Events<WantsToUseItem>>,
 ) {
-    println!("Use items");
-    for WantsToDrinkPotion { potion, drinker } in drink_events.drain() {
-        if let Ok((potion, potion_name)) = potions.get(potion) {
-            if let Ok(mut stats) = stats_q.get_mut(drinker) {
-                stats.hp = i32::min(stats.max_hp, stats.hp + potion.heal_amount);
-
-                if drinker == player_q.single() {
-                    crate::gamelog::Logger::new()
-                        .append("You drink the")
-                        .item_name(potion_name.0.clone())
-                        .log();
-                }
-            }
-        }
-
-        commands.entity(potion).despawn_recursive();
+    for WantsToUseItem { item, target, creator } in use_events.drain() {
+        let player_entity = player_q.single();
+        add_effect(
+            Some(creator),
+            EffectType::ItemUse { item },
+            match target {
+                None => Targets::Single { target: player_entity },
+                // TODO: Fix once aoe is implemented
+                _ => Targets::Single { target: player_entity }, // Some(target) => {
+                                                                //     if let Some(aoe) = aoe.get(useitem.item) {
+                                                                //         Targets::Tiles {
+                                                                //             tiles: aoe_tiles(&*map, target, aoe.radius),
+                                                                //         }
+                                                                //     } else {
+                                                                //         Targets::Tile {
+                                                                //             tile_idx: map.xy_idx(target.x, target.y) as i32,
+                                                                //         }
+                                                                //     }
+                                                                // }
+            },
+        );
     }
 }

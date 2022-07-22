@@ -1,9 +1,6 @@
 use super::*;
 
-pub fn fov_system(
-    mut map: ResMut<Map>,
-    mut views: Query<(&Position, &mut FieldOfView, Option<&Player>)>,
-) {
+pub fn fov_system(mut map: ResMut<Map>, mut views: Query<(&Position, &mut FieldOfView, Option<&Player>)>) {
     for (pos, mut fov, player) in views.iter_mut() {
         if fov.is_dirty {
             fov.is_dirty = false;

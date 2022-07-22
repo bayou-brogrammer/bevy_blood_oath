@@ -27,9 +27,9 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     mut selection: Local<usize>,
     key: Res<Option<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
-    mut state_stack: ResMut<StateStack<TurnState>>,
-    mut drink_event: EventWriter<WantsToDrinkPotion>,
+    mut use_event: EventWriter<WantsToUseItem>,
     mut drop_event: EventWriter<WantsToDropItem>,
+    mut state_stack: ResMut<StateStack<TurnState>>,
     items_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
 ) {
     let mut draw_batch = DrawBatch::new();
@@ -44,14 +44,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone())));
 
     let menu_type = InventoryMenu::menu_type(MENU_TYPE);
-    match item_result_menu(
-        &mut draw_batch,
-        menu_type.label(),
-        items.len(),
-        &items,
-        *key,
-        *selection,
-    ) {
+    match item_result_menu(&mut draw_batch, menu_type.label(), items.len(), &items, *key, *selection) {
         ItemMenuResult::Cancel => state_stack.set(TurnState::PlayerTurn),
         ItemMenuResult::UpSelection => {
             if *selection > 0 {
@@ -66,17 +59,10 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         ItemMenuResult::Selected(item) => {
             match menu_type {
                 InventoryMenu::Main => {
-                    drink_event.send(WantsToDrinkPotion {
-                        potion: item,
-                        drinker: player,
-                    });
+                    use_event.send(WantsToUseItem { item, target: None, creator: player });
                 }
                 InventoryMenu::Drop => {
-                    println!("Dropping {:?}", item);
-                    drop_event.send(WantsToDropItem {
-                        item,
-                        dropper: player,
-                    });
+                    drop_event.send(WantsToDropItem { item, dropper: player });
                 }
             }
 
@@ -85,5 +71,5 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         _ => {} // No Response
     }
 
-    draw_batch.submit(50_000).expect("Batch error"); // On top of everything
+    draw_batch.submit(BATCH_UI_INV).expect("Batch error"); // On top of everything
 }

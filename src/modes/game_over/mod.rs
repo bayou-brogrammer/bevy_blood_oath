@@ -39,18 +39,13 @@ impl GameOverMode {
         #[cfg(not(target_arch = "wasm32"))]
         actions.push(MenuAction::Quit);
 
-        Self {
-            actions,
-            selection: 0,
-        }
+        Self { actions, selection: 0 }
     }
 
     pub fn tick(&mut self, ctx: &mut BTerm, _pop_result: &Option<ModeResult>) -> ModeControl {
         if let Some(key) = ctx.key {
             match key {
-                VirtualKeyCode::Escape => {
-                    return ModeControl::Pop(GameOverModeResult::AppQuit.into())
-                }
+                VirtualKeyCode::Escape => return ModeControl::Pop(GameOverModeResult::AppQuit.into()),
                 VirtualKeyCode::Down => {
                     if self.selection < self.actions.len().saturating_sub(1) {
                         self.selection += 1;
@@ -72,9 +67,7 @@ impl GameOverMode {
                         MenuAction::NewGame => {
                             return ModeControl::Switch(DungeonMode::new().into());
                         }
-                        MenuAction::Quit => {
-                            return ModeControl::Pop(GameOverModeResult::AppQuit.into())
-                        }
+                        MenuAction::Quit => return ModeControl::Pop(GameOverModeResult::AppQuit.into()),
                     }
                 }
                 _ => {}
@@ -94,11 +87,7 @@ impl GameOverMode {
             (SCREEN_WIDTH, SCREEN_HEIGHT),
             BoxConfigWithTitle {
                 box_config: BoxConfig::new((30, 20), ColorPair::new(WHITE, BLACK), true, false),
-                text_config: TextConfig::new(
-                    "GameOver",
-                    ColorPair::new(RED, BLACK),
-                    Alignment::Center,
-                ),
+                text_config: TextConfig::new("GameOver", ColorPair::new(RED, BLACK), Alignment::Center),
             },
         );
 
@@ -111,19 +100,11 @@ impl GameOverMode {
 
         y = box_rect.center().y as usize - 2;
         for (i, action) in self.actions.iter().enumerate() {
-            let color = if i == self.selection {
-                RGB::named(MAGENTA)
-            } else {
-                RGB::named(GRAY)
-            };
+            let color = if i == self.selection { RGB::named(MAGENTA) } else { RGB::named(GRAY) };
 
-            batch.print_color_centered(
-                y + i,
-                action.label(),
-                ColorPair::new(color, RGB::named(BLACK)),
-            );
+            batch.print_color_centered(y + i, action.label(), ColorPair::new(color, RGB::named(BLACK)));
         }
 
-        batch.submit(0).expect("Error batching title");
+        batch.submit(BATCH_ZERO).expect("Error batching title");
     }
 }

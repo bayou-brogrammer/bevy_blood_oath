@@ -1,0 +1,8 @@
+edition = "2021"
+
+chain_width = 100
+max_width = 115
+comment_width = 100
+fn_single_line = true
+single_line_if_else_max_width = 100
+use_small_heuristics = "Max"

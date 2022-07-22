@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+use bo_utils::impl_new;
 use bracket_color::prelude::ColorPair;
 use bracket_geometry::prelude::Point;
 use bracket_terminal::FontCharType;
@@ -12,10 +13,7 @@ pub struct RenderBundle {
 
 impl RenderBundle {
     pub fn new(glyph: FontCharType, color: ColorPair, order: RenderOrder, pt: Point) -> Self {
-        Self {
-            glyph: Glyph::new(glyph, color, order),
-            position: Position::new(pt),
-        }
+        Self { glyph: Glyph::new(glyph, color, order), position: Position::new(pt) }
     }
 }
 
@@ -28,11 +26,7 @@ pub struct EntityBundle<TAG: Component> {
 
 impl<TAG: Component> EntityBundle<TAG> {
     pub fn new(tag: TAG, name: &str, description: &str) -> Self {
-        Self {
-            tag,
-            name: Naming(name.to_string()),
-            description: Description(description.to_string()),
-        }
+        Self { tag, name: Naming(name.to_string()), description: Description(description.to_string()) }
     }
 }
 
@@ -59,28 +53,25 @@ pub struct MonsterBundle {
 
 impl MonsterBundle {
     pub fn new(fighter: FighterBundle<Monster>) -> Self {
-        Self {
-            fighter,
-            blocks: BlocksTile,
-        }
+        Self { fighter, blocks: BlocksTile }
     }
 }
 
 #[derive(Bundle, Component)]
-pub struct ItemBundle<ITEM: Component> {
+pub struct ItemBundle {
     #[bundle]
     pub entity: EntityBundle<Item>,
     #[bundle]
     pub render: RenderBundle,
-    pub item: ITEM,
 }
 
-impl<ITEM: Component> ItemBundle<ITEM> {
-    pub fn new(entity: EntityBundle<Item>, render: RenderBundle, item: ITEM) -> Self {
-        Self {
-            entity,
-            render,
-            item,
-        }
-    }
+impl_new!(ItemBundle, entity: EntityBundle<Item>, render: RenderBundle);
+
+#[derive(Bundle, Component)]
+pub struct ParticleBundle {
+    glyph: Glyph,
+    position: Position,
+    lifetime: ParticleLifetime,
 }
+
+impl_new!(ParticleBundle, position: Position, glyph: Glyph, lifetime: ParticleLifetime);

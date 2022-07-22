@@ -6,7 +6,7 @@ use setup::setup_dungeon_scheduler;
 mod setup;
 mod systems;
 
-pub use systems::render;
+pub use systems::{particle_system, render};
 
 #[derive(Debug)]
 pub enum DungeonModeResult {
@@ -20,9 +20,7 @@ pub struct DungeonMode {
 
 impl std::fmt::Debug for DungeonMode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("DungeonMode")
-            .field("consoles", &self.consoles)
-            .finish()
+        f.debug_struct("DungeonMode").field("consoles", &self.consoles).finish()
     }
 }
 
@@ -41,14 +39,9 @@ impl DungeonMode {
         let system_state: SystemState<(Res<StateStack<TurnState>>, Option<Res<AppExit>>)> =
             SystemState::new(&mut app.world);
 
-        app.insert_resource(CachedExitEvents {
-            state: system_state,
-        });
+        app.insert_resource(CachedExitEvents { state: system_state });
 
-        Self {
-            app,
-            consoles: vec![LAYER_MAP, LAYER_DECOR, LAYER_ITEMS, LAYER_CHARS, LAYER_TEXT],
-        }
+        Self { app, consoles: vec![LAYER_MAP, LAYER_DECOR, LAYER_ITEMS, LAYER_CHARS, LAYER_TEXT, LAYER_PARTICLES] }
     }
 
     pub fn setup_game(app: &mut App) {
@@ -65,19 +58,19 @@ impl DungeonMode {
 
         // Spawn Enemies
         map.rooms.iter().skip(1).for_each(|room| {
-            spawner::spawn_room(&mut app.world, room, true, true);
+            spawner::spawn_room(&mut app.world, room);
         });
+
+        spawner::health_potion(&mut app.world, start_pos);
 
         // Resource
         app.insert_resource(map);
         app.insert_resource(start_pos);
+        app.insert_resource(ParticleBuilder::new());
         app.insert_resource(render::camera::GameCamera::new(start_pos));
         app.insert_resource(StateStack::new(TurnState::AwaitingInput));
 
-        crate::gamelog::Logger::new()
-            .append("Welcome to")
-            .append_with_color("Rusty Roguelike", CYAN)
-            .log();
+        bo_logging::Logger::new().append("Welcome to").append_with_color("Rusty Roguelike", CYAN).log();
     }
 
     fn inject_context(&mut self, ctx: &mut BTerm) {
@@ -90,17 +83,15 @@ impl DungeonMode {
         self.inject_context(ctx);
         self.app.update();
 
-        self.app
-            .world
-            .resource_scope(|world, mut cached_state: Mut<CachedExitEvents>| {
-                let (turn_state, exit_event) = cached_state.state.get(world);
+        self.app.world.resource_scope(|world, mut cached_state: Mut<CachedExitEvents>| {
+            let (turn_state, exit_event) = cached_state.state.get(world);
 
-                match (exit_event, *turn_state.current()) {
-                    (None, TurnState::GameOver) => ModeControl::Switch(GameOverMode::new().into()),
-                    (Some(_), _) => ModeControl::Pop(DungeonModeResult::Done.into()),
-                    _ => ModeControl::Stay,
-                }
-            })
+            match (exit_event, *turn_state.current()) {
+                (None, TurnState::GameOver) => ModeControl::Switch(GameOverMode::new().into()),
+                (Some(_), _) => ModeControl::Pop(DungeonModeResult::Done.into()),
+                _ => ModeControl::Stay,
+            }
+        })
     }
 
     pub fn draw(&mut self, ctx: &mut BTerm, _active: bool) {

@@ -13,10 +13,6 @@ impl FieldOfView {
     pub fn new(radius: i32) -> Self {
         assert!(radius >= 0);
 
-        Self {
-            radius,
-            is_dirty: true,
-            visible_tiles: HashSet::new(),
-        }
+        Self { radius, is_dirty: true, visible_tiles: HashSet::new() }
     }
 }

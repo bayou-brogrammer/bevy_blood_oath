@@ -17,10 +17,7 @@ pub fn monster_ai(
     for (entity, pos, fov) in monster_q.iter_mut() {
         let distance = DistanceAlg::Pythagoras.distance2d(pos.0, player_pos.0);
         if distance < 1.5 {
-            attack_events.send(WantsToAttack {
-                attacker: entity,
-                victim: player_ent,
-            });
+            attack_events.send(WantsToAttack { attacker: entity, victim: player_ent });
         } else if fov.visible_tiles.contains(&player_pos.0) {
             let old_idx = map.point2d_to_index(pos.0);
             let new_idx = map.point2d_to_index(player_pos.0);
@@ -31,10 +28,7 @@ pub fn monster_ai(
             if path.success && path.steps.len() > 1 && path.steps.len() < 15 {
                 let destination = map.index_to_point2d(path.steps[1]);
 
-                move_events.send(WantsToMove {
-                    entity,
-                    destination,
-                });
+                move_events.send(WantsToMove { entity, destination });
             }
         }
     }

@@ -7,6 +7,7 @@ pub mod map_indexing;
 pub mod melee_combat;
 pub mod monster_ai;
 pub mod movement;
+pub mod particle_system;
 pub mod player;
 pub mod render;
 
@@ -21,11 +22,12 @@ impl Plugin for TickingPlugin {
                 .into(),
         );
 
+        app.add_system(particle_system::particle_spawn_system);
+        app.add_system(particle_system::update_particles);
+
         app.add_system_set_to_stage(
-            GameStage::Effects,
-            ConditionSet::new()
-                .with_system(map_indexing::map_indexing)
-                .into(),
+            GameStage::Cleanup,
+            ConditionSet::new().with_system(map_indexing::map_indexing).into(),
         );
 
         // Inventory Events
@@ -38,17 +40,11 @@ impl Plugin for TickingPlugin {
         )
         .add_system_set_to_stage(
             CoreStage::Update,
-            ConditionSet::new()
-                .run_on_event::<WantsToDrinkPotion>()
-                .with_system(inventory::item_use)
-                .into(),
+            ConditionSet::new().run_on_event::<WantsToUseItem>().with_system(inventory::item_use).into(),
         )
         .add_system_set_to_stage(
             CoreStage::Update,
-            ConditionSet::new()
-                .run_on_event::<WantsToDropItem>()
-                .with_system(inventory::item_drop)
-                .into(),
+            ConditionSet::new().run_on_event::<WantsToDropItem>().with_system(inventory::item_drop).into(),
         );
     }
 }

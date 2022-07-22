@@ -44,9 +44,7 @@ impl<T: StateData> StateStack<T> {
 ////////////////////////////////////////////////////////////////////////////////
 /// Run Criteria
 ////////////////////////////////////////////////////////////////////////////////
-pub fn run_in_state<T: StateData>(
-    state: T,
-) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
+pub fn run_in_state<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
     move |current: Res<StateStack<T>>| -> bool {
         if current.stack.is_empty() {
             return false;
@@ -56,9 +54,7 @@ pub fn run_in_state<T: StateData>(
     }
 }
 
-pub fn run_not_in_state<T: StateData>(
-    state: T,
-) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
+pub fn run_not_in_state<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
     move |current: Res<StateStack<T>>| -> bool {
         if current.stack.is_empty() {
             return false;
@@ -68,9 +64,7 @@ pub fn run_not_in_state<T: StateData>(
     }
 }
 
-pub fn run_in_state_bevy<T: StateData>(
-    state: T,
-) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
+pub fn run_in_state_bevy<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
     move |current: Res<StateStack<T>>| -> ShouldRun {
         if current.stack.is_empty() {
             return ShouldRun::No;
@@ -83,9 +77,7 @@ pub fn run_in_state_bevy<T: StateData>(
     }
 }
 
-pub fn run_not_in_state_bevy<T: StateData>(
-    state: T,
-) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
+pub fn run_not_in_state_bevy<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> ShouldRun + Clone + 'static {
     move |current: Res<StateStack<T>>| -> ShouldRun {
         if current.stack.is_empty() {
             return ShouldRun::No;

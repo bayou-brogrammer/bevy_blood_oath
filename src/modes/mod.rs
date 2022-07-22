@@ -102,10 +102,7 @@ pub struct ModeStack {
 impl ModeStack {
     /// Create a new mode stack.
     pub fn new(stack: Vec<Mode>) -> Self {
-        Self {
-            stack,
-            pop_result: None,
-        }
+        Self { stack, pop_result: None }
     }
 
     /// Perform update logic for the top mode of the stack, and then drawing logic for all  modes.

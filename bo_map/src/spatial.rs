@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use bevy::{ecs::schedule::StateData, prelude::Entity};
+use bevy_ecs::{prelude::Entity, schedule::StateData};
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
@@ -11,10 +11,7 @@ pub struct SpatialMap {
 
 impl SpatialMap {
     fn new() -> Self {
-        Self {
-            blocked: Vec::new(),
-            tile_content: Vec::new(),
-        }
+        Self { blocked: Vec::new(), tile_content: Vec::new() }
     }
 }
 
@@ -112,13 +109,11 @@ pub fn move_entity(entity: Entity, moving_from: usize, moving_to: usize) {
     // Recalculate blocks for both tiles
     let mut from_blocked = false;
     let mut to_blocked = false;
-    lock.tile_content[moving_from]
-        .iter()
-        .for_each(|(_, blocks)| {
-            if *blocks {
-                from_blocked = true;
-            }
-        });
+    lock.tile_content[moving_from].iter().for_each(|(_, blocks)| {
+        if *blocks {
+            from_blocked = true;
+        }
+    });
 
     lock.tile_content[moving_to].iter().for_each(|(_, blocks)| {
         if *blocks {

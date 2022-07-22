@@ -15,11 +15,7 @@ impl BitGrid {
         assert!(width >= 0);
         assert!(height >= 0);
 
-        Self {
-            width,
-            height,
-            bv: bitvec![0; (width * height) as usize],
-        }
+        Self { width, height, bv: bitvec![0; (width * height) as usize] }
     }
 
     /// Reset all elements to false.

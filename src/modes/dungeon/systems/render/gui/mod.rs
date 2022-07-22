@@ -13,10 +13,7 @@ pub struct GUIPlugin;
 impl Plugin for GUIPlugin {
     fn build(&self, app: &mut App) {
         // GUI Ticking Systems
-        app.add_system_set_to_stage(
-            GameStage::Render,
-            ConditionSet::new().with_system(render_ui).into(),
-        );
+        app.add_system_set_to_stage(GameStage::Render, ConditionSet::new().with_system(render_ui).into());
 
         // GUI Inventory Systems
         app.add_system_set_to_stage(
@@ -40,12 +37,13 @@ impl Plugin for GUIPlugin {
 
 fn render_ui(stats_q: Query<&CombatStats, With<Player>>) {
     let mut gui_batch = DrawBatch::new();
+    gui_batch.target(LAYER_TEXT);
 
     gui::render_panels(&mut gui_batch);
     gui::render_status(&mut gui_batch, stats_q);
-    gamelog::print_log(&mut gui_batch, Point::new(1, LOG_PANEL_BOX.y1 + 1));
+    print_log(&mut gui_batch, Point::new(1, LOG_PANEL_BOX.y1 + 1));
 
-    gui_batch.submit(40_000).expect("Batch error"); // On top of everything
+    gui_batch.submit(BATCH_UI).expect("Batch error"); // On top of everything
 }
 
 pub fn render_panels(batch: &mut DrawBatch) {
@@ -56,11 +54,7 @@ pub fn render_panels(batch: &mut DrawBatch) {
 
     // Side Panel
     batch.draw_box(*STAT_PANEL_BOX, ColorPair::new(DARK_GRAY, BLACK));
-    batch.print_color_centered_at(
-        Point::new(97, 1),
-        "SecBot - 2021 7DRL",
-        ColorPair::new(WHITE, BLACK),
-    );
+    batch.print_color_centered_at(Point::new(97, 1), "SecBot - 2021 7DRL", ColorPair::new(WHITE, BLACK));
 }
 
 pub fn render_status(batch: &mut DrawBatch, stats_q: Query<&CombatStats, With<Player>>) {
@@ -69,11 +63,5 @@ pub fn render_status(batch: &mut DrawBatch, stats_q: Query<&CombatStats, With<Pl
     let stats = stats_q.single();
     let health = format!(" HP: {} / {} ", stats.hp, stats.max_hp);
     batch.print_color(Point::new(82, 3), &health, ColorPair::new(WHITE, BLACK));
-    batch.bar_horizontal(
-        Point::new(82 + health.len(), 3),
-        16,
-        stats.hp,
-        stats.max_hp,
-        ColorPair::new(RED, BLACK),
-    );
+    batch.bar_horizontal(Point::new(82 + health.len(), 3), 16, stats.hp, stats.max_hp, ColorPair::new(RED, BLACK));
 }

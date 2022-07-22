@@ -6,7 +6,6 @@ mod gui;
 pub struct RenderPlugin;
 impl Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(gui::GUIPlugin)
-            .add_plugin(camera::CameraPlugin);
+        app.add_plugin(gui::GUIPlugin).add_plugin(camera::CameraPlugin);
     }
 }

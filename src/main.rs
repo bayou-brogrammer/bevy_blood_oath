@@ -1,4 +1,3 @@
-pub mod gamelog;
 pub mod spawner;
 
 mod modes;
@@ -17,24 +16,34 @@ mod prelude {
     pub use rayon::prelude::*;
 
     pub use bo_ecs::prelude::*;
+    pub use bo_logging::prelude::*;
     pub use bo_map::prelude::*;
     pub use bo_utils::prelude::*;
 
-    pub use crate::gamelog;
     pub use crate::spawner;
 
     pub use crate::modes::*;
     pub use crate::resources::*;
     pub use crate::rng::*;
 
+    pub const SCREEN_WIDTH: usize = 112;
+    pub const SCREEN_HEIGHT: usize = 31;
+
     pub const LAYER_MAP: usize = 0;
     pub const LAYER_DECOR: usize = 1;
     pub const LAYER_ITEMS: usize = 2;
     pub const LAYER_CHARS: usize = 3;
     pub const LAYER_TEXT: usize = 4;
+    pub const LAYER_PARTICLES: usize = 5;
 
-    pub const SCREEN_WIDTH: usize = 112;
-    pub const SCREEN_HEIGHT: usize = 31;
+    pub const BATCH_ZERO: usize = 0;
+    pub const BATCH_DECOR: usize = 1000;
+    pub const BATCH_ITEMS: usize = 2000;
+    pub const BATCH_CHARS: usize = 3000;
+    pub const BATCH_PARTICLES: usize = 4000;
+    pub const BATCH_UI: usize = 10_000;
+    pub const BATCH_UI_INV: usize = 15_000;
+    pub const BATCH_TOOLTIPS: usize = 100_000; // Over everything
 }
 
 pub use prelude::*;
@@ -45,9 +54,7 @@ pub struct GameWorld {
 
 impl GameWorld {
     pub fn new() -> Self {
-        Self {
-            mode_stack: ModeStack::new(vec![main_menu::MainMenuMode::new().into()]),
-        }
+        Self { mode_stack: ModeStack::new(vec![main_menu::MainMenuMode::new().into()]) }
     }
 }
 
@@ -89,6 +96,7 @@ fn main() -> BError {
         .with_sparse_console_no_bg(56, 31, "font.png") // Console 2: Items
         .with_sparse_console_no_bg(56, 31, "font.png") // Console 3: Characters
         .with_sparse_console(112, 31, "vga.png") // Console 4: User Interface
+        .with_sparse_console(56, 31, "font.png") // Console 5: Particles
         ////////////////////////////////////////////////////////////////////////////////
         .build()?;
 

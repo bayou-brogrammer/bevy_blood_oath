@@ -13,10 +13,7 @@ pub fn item_collection(
         if collected_by == player_q.single() {
             let item_name = names_q.get(item).unwrap();
 
-            crate::gamelog::Logger::new()
-                .append("You pick up the")
-                .item_name(item_name.0.clone())
-                .log();
+            bo_logging::Logger::new().append("You pick up the").item_name(item_name.0.clone()).log();
         }
     }
 }

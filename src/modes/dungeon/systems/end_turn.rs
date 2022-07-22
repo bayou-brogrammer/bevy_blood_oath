@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-pub fn end_turn(
-    player_stats_q: Query<&CombatStats, With<Player>>,
-    mut stack: ResMut<StateStack<TurnState>>,
-) {
+pub fn end_turn(player_stats_q: Query<&CombatStats, With<Player>>, mut stack: ResMut<StateStack<TurnState>>) {
     let stats = player_stats_q.single();
 
     let current_state = *stack.current();

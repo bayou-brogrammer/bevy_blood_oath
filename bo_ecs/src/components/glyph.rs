@@ -4,6 +4,7 @@ use bracket_terminal::FontCharType;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum RenderOrder {
+    Particle,
     Actor,
     Item,
     Corpse,
@@ -18,10 +19,6 @@ pub struct Glyph {
 
 impl Glyph {
     pub fn new(glyph: FontCharType, color: ColorPair, render_order: RenderOrder) -> Self {
-        Glyph {
-            glyph,
-            color,
-            render_order,
-        }
+        Glyph { glyph, color, render_order }
     }
 }

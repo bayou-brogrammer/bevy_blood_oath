@@ -1,4 +1,6 @@
 use super::*;
+use bracket_terminal::prelude::*;
+use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
 lazy_static! {
@@ -14,17 +16,11 @@ pub fn clear_log() {
 }
 
 pub fn print_log(batch: &mut DrawBatch, pos: Point) {
-    batch.target(LAYER_TEXT);
-
     let mut y = pos.y;
     let mut x = pos.x;
     LOG.lock().iter().rev().take(6).for_each(|log| {
         log.iter().for_each(|frag| {
-            batch.print_color(
-                Point::new(x, y),
-                &frag.text,
-                ColorPair::new(frag.color.to_rgba(1.0), BLACK),
-            );
+            batch.print_color(Point::new(x, y), &frag.text, ColorPair::new(frag.color.to_rgba(1.0), BLACK));
             x += frag.text.len() as i32;
             x += 1;
         });
@@ -33,11 +29,11 @@ pub fn print_log(batch: &mut DrawBatch, pos: Point) {
     });
 }
 
-pub fn clone_log() -> Vec<Vec<crate::gamelog::LogFragment>> {
+pub fn clone_log() -> Vec<Vec<LogFragment>> {
     LOG.lock().clone()
 }
 
-pub fn restore_log(log: &mut Vec<Vec<crate::gamelog::LogFragment>>) {
+pub fn restore_log(log: &mut Vec<Vec<LogFragment>>) {
     LOG.lock().clear();
     LOG.lock().append(log);
 }
