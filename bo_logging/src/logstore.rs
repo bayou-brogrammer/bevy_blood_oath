@@ -20,7 +20,11 @@ pub fn print_log(batch: &mut DrawBatch, pos: Point) {
     let mut x = pos.x;
     LOG.lock().iter().rev().take(6).for_each(|log| {
         log.iter().for_each(|frag| {
-            batch.print_color(Point::new(x, y), &frag.text, ColorPair::new(frag.color.to_rgba(1.0), BLACK));
+            batch.print_color(
+                Point::new(x, y),
+                &frag.text,
+                ColorPair::new(frag.color.to_rgba(1.0), BLACK),
+            );
             x += frag.text.len() as i32;
             x += 1;
         });

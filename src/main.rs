@@ -2,7 +2,6 @@ pub mod spawner;
 
 mod effects;
 mod render;
-mod resources;
 mod rng;
 mod setup;
 mod systems;
@@ -32,7 +31,6 @@ mod prelude {
 
     pub use crate::effects::*;
     pub use crate::render::*;
-    pub use crate::resources::*;
     pub use crate::rng::*;
     pub use crate::setup::*;
     pub use crate::systems::*;

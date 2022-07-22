@@ -42,7 +42,8 @@ impl Logger {
     }
 
     pub fn damage(mut self, damage: i32) -> Self {
-        self.fragments.push(LogFragment { color: RGB::named(RED), text: format!("{}", damage).to_string() });
+        self.fragments
+            .push(LogFragment { color: RGB::named(RED), text: format!("{}", damage).to_string() });
         self
     }
 }

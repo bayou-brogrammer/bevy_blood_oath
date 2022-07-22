@@ -25,7 +25,11 @@ pub struct EntityBundle<TAG: Component> {
 
 impl<TAG: Component> EntityBundle<TAG> {
     pub fn new(tag: TAG, name: &str, description: &str) -> Self {
-        Self { tag, name: Naming(name.to_string()), description: Description(description.to_string()) }
+        Self {
+            tag,
+            name: Naming(name.to_string()),
+            description: Description(description.to_string()),
+        }
     }
 }
 
