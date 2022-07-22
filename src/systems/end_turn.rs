@@ -1,7 +1,6 @@
 use crate::prelude::*;
 
 pub fn end_turn(
-    mut commands: Commands,
     player_stats_q: Query<&CombatStats, With<Player>>,
     mut stack: ResMut<StateStack<TurnState>>,
 ) {
@@ -18,5 +17,5 @@ pub fn end_turn(
         new_state = TurnState::GameOver;
     }
 
-    commands.insert_resource(StateStack::new(new_state));
+    stack.set(new_state);
 }

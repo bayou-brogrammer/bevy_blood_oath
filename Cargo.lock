@@ -636,6 +636,7 @@ dependencies = [
  "bo_utils",
  "bracket-algorithm-traits",
  "bracket-geometry",
+ "bracket-pathfinding",
  "bracket-terminal",
  "iyes_loopless",
  "lazy_static",

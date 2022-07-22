@@ -2,10 +2,7 @@ use super::*;
 use bracket_lib::prelude::Rect;
 use lazy_static::lazy_static;
 
-mod main_menu;
 mod menus;
-
-pub use main_menu::*;
 pub use menus::*;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +90,7 @@ impl Plugin for GUIPlugin {
         // GUI Inventory Systems
         app.add_system_set(
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::ShowInventory))
+                .run_if(run_in_stack(TurnState::Inventory))
                 .with_system(menus::show_inventory::<{ InventoryMenu::Main as u8 }>)
                 .into(),
         )

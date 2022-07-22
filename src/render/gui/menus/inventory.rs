@@ -25,6 +25,7 @@ impl InventoryMenu {
 // pub fn show_inventory<const MENU_TYPE: InventoryMenu>(
 pub fn show_inventory<const MENU_TYPE: u8>(
     mut selection: Local<usize>,
+    ranged_items: Query<&Ranged>,
     key: Res<Option<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
     mut use_event: EventWriter<WantsToUseItem>,
@@ -66,6 +67,10 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         ItemMenuResult::Selected(item) => {
             match menu_type {
                 InventoryMenu::Main => {
+                    if let Ok(r) = ranged_items.get(item) {
+                        return state_stack.set(TurnState::Targeting { range: r.range, item });
+                    }
+
                     use_event.send(WantsToUseItem { item, target: None, creator: player });
                 }
                 InventoryMenu::Drop => {

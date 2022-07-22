@@ -6,6 +6,7 @@ mod items;
 mod name;
 mod particle;
 mod position;
+mod ranged;
 mod stats;
 mod tags;
 
@@ -17,5 +18,6 @@ pub use items::*;
 pub use name::Naming;
 pub use particle::*;
 pub use position::Position;
+pub use ranged::*;
 pub use stats::CombatStats;
 pub use tags::*;

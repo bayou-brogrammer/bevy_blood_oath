@@ -85,7 +85,7 @@ pub fn player_turn_done(
         PlayerInputResult::TurnDone => {
             commands.insert_resource(StateStack::new(TurnState::PlayerTurn))
         }
-        PlayerInputResult::ShowInventory => stack.set(TurnState::ShowInventory),
+        PlayerInputResult::ShowInventory => stack.set(TurnState::Inventory),
         PlayerInputResult::ShowDropMenu => stack.set(TurnState::ShowDropMenu),
     }
 }

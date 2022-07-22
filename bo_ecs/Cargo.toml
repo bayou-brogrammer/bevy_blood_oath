@@ -9,6 +9,7 @@ bo_map = { path = "../bo_map" }
 bo_utils = { path = "../bo_utils" }
 bo_logging = { path = "../bo_logging" }
 
+bracket-pathfinding = "^0.8.4"
 bracket-geometry = "^0.8.3"
 bracket-terminal = "^0.8.5"
 bracket-algorithm-traits = "^0.8.2"

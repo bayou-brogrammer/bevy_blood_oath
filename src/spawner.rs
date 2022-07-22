@@ -6,7 +6,7 @@ pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
     world
         .spawn()
         .insert_bundle(FighterBundle::new(
-            EntityBundle::new(Player, "SecBot", "Everybody's favorite Bracket Corp SecBot"),
+            EntityBundle::new(Player, "SecBot"),
             FieldOfView::new(8),
             CombatStats::new(30, 30, 2, 5),
         ))
@@ -14,6 +14,7 @@ pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
             position: Position::new(start_pos),
             glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Actor),
         })
+        .insert(Description::new("A bot that can attack and move."))
         .id()
 }
 
@@ -51,7 +52,7 @@ pub fn spawn_room(world: &mut World, room: &Rect) {
         }
     });
 
-    item_spawn_points.iter().for_each(|pt| health_potion(world, *pt));
+    item_spawn_points.iter().for_each(|pt| random_item(world, &mut rng, *pt));
 }
 
 /// Spawns a random monster at a given location
@@ -75,23 +76,58 @@ pub fn monster(world: &mut World, start_pos: Point, glyph: FontCharType, name: &
     world
         .spawn()
         .insert_bundle(MonsterBundle::new(FighterBundle::new(
-            EntityBundle::new(Monster, name, desc),
+            EntityBundle::new(Monster, name),
             FieldOfView::new(6),
             CombatStats::new(16, 16, 1, 4),
         )))
         .insert_bundle(RenderBundle {
             position: Position::new(start_pos),
             glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
-        });
+        })
+        .insert(Description::new(desc));
+}
+
+fn random_item(ecs: &mut World, rng: &mut RandomNumberGenerator, pt: Point) {
+    let roll = rng.roll_dice(1, 2);
+    match roll {
+        1 => health_potion(ecs, pt),
+        2 => fireball_scroll(ecs, pt),
+        _ => magic_missile_scroll(ecs, pt),
+    }
 }
 
 pub fn health_potion(world: &mut World, pt: Point) {
     world
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Health Potion", "A potion that restores health"),
+            EntityBundle::new(Item, "Health Potion"),
             RenderBundle::new(to_cp437('¡'), ColorPair::new(MAGENTA, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)
         .insert(ProvidesHealing(10));
+}
+
+pub fn magic_missile_scroll(world: &mut World, pt: Point) {
+    world
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Magic Missile Scroll"),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Consumable)
+        .insert(Ranged { range: 6 })
+        .insert(InflictsDamage { damage: 8 });
+}
+
+pub fn fireball_scroll(world: &mut World, pt: Point) {
+    world
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Fireball Scroll"),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Consumable)
+        .insert(Ranged { range: 6 })
+        .insert(InflictsDamage { damage: 20 })
+        .insert(AreaOfEffect { radius: 3 });
 }

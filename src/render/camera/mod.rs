@@ -17,18 +17,32 @@ impl GameCamera {
         Self { viewport, player_pos }
     }
 
-    fn world_to_screen(&self, pt: Point) -> Point {
+    pub fn world_to_screen(&self, pt: Point) -> Point {
         let bot = pt - self.player_pos;
         bot + Point::new(20, 15)
     }
 
-    fn _world_to_screen_text(&self, pt: Point) -> Point {
+    pub fn world_to_screen_text(&self, pt: Point) -> Point {
         let ws = self.world_to_screen(pt);
         ws * Point::new(2, 1)
     }
 
-    fn screen_to_world(&self, mouse_x: i32, mouse_y: i32) -> Point {
+    pub fn screen_to_world(&self, mouse_x: i32, mouse_y: i32) -> Point {
         Point::new(mouse_x + self.viewport.x1, mouse_y + self.viewport.y1)
+    }
+
+    pub fn get_screen_bounds(&self) -> (i32, i32, i32, i32) {
+        let (x_chars, y_chars) = (48, 44);
+
+        let center_x = (x_chars / 2) as i32;
+        let center_y = (y_chars / 2) as i32;
+
+        let min_x = self.player_pos.x - center_x;
+        let max_x = min_x + x_chars as i32;
+        let min_y = self.player_pos.y - center_y;
+        let max_y = min_y + y_chars as i32;
+
+        (min_x, max_x, min_y, max_y)
     }
 }
 

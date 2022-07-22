@@ -1,15 +1,20 @@
 use super::*;
 
 mod inventory;
+mod main_menu;
+mod ranged;
+
 pub use inventory::*;
+pub use main_menu::*;
+pub use ranged::*;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
-pub enum ItemMenuResult {
+pub enum ItemMenuResult<T> {
     Cancel,
     NoResponse,
     UpSelection,
     DownSelection,
-    Selected(Entity),
+    Selected(T),
 }
 
 pub fn menu_option<T: ToString>(
@@ -35,7 +40,7 @@ pub fn item_result_menu<S: ToString>(
     items: &[(Entity, String)],
     key: Option<VirtualKeyCode>,
     selection: usize,
-) -> ItemMenuResult {
+) -> ItemMenuResult<Entity> {
     let max_width = if count > 0 {
         items.iter().map(|s| s.1.len()).max().unwrap() + 8
     } else {

@@ -54,16 +54,19 @@ impl GameState for GameWorld {
         ctx.clear_consoles(self.ui_consoles.as_slice());
         self.inject_context(ctx);
 
-        self.app.update();
-        render_draw_buffer(ctx).expect("Render error");
-
         self.app.world.resource_scope(|world, mut cached_state: Mut<CachedExitEvents>| {
-            let (_, exit_event) = cached_state.state.get(world);
+            let (state, exit_event) = cached_state.state.get(world);
 
-            match exit_event {
-                Some(_) => ctx.quit(),
+            match (state.current(), exit_event) {
+                (_, Some(_)) => ctx.quit(),
+                (TurnState::Targeting { range, item }, _) => {
+                    gui::ranged_targeting(ctx, world, *range, *item)
+                }
                 _ => {}
             }
         });
+
+        self.app.update();
+        render_draw_buffer(ctx).expect("Render error");
     }
 }

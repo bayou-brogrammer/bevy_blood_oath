@@ -1,4 +1,7 @@
-use bevy_ecs::schedule::{StageLabel, SystemLabel};
+use bevy_ecs::{
+    prelude::Entity,
+    schedule::{StageLabel, SystemLabel},
+};
 
 mod criteria;
 mod state;
@@ -17,8 +20,9 @@ pub enum TurnState {
     PlayerTurn,
     AITurn,
 
-    ShowInventory,
+    Inventory,
     ShowDropMenu,
+    Targeting { range: i32, item: Entity },
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]

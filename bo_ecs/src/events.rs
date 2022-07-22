@@ -42,7 +42,7 @@ pub struct WantsToDropItem {
     pub dropper: Entity,
 }
 
-// pub struct ParticleRequestEvent {}
+impl_new!(WantsToUseItem, item: Entity, target: Option<Point>, creator: Entity);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// Effects

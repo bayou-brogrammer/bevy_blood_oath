@@ -31,7 +31,8 @@ pub fn setup(world: &mut World) {
         spawner::spawn_room(world, room);
     });
 
-    spawner::health_potion(world, start_pos);
+    spawner::magic_missile_scroll(world, start_pos);
+    spawner::fireball_scroll(world, start_pos);
 
     // Resource
     world.insert_resource(map);

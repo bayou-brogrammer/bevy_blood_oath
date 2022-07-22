@@ -42,6 +42,7 @@ fn main_menu_input(
     mut selection: Local<usize>,
     key: Res<Option<VirtualKeyCode>>,
     mut commands: Commands,
+    mut stack: ResMut<StateStack<TurnState>>,
 ) -> usize {
     if let Some(key) = key.as_ref() {
         let actions = MainMenu::actions();
@@ -67,13 +68,11 @@ fn main_menu_input(
 
                 match actions[*selection] {
                     MainMenu::Quit => commands.insert_resource(AppExit),
-                    MainMenu::NewGame => {
-                        commands.insert_resource(StateStack::new(TurnState::SetupDungeon));
-                    }
+                    MainMenu::NewGame => stack.set(TurnState::SetupDungeon),
                     _ => {} // Don't Handle loading or options yet.
                 }
             }
-            _ => commands.insert_resource(StateStack::new(TurnState::SetupDungeon)),
+            _ => stack.set(TurnState::SetupDungeon),
         }
     }
 

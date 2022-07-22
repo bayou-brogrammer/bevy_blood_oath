@@ -7,6 +7,7 @@ mod resources;
 pub mod queries;
 
 pub mod prelude {
+    pub use crate::queries;
     pub use bevy_ecs::prelude::{Bundle, Component, Entity};
 
     pub use crate::bundle::*;

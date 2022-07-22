@@ -20,16 +20,11 @@ impl RenderBundle {
 pub struct EntityBundle<TAG: Component> {
     pub tag: TAG,
     pub name: Naming,
-    pub description: Description,
 }
 
 impl<TAG: Component> EntityBundle<TAG> {
-    pub fn new(tag: TAG, name: &str, description: &str) -> Self {
-        Self {
-            tag,
-            name: Naming(name.to_string()),
-            description: Description(description.to_string()),
-        }
+    pub fn new(tag: TAG, name: &str) -> Self {
+        Self { tag, name: Naming(name.to_string()) }
     }
 }
 
