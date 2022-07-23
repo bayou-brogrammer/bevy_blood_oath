@@ -1,11 +1,9 @@
 use super::*;
 
 mod inventory;
-mod main_menu;
 mod ranged;
 
 pub use inventory::*;
-pub use main_menu::*;
 pub use ranged::*;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
@@ -36,13 +34,13 @@ pub fn menu_option<T: ToString>(
 pub fn item_result_menu<S: ToString>(
     draw_batch: &mut DrawBatch,
     title: S,
-    count: usize,
+    count: i32,
     items: &[(Entity, String)],
     key: Option<VirtualKeyCode>,
     selection: usize,
 ) -> ItemMenuResult<Entity> {
     let max_width = if count > 0 {
-        items.iter().map(|s| s.1.len()).max().unwrap() + 8
+        (items.iter().map(|s| s.1.len()).max().unwrap() + 8) as i32
     } else {
         20 // Base width for empty menu
     };
@@ -51,14 +49,9 @@ pub fn item_result_menu<S: ToString>(
 
     let box_rect = center_box_with_title(
         draw_batch,
-        (*MAP_PANEL_WIDTH, *MAP_PANEL_HEIGHT),
+        (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
         BoxConfigWithTitle {
-            box_config: BoxConfig::new(
-                (max_width, max_height),
-                ColorPair::new(WHITE, BLACK),
-                true,
-                false,
-            ),
+            box_config: BoxConfig::new((max_width, max_height), ColorPair::new(WHITE, BLACK), true, false),
             text_config: TextConfig::with_footer(
                 title,
                 "[Esc] to cancel",
@@ -91,11 +84,8 @@ pub fn item_result_menu<S: ToString>(
             VirtualKeyCode::Up => ItemMenuResult::UpSelection,
             VirtualKeyCode::Down => ItemMenuResult::DownSelection,
             key => {
-                let selection = if key == VirtualKeyCode::Return {
-                    selection as i32
-                } else {
-                    letter_to_option(key)
-                };
+                let selection =
+                    if key == VirtualKeyCode::Return { selection as i32 } else { letter_to_option(key) };
 
                 if selection > -1 && selection < count as i32 {
                     return ItemMenuResult::Selected(items[selection as usize].0);

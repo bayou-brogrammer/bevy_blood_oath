@@ -1,4 +1,4 @@
-use super::*;
+use crate::prelude::*;
 
 use bevy_ecs::{
     schedule::{ShouldRun, StateData},
@@ -8,20 +8,16 @@ use bevy_ecs::{
 ////////////////////////////////////////////////////////////////////////////////
 /// Run Criteria
 ////////////////////////////////////////////////////////////////////////////////
-pub fn run_in_game_state(current: Res<StateStack<TurnState>>) -> bool {
+pub fn run_in_game_state(current: Res<TurnState>) -> bool {
     if current.stack.is_empty() {
         return false;
     }
 
-    !current.stack.iter().any(|s| {
-        *s == TurnState::GameOver || *s == TurnState::MainMenu || *s == TurnState::SetupDungeon
-    })
+    !current.stack.iter().any(|s| *s == TurnState::GameOver)
 }
 
-pub fn run_in_stack<T: StateData>(
-    state: T,
-) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
-    move |current: Res<StateStack<T>>| -> bool {
+pub fn run_in_stack(state: TurnState) -> impl Fn(Res<StateStack<TurnState>>) -> bool + Clone + 'static {
+    move |current: Res<StateStack<TurnState>>| -> bool {
         if current.stack.is_empty() {
             return false;
         }
@@ -30,9 +26,7 @@ pub fn run_in_stack<T: StateData>(
     }
 }
 
-pub fn run_not_in_stack<T: StateData>(
-    state: T,
-) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
+pub fn run_not_in_stack<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
     move |current: Res<StateStack<T>>| -> bool {
         if current.stack.is_empty() {
             return false;

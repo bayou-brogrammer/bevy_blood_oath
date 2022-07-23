@@ -1,9 +1,6 @@
 use super::*;
 
-pub fn particle_spawn_system(
-    mut commands: Commands,
-    mut particle_builder: ResMut<ParticleBuilder>,
-) {
+pub fn particle_spawn_system(mut commands: Commands, mut particle_builder: ResMut<ParticleBuilder>) {
     for ParticleRequest { pt, color, glyph, lifetime } in particle_builder.requests.iter() {
         commands.spawn().insert_bundle(ParticleBundle::new(
             Position::new(*pt),
@@ -38,11 +35,7 @@ impl Plugin for ParticlePlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set_to_stage(
             CoreStage::PreUpdate,
-            ConditionSet::new()
-                .run_if(run_in_game_state)
-                .with_system(particle_spawn_system)
-                .with_system(update_particles)
-                .into(),
+            ConditionSet::new().with_system(particle_spawn_system).with_system(update_particles).into(),
         );
     }
 }

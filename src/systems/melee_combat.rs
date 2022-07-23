@@ -1,9 +1,6 @@
 use super::*;
 
-pub fn combat(
-    stats_query: Query<(&CombatStats, &Naming)>,
-    mut attack_events: ResMut<Events<WantsToAttack>>,
-) {
+pub fn combat(stats_query: Query<(&CombatStats, &Naming)>, mut attack_events: ResMut<Events<WantsToAttack>>) {
     for WantsToAttack { victim, attacker } in attack_events.drain() {
         if let Ok((attacker_stats, attacker_name)) = stats_query.get(attacker) {
             if attacker_stats.hp > 0 {

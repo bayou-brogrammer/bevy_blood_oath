@@ -2,11 +2,12 @@ use super::*;
 
 pub fn item_use(
     map: Res<Map>,
-    aoe_item: Query<(&AreaOfEffect)>,
+    aoe_item: Query<&AreaOfEffect>,
     player_q: Query<Entity, With<Player>>,
     mut use_events: ResMut<Events<WantsToUseItem>>,
 ) {
     for WantsToUseItem { item, target, creator } in use_events.drain() {
+        println!("item_use {:?}", item);
         let player_entity = player_q.single();
 
         add_effect(

@@ -9,11 +9,11 @@ pub struct BoxConfig {
     pub color: ColorPair,
     pub double: bool,
     pub hollow: bool,
-    pub dimensions: (usize, usize), // (width, height)
+    pub dimensions: (i32, i32), // (width, height)
 }
 
 impl BoxConfig {
-    pub fn new(dimensions: (usize, usize), color: ColorPair, double: bool, hollow: bool) -> Self {
+    pub fn new(dimensions: (i32, i32), color: ColorPair, double: bool, hollow: bool) -> Self {
         Self { dimensions, color, double, hollow }
     }
 }
@@ -158,7 +158,7 @@ pub fn box_with_title(batch: &mut DrawBatch, pt: Point, config: BoxConfigWithTit
 
     let end_x = width;
     let end_y = height / 2;
-    let box_rect = Rect::with_size(pt.x as usize, pt.y as usize, end_x, end_y);
+    let box_rect = Rect::with_size(pt.x, pt.y, end_x, end_y);
 
     draw_box(batch, box_rect, double, hollow, color);
     draw_title(batch, box_rect, title, title_color, footer, footer_color, alignment);
@@ -166,7 +166,7 @@ pub fn box_with_title(batch: &mut DrawBatch, pt: Point, config: BoxConfigWithTit
     box_rect
 }
 
-pub fn center_box(batch: &mut DrawBatch, screen_bounds: (usize, usize), config: BoxConfig) -> Rect {
+pub fn center_box(batch: &mut DrawBatch, screen_bounds: (i32, i32), config: BoxConfig) -> Rect {
     let BoxConfig { color, double, hollow, dimensions } = config;
 
     let (screen_w, screen_h) = screen_bounds;
@@ -186,7 +186,7 @@ pub fn center_box(batch: &mut DrawBatch, screen_bounds: (usize, usize), config: 
 
 pub fn center_box_with_title(
     batch: &mut DrawBatch,
-    screen_bounds: (usize, usize),
+    screen_bounds: (i32, i32),
     config: BoxConfigWithTitle,
 ) -> Rect {
     let BoxConfigWithTitle {

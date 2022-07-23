@@ -13,23 +13,14 @@ pub mod player;
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            ConditionSet::new()
-                .label(StateLabel::Fov)
-                .run_if(run_in_game_state)
-                .with_system(fov::fov_system)
-                .into(),
-        );
+        app.add_system_set(ConditionSet::new().label(StateLabel::Fov).with_system(fov::fov_system).into());
 
         app.add_plugin(particles::ParticlePlugin);
         app.add_plugin(inventory::InventoryPlugin);
 
         app.add_system_set_to_stage(
             GameStage::Cleanup,
-            ConditionSet::new()
-                .run_if(run_in_game_state)
-                .with_system(map_indexing::map_indexing)
-                .into(),
+            ConditionSet::new().with_system(map_indexing::map_indexing).into(),
         );
     }
 }
@@ -40,7 +31,7 @@ impl Plugin for AwaitingInputPlugin {
         app.add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::AwaitingInput))
+                .run_if_resource_equals(TurnState::AwaitingInput)
                 .with_system(player::player_input.chain(player::player_turn_done))
                 .into(),
         );
@@ -53,7 +44,7 @@ impl Plugin for PlayerPlugin {
         app.add_system_set_to_stage(
             GameStage::GeneratePlayerActions,
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::PlayerTurn))
+                .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .into(),
@@ -62,7 +53,7 @@ impl Plugin for PlayerPlugin {
         app.add_system_set_to_stage(
             GameStage::HandlePlayerActions,
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::PlayerTurn))
+                .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
@@ -77,14 +68,14 @@ impl Plugin for AIPlugin {
         app.add_system_set_to_stage(
             GameStage::GenerateAIActions,
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::AITurn))
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(monster_ai::monster_ai)
                 .into(),
         )
         .add_system_set_to_stage(
             GameStage::HandleAIActions,
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::AITurn))
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .into(),
@@ -92,7 +83,7 @@ impl Plugin for AIPlugin {
         .add_system_set_to_stage(
             GameStage::AICleanup,
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::AITurn))
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
@@ -107,6 +98,7 @@ impl Plugin for SystemsPlugin {
         app.add_plugin(TickingPlugin)
             .add_plugin(AwaitingInputPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(AIPlugin);
+            .add_plugin(AIPlugin)
+            .add_plugin(EffectsPlugin);
     }
 }

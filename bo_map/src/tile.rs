@@ -45,7 +45,7 @@ impl GameTile {
         Self {
             opaque: false,
             walkable: true,
-            glyph: to_cp437('~'),
+            glyph: to_cp437('.'),
             tile_type: TileType::Floor,
             color: ColorPair::new(WHITE, BLACK),
         }

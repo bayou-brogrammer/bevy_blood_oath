@@ -6,7 +6,7 @@ mod logstore;
 
 pub use builder::Logger;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LogFragment {
     pub color: RGB,
     pub text: String,

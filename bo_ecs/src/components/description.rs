@@ -1,5 +1,3 @@
-use bo_utils::impl_new;
-
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Component)]

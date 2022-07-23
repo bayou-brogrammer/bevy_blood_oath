@@ -10,11 +10,14 @@ pub fn movement(
 ) {
     for WantsToMove { entity, destination } in move_events.drain() {
         if map.in_bounds(destination) && map.can_enter_tile(destination) {
+            println!("moving {:?} to {:?}", entity, destination);
+            commands.entity(entity).insert(Position(destination));
+
             let pos = positions.get(entity).unwrap();
             let start_idx = map.point2d_to_index(pos.0);
             let dest_idx = map.point2d_to_index(destination);
+
             crate::spatial::move_entity(entity, start_idx, dest_idx);
-            commands.entity(entity).insert(Position(destination));
 
             if let Ok((fov, player)) = option_q.get_mut(entity) {
                 if let Some(mut fov) = fov {

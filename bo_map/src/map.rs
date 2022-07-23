@@ -8,9 +8,6 @@ use std::{
     collections::HashSet,
 };
 
-pub const MAPWIDTH: usize = 80;
-pub const MAPHEIGHT: usize = 60;
-
 pub struct Map {
     pub width: i32,
     pub height: i32,
@@ -184,9 +181,6 @@ impl BaseMap for Map {
     }
 
     fn get_pathing_distance(&self, idx1:usize, idx2:usize) -> f32 {
-        let w = self.width as usize;
-        let p1 = Point::new(idx1 % w, idx1 / w);
-        let p2 = Point::new(idx2 % w, idx2 / w);
-        DistanceAlg::Pythagoras.distance2d(p1, p2)
+        DistanceAlg::Pythagoras.distance2d(self.index_to_point2d(idx1), self.index_to_point2d(idx2))
     }
 }

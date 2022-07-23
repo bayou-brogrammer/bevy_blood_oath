@@ -24,17 +24,17 @@ impl InventoryMenu {
 
 // pub fn show_inventory<const MENU_TYPE: InventoryMenu>(
 pub fn show_inventory<const MENU_TYPE: u8>(
+    mut commands: Commands,
     mut selection: Local<usize>,
     ranged_items: Query<&Ranged>,
     key: Res<Option<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
     mut use_event: EventWriter<WantsToUseItem>,
     mut drop_event: EventWriter<WantsToDropItem>,
-    mut state_stack: ResMut<StateStack<TurnState>>,
     items_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
 ) {
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(LAYER_TEXT);
+    draw_batch.target(0);
 
     let player = player.single();
 
@@ -45,15 +45,8 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone())));
 
     let menu_type = InventoryMenu::menu_type(MENU_TYPE);
-    match item_result_menu(
-        &mut draw_batch,
-        menu_type.label(),
-        items.len(),
-        &items,
-        *key,
-        *selection,
-    ) {
-        ItemMenuResult::Cancel => state_stack.set(TurnState::PlayerTurn),
+    match item_result_menu(&mut draw_batch, menu_type.label(), items.len() as i32, &items, *key, *selection) {
+        ItemMenuResult::Cancel => commands.insert_resource(TurnState::PlayerTurn),
         ItemMenuResult::UpSelection => {
             if *selection > 0 {
                 *selection -= 1;
@@ -68,17 +61,19 @@ pub fn show_inventory<const MENU_TYPE: u8>(
             match menu_type {
                 InventoryMenu::Main => {
                     if let Ok(r) = ranged_items.get(item) {
-                        return state_stack.set(TurnState::Targeting { range: r.range, item });
+                        commands.insert_resource(Targeting::new(item, r.range));
+                        commands.insert_resource(TurnState::Targeting);
+                        return;
+                    } else {
+                        use_event.send(WantsToUseItem { item, target: None, creator: player });
                     }
-
-                    use_event.send(WantsToUseItem { item, target: None, creator: player });
                 }
                 InventoryMenu::Drop => {
                     drop_event.send(WantsToDropItem { item, dropper: player });
                 }
             }
 
-            state_stack.set(TurnState::PlayerTurn);
+            commands.insert_resource(TurnState::PlayerTurn);
         }
         _ => {} // No Response
     }

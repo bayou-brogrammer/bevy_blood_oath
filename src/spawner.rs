@@ -3,6 +3,8 @@ use bracket_lib::prelude::Rect;
 use std::collections::HashSet;
 
 pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
+    let missle = magic_missile_scroll(world, start_pos);
+
     world
         .spawn()
         .insert_bundle(FighterBundle::new(
@@ -116,7 +118,7 @@ pub fn magic_missile_scroll(world: &mut World, pt: Point) {
         ))
         .insert(Consumable)
         .insert(Ranged { range: 6 })
-        .insert(InflictsDamage { damage: 8 });
+        .insert(InflictsDamage { damage: 100 });
 }
 
 pub fn fireball_scroll(world: &mut World, pt: Point) {

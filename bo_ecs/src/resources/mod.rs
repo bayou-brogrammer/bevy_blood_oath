@@ -2,18 +2,15 @@ use bevy_ecs::{
     prelude::Entity,
     schedule::{StageLabel, SystemLabel},
 };
+use bo_utils::impl_new;
+use bracket_geometry::prelude::Point;
 
-mod criteria;
-mod state;
-
-pub use criteria::*;
-pub use state::*;
+mod bundle;
+pub use bundle::*;
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum TurnState {
-    MainMenu,
     GameOver,
-    SetupDungeon,
 
     // Turn States
     AwaitingInput,
@@ -22,7 +19,7 @@ pub enum TurnState {
 
     Inventory,
     ShowDropMenu,
-    Targeting { range: i32, item: Entity },
+    Targeting,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]
@@ -42,3 +39,19 @@ pub enum GameStage {
 pub enum StateLabel {
     Fov,
 }
+
+#[derive(Debug)]
+pub struct Targeting {
+    pub range: i32,
+    pub item: Entity,
+}
+
+impl_new!(Targeting, item: Entity, range: i32);
+
+pub struct Mouse {
+    pub pt: Point,
+    pub pos: (i32, i32),
+    pub left_click: bool,
+}
+
+impl_new!(Mouse, pt: Point, pos: (i32, i32), left_click: bool);

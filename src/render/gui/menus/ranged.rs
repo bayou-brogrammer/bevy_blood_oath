@@ -1,72 +1,79 @@
-use super::*;
 use crate::camera::GameCamera;
 
-pub fn ranged_targeting(ctx: &mut BTerm, world: &mut World, range: i32, item: Entity) {
-    println!("draw:");
+use super::*;
+
+pub fn ranged_targeting(
+    mouse: Res<Mouse>,
+    mut commands: Commands,
+    camera: Res<GameCamera>,
+    targeting: Option<Res<Targeting>>,
+    mut use_item_event: EventWriter<WantsToUseItem>,
+    player_q: Query<(Entity, &Position, &FieldOfView), With<Player>>,
+) {
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(LAYER_PARTICLES);
+    draw_batch.target(LAYER_MAP);
 
-    draw_batch.print_color(
-        Point::new(5, 0),
-        "Select Target:",
-        ColorPair::new(RGB::named(YELLOW), RGB::named(BLACK)),
-    );
+    if let Some(targeting) = targeting {
+        draw_batch.print_color(Point::new(5, 0), "Select Target:", ColorPair::new(YELLOW, BLACK));
 
-    let mut player_q = world.query_filtered::<(Entity, &Position), With<Player>>();
-    let available_cells = world.resource_scope(|world, camera: Mut<GameCamera>| -> Vec<Point> {
-        let (player, pos) = player_q.iter(world).next().unwrap();
-        let fov = world.get::<FieldOfView>(player).unwrap();
-
+        let (player_entity, player_pos, player_fov) = player_q.single();
         let mut available_cells = Vec::new();
-        for pt in fov.visible_tiles.iter() {
-            draw_batch.set_bg(camera.world_to_screen(*pt), BLUE);
-            // let distance = DistanceAlg::Pythagoras.distance2d(pos.0, *pt);
-            // if distance <= range as f32 {
-            //     draw_batch.set_bg(camera.world_to_screen_text(*pt), BLUE);
-            //     available_cells.push(*pt);
-            // }
+
+        for idx in player_fov.visible_tiles.iter() {
+            let distance = DistanceAlg::Pythagoras.distance2d(player_pos.0, *idx);
+            if distance <= targeting.range as f32 {
+                let screen_pt = camera.screen_to_world(*idx);
+                draw_batch.set_bg(screen_pt, BLUE);
+                available_cells.push(*idx);
+            }
         }
 
-        available_cells
-    });
+        // Draw mouse cursor
+        let mouse_pos = mouse.pt;
+        let mouse_map_pos = camera.world_to_screen(mouse.pt) + Point::new(-1, -1);
 
-    // Draw mouse cursor
-    let mouse_pos = ctx.mouse_pos();
-    let mut valid_target = false;
-    for idx in available_cells.iter() {
-        if idx.x == mouse_pos.0 && idx.y == mouse_pos.1 {
-            valid_target = true;
+        let mut valid_target = false;
+        for idx in available_cells.iter() {
+            if idx.x == mouse_map_pos.x && idx.y == mouse_map_pos.y {
+                valid_target = true;
+            }
         }
-    }
 
-    let result = if valid_target {
-        ctx.set_bg(mouse_pos.0, mouse_pos.1, RGB::named(CYAN));
+        let result = if valid_target {
+            draw_batch.set_bg(mouse_pos, CYAN);
 
-        if ctx.left_click {
-            ItemMenuResult::Selected(Point::new(mouse_pos.0, mouse_pos.1))
+            if mouse.left_click {
+                ItemMenuResult::Selected(mouse_map_pos)
+            } else {
+                ItemMenuResult::NoResponse
+            }
         } else {
-            ItemMenuResult::NoResponse
-        }
-    } else {
-        ctx.set_bg(mouse_pos.0, mouse_pos.1, RGB::named(RED));
+            draw_batch.set_bg(mouse_pos, RED);
 
-        if ctx.left_click {
-            ItemMenuResult::Cancel
-        } else {
-            ItemMenuResult::NoResponse
-        }
-    };
+            if mouse.left_click {
+                ItemMenuResult::Cancel
+            } else {
+                ItemMenuResult::NoResponse
+            }
+        };
 
-    match result {
-        ItemMenuResult::Cancel => world.insert_resource(StateStack::new(TurnState::AwaitingInput)),
-        ItemMenuResult::Selected(pt) => {
-            let player = player_q.iter(world).next().unwrap();
-            world.resource_scope(|world, mut ew: Mut<EventWriter<WantsToUseItem>>| {
-                ew.send(WantsToUseItem::new(item, Some(pt), player.0));
-                world.insert_resource(StateStack::new(TurnState::PlayerTurn))
-            });
+        let mut did_action = false;
+        match result {
+            ItemMenuResult::Cancel => {
+                commands.insert_resource(TurnState::AwaitingInput);
+                did_action = true
+            }
+            ItemMenuResult::Selected(pt) => {
+                use_item_event.send(WantsToUseItem::new(targeting.item, Some(pt), player_entity));
+                did_action = true
+            }
+            _ => {}
         }
-        _ => {}
+
+        if did_action {
+            commands.remove_resource::<Targeting>();
+            commands.insert_resource(TurnState::PlayerTurn);
+        }
     }
 
     draw_batch.submit(BATCH_UI).expect("Batch error");

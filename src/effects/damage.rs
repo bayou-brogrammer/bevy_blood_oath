@@ -1,9 +1,6 @@
 use super::*;
 
-pub fn inflict_damage(
-    mut damage_events: ResMut<Events<DamageEvent>>,
-    mut stats_q: Query<&mut CombatStats>,
-) {
+pub fn inflict_damage(mut damage_events: ResMut<Events<DamageEvent>>, mut stats_q: Query<&mut CombatStats>) {
     for DamageEvent { target, effect } in damage_events.drain() {
         if let EffectType::Damage { amount } = effect.effect_type {
             if let Ok(mut stats) = stats_q.get_mut(target) {
@@ -42,10 +39,7 @@ pub fn death(
     }
 }
 
-pub fn heal_damage(
-    mut stats_q: Query<&mut CombatStats>,
-    mut heal_events: ResMut<Events<HealEvent>>,
-) {
+pub fn heal_damage(mut stats_q: Query<&mut CombatStats>, mut heal_events: ResMut<Events<HealEvent>>) {
     for HealEvent { target, effect } in heal_events.drain() {
         if let Ok(mut stats) = stats_q.get_mut(target) {
             if let EffectType::Healing { amount } = effect.effect_type {

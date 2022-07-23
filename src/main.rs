@@ -1,9 +1,9 @@
 pub mod spawner;
 
 mod effects;
+mod modes;
 mod render;
 mod rng;
-mod setup;
 mod systems;
 mod turn;
 
@@ -32,19 +32,18 @@ mod prelude {
     pub use crate::effects::*;
     pub use crate::render::*;
     pub use crate::rng::*;
-    pub use crate::setup::*;
     pub use crate::systems::*;
     pub use crate::turn::*;
 
-    pub const SCREEN_WIDTH: usize = 112;
-    pub const SCREEN_HEIGHT: usize = 31;
+    pub const SCREEN_WIDTH: i32 = 80;
+    pub const SCREEN_HEIGHT: i32 = 60;
+
+    pub const UI_WIDTH: i32 = 80;
+    pub const UI_HEIGHT: i32 = 30;
 
     pub const LAYER_MAP: usize = 0;
-    pub const LAYER_DECOR: usize = 1;
-    pub const LAYER_ITEMS: usize = 2;
-    pub const LAYER_CHARS: usize = 3;
-    pub const LAYER_TEXT: usize = 4;
-    pub const LAYER_PARTICLES: usize = 5;
+    pub const LAYER_LOG: usize = 1;
+    pub const LAYER_TEXT: usize = 2;
 
     pub const BATCH_ZERO: usize = 0;
     pub const BATCH_DECOR: usize = 1000;
@@ -58,34 +57,20 @@ mod prelude {
 
 pub use prelude::*;
 
-embedded_resource!(FONT, "../resources/font.png");
-embedded_resource!(VGA_FONT, "../resources/vga.png");
-embedded_resource!(GAME_FONT, "../resources/game_font.png");
-
 fn main() -> BError {
-    link_resource!(FONT, "resources/font.png");
-    link_resource!(FONT, "resources/font.png");
-    link_resource!(GAME_FONT, "resources/game_font.png");
-
-    let mut context = BTermBuilder::new()
-        .with_title("Secbot - 2022") // Set Window Title
-        .with_tile_dimensions(16, 16) // Calculate window size with this...
-        .with_dimensions(56, 31) // ..Assuming a console of this size
-        .with_fps_cap(60.0) // Limit game speed
-        ////////////////////////////////////////////////////////////////////////////////
-        .with_font("font.png", 16, 16) // Load big font
-        .with_font("vga.png", 8, 16) // Load easy-to-read font
-        ////////////////////////////////////////////////////////////////////////////////
-        .with_simple_console(56, 31, "font.png") // Console 0: Base map
-        .with_sparse_console_no_bg(56, 31, "font.png") // Console 1: Decorations
-        .with_sparse_console_no_bg(56, 31, "font.png") // Console 2: Items
-        .with_sparse_console_no_bg(56, 31, "font.png") // Console 3: Characters
-        .with_sparse_console(112, 31, "vga.png") // Console 4: User Interface
-        .with_sparse_console(56, 31, "font.png") // Console 5: Particles
-        ////////////////////////////////////////////////////////////////////////////////
+    let context = BTermBuilder::simple(80, 60)
+        .unwrap()
+        .with_fps_cap(60.0)
+        .with_tile_dimensions(12, 12)
+        .with_dimensions(80, 60)
+        .with_title("Roguelike Tutorial")
+        .with_font("vga.png", 8, 16)
+        // Log Box
+        .with_sparse_console(80, 30, "vga.png")
+        // UI
+        .with_sparse_console(80, 60, "vga.png")
+        .with_vsync(false)
         .build()?;
-
-    context.with_post_scanlines(true);
 
     main_loop(context, GameWorld::new())
 }

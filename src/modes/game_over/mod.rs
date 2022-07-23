@@ -1,4 +1,4 @@
-use super::{dungeon::DungeonMode, ModeControl, ModeResult, *};
+use super::{ModeControl, ModeResult, *};
 
 pub const MAIN_MENU_SCREEN_WIDTH: usize = 80;
 pub const MAIN_MENU_SCREEN_HEIGHT: usize = 31;

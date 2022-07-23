@@ -1,4 +1,3 @@
-mod bundle;
 mod components;
 mod effects;
 mod events;
@@ -10,7 +9,6 @@ pub mod prelude {
     pub use crate::queries;
     pub use bevy_ecs::prelude::{Bundle, Component, Entity};
 
-    pub use crate::bundle::*;
     pub use crate::components::*;
     pub use crate::effects::*;
     pub use crate::events::*;

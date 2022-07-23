@@ -16,6 +16,7 @@ pub enum PlayerInputResult {
 }
 
 pub fn player_input(
+    map: Res<Map>,
     key: Res<Option<VirtualKeyCode>>,
     mut commands: Commands,
     // Events
@@ -45,6 +46,13 @@ pub fn player_input(
             },
             VirtualKeyCode::I => return PlayerInputResult::ShowInventory,
             VirtualKeyCode::D => return PlayerInputResult::ShowDropMenu,
+            VirtualKeyCode::Space => {
+                let enemy = enemies_query.iter().take(1).last();
+                let idx = map.point2d_to_index(enemy.unwrap().1 .0);
+                println!("enemy: {:?}", enemy);
+                println!("enemy_idx: {:?}", idx);
+                println!("spatial: {:?}", crate::spatial::SPATIAL_MAP.lock().tile_content[idx]);
+            }
             _ => {}
         }
 
@@ -74,26 +82,17 @@ pub fn player_input(
     PlayerInputResult::NoResult
 }
 
-pub fn player_turn_done(
-    In(result): In<PlayerInputResult>,
-    mut commands: Commands,
-    mut stack: ResMut<StateStack<TurnState>>,
-) {
+pub fn player_turn_done(In(result): In<PlayerInputResult>, mut commands: Commands) {
     match result {
         PlayerInputResult::NoResult => {}
         PlayerInputResult::AppQuit => commands.insert_resource(AppExit),
-        PlayerInputResult::TurnDone => {
-            commands.insert_resource(StateStack::new(TurnState::PlayerTurn))
-        }
-        PlayerInputResult::ShowInventory => stack.set(TurnState::Inventory),
-        PlayerInputResult::ShowDropMenu => stack.set(TurnState::ShowDropMenu),
+        PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
+        PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::Inventory),
+        PlayerInputResult::ShowDropMenu => commands.insert_resource(TurnState::ShowDropMenu),
     }
 }
 
-fn try_pickup_item(
-    player_pos: Point,
-    items_query: Query<(Entity, &Position), With<Item>>,
-) -> Option<Entity> {
+fn try_pickup_item(player_pos: Point, items_query: Query<(Entity, &Position), With<Item>>) -> Option<Entity> {
     for (entity, item_pos) in items_query.iter() {
         if item_pos.0 == player_pos {
             return Some(entity);

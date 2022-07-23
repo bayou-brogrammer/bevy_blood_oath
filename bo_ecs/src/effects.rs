@@ -2,7 +2,7 @@ use crate::prelude::*;
 use bo_utils::impl_new;
 use bracket_terminal::prelude::{ColorPair, FontCharType};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum EffectType {
     EntityDeath,
     Damage { amount: i32 },
