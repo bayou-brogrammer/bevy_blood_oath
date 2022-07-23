@@ -7,3 +7,8 @@ pub struct ProvidesHealing(pub i32);
 pub struct InflictsDamage {
     pub damage: i32,
 }
+
+#[derive(Component, Debug)]
+pub struct Confusion {
+    pub turns: i32,
+}

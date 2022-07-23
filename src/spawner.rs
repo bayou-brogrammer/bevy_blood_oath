@@ -3,8 +3,6 @@ use bracket_lib::prelude::Rect;
 use std::collections::HashSet;
 
 pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
-    let missle = magic_missile_scroll(world, start_pos);
-
     world
         .spawn()
         .insert_bundle(FighterBundle::new(
@@ -94,6 +92,7 @@ fn random_item(ecs: &mut World, rng: &mut RandomNumberGenerator, pt: Point) {
     match roll {
         1 => health_potion(ecs, pt),
         2 => fireball_scroll(ecs, pt),
+        3 => confusion_scroll(ecs, pt),
         _ => magic_missile_scroll(ecs, pt),
     }
 }
@@ -132,4 +131,16 @@ pub fn fireball_scroll(world: &mut World, pt: Point) {
         .insert(Ranged { range: 6 })
         .insert(InflictsDamage { damage: 20 })
         .insert(AreaOfEffect { radius: 3 });
+}
+
+pub fn confusion_scroll(world: &mut World, pt: Point) {
+    world
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Fireball Scroll"),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Consumable)
+        .insert(Ranged { range: 6 })
+        .insert(Confusion { turns: 4 });
 }

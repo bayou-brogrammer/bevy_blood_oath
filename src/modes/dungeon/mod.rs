@@ -68,10 +68,9 @@ impl DungeonMode {
         spawner::spawn_player(world, start_pos);
 
         // Spawn Enemies
-        // map.rooms.iter().skip(1).for_each(|room| {
-        //     spawner::spawn_room(world, room);
-        // });
-        spawner::random_monster(world, &mut crate::rng::RNG.lock(), start_pos + Point::new(3, 3));
+        map.rooms.iter().skip(1).for_each(|room| {
+            spawner::spawn_room(world, room);
+        });
 
         spawner::magic_missile_scroll(world, start_pos);
         spawner::fireball_scroll(world, start_pos);
