@@ -5,9 +5,10 @@ use bracket_algorithm_traits::prelude::Algorithm2D;
 use bracket_geometry::prelude::Point;
 use bracket_pathfinding::prelude::field_of_view_set;
 
-pub fn entity_position(entity: Entity, positions: &Query<&Position>) -> Option<Point> {
-    if let Ok(pos) = positions.get(entity) {
-        Some(pos.0)
+pub fn entity_position(world: &mut World, entity: Entity) -> Option<usize> {
+    if let Some(pos) = world.get::<Position>(entity) {
+        let map = world.get_resource::<Map>().unwrap();
+        Some(map.point2d_to_index(pos.0))
     } else {
         None
     }

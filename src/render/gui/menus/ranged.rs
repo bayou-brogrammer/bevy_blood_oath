@@ -7,7 +7,6 @@ pub fn ranged_targeting(
     mut commands: Commands,
     camera: Res<GameCamera>,
     targeting: Option<Res<Targeting>>,
-    mut use_item_event: EventWriter<WantsToUseItem>,
     player_q: Query<(Entity, &Position, &FieldOfView), With<Player>>,
 ) {
     let mut draw_batch = DrawBatch::new();
@@ -64,7 +63,7 @@ pub fn ranged_targeting(
                 did_action = true
             }
             ItemMenuResult::Selected(pt) => {
-                use_item_event.send(WantsToUseItem::new(targeting.item, Some(pt), player_entity));
+                commands.entity(player_entity).insert(WantsToUseItem::new(targeting.item, Some(pt)));
                 did_action = true
             }
             _ => {}

@@ -13,7 +13,9 @@ pub mod player;
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(ConditionSet::new().label(StateLabel::Fov).with_system(fov::fov_system).into());
+        app.add_system_set(
+            ConditionSet::new().label(StateLabel::Fov).with_system(fov::fov_system).into(),
+        );
 
         app.add_plugin(particles::ParticlePlugin);
         app.add_plugin(inventory::InventoryPlugin);
@@ -47,6 +49,7 @@ impl Plugin for PlayerPlugin {
                 .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
+                .with_system(inventory::item_use)
                 .into(),
         );
 
@@ -59,6 +62,8 @@ impl Plugin for PlayerPlugin {
                 .with_system(end_turn::end_turn)
                 .into(),
         );
+
+        app.add_system_to_stage(GameStage::HandlePlayerActions, run_effects_queue.exclusive_system());
     }
 }
 
@@ -89,6 +94,8 @@ impl Plugin for AIPlugin {
                 .with_system(end_turn::end_turn)
                 .into(),
         );
+
+        app.add_system_to_stage(GameStage::AICleanup, run_effects_queue.exclusive_system());
     }
 }
 
@@ -98,7 +105,6 @@ impl Plugin for SystemsPlugin {
         app.add_plugin(TickingPlugin)
             .add_plugin(AwaitingInputPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(AIPlugin)
-            .add_plugin(EffectsPlugin);
+            .add_plugin(AIPlugin);
     }
 }

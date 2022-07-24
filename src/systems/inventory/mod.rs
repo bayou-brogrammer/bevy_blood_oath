@@ -6,7 +6,7 @@ mod use_system;
 
 use collection_system::item_collection;
 use drop_system::item_drop;
-use use_system::item_use;
+pub use use_system::item_use;
 
 pub struct InventoryPlugin;
 impl Plugin for InventoryPlugin {
@@ -15,10 +15,6 @@ impl Plugin for InventoryPlugin {
         app.add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new().run_on_event::<WantsToPickupItem>().with_system(item_collection).into(),
-        )
-        .add_system_set(
-            // CoreStage::Update,
-            ConditionSet::new().with_system(item_use).into(),
         )
         .add_system_set_to_stage(
             CoreStage::Update,

@@ -2,6 +2,7 @@ use super::camera::GameCamera;
 use crate::prelude::*;
 
 pub fn movement(
+    turn_state: Res<TurnState>,
     map: Res<Map>,
     mut commands: Commands,
     positions: Query<&Position>,
@@ -10,7 +11,6 @@ pub fn movement(
 ) {
     for WantsToMove { entity, destination } in move_events.drain() {
         if map.in_bounds(destination) && map.can_enter_tile(destination) {
-            println!("moving {:?} to {:?}", entity, destination);
             commands.entity(entity).insert(Position(destination));
 
             let pos = positions.get(entity).unwrap();

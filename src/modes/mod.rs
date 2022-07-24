@@ -2,12 +2,10 @@ use crate::prelude::*;
 
 pub mod dungeon;
 pub mod game_over;
-pub mod inventory;
 pub mod main_menu;
 
 use dungeon::{DungeonMode, DungeonModeResult};
 use game_over::{GameOverMode, GameOverModeResult};
-use inventory::{InventoryMode, InventoryModeResult};
 use main_menu::{MainMenuMode, MainMenuModeResult};
 
 /// Return value for `update` callback sent into [run] that controls the main event loop.
@@ -35,13 +33,11 @@ macro_rules! impl_from {
 pub enum Mode {
     // AppQuitDialogMode(AppQuitDialogMode),
     DungeonMode(DungeonMode),
-    InventoryMode(InventoryMode),
     MainMenuMode(MainMenuMode),
     GameOverMode(GameOverMode),
 }
 
 impl_from!(Mode, DungeonMode);
-impl_from!(Mode, InventoryMode);
 impl_from!(Mode, MainMenuMode);
 impl_from!(Mode, GameOverMode);
 
@@ -51,14 +47,12 @@ impl_from!(Mode, GameOverMode);
 pub enum ModeResult {
     // AppQuitDialogModeResult(AppQuitDialogModeResult),
     DungeonModeResult(DungeonModeResult),
-    InventoryModeResult(InventoryModeResult),
     MainMenuModeResult(MainMenuModeResult),
     GameOverModeResult(GameOverModeResult),
 }
 
 // impl_from!(ModeResult, AppQuitDialogModeResult);
 impl_from!(ModeResult, DungeonModeResult);
-impl_from!(ModeResult, InventoryModeResult);
 impl_from!(ModeResult, MainMenuModeResult);
 impl_from!(ModeResult, GameOverModeResult);
 
@@ -81,7 +75,6 @@ impl Mode {
     fn tick(&mut self, ctx: &mut BTerm, pop_result: &Option<ModeResult>) -> ModeControl {
         match self {
             Mode::DungeonMode(x) => x.tick(ctx, pop_result),
-            Mode::InventoryMode(x) => x.tick(ctx, pop_result),
             Mode::MainMenuMode(x) => x.tick(ctx, pop_result),
             Mode::GameOverMode(x) => x.tick(ctx, pop_result),
         }
@@ -90,7 +83,6 @@ impl Mode {
     fn draw(&mut self, ctx: &mut BTerm, active: bool) {
         match self {
             Mode::MainMenuMode(x) => x.draw(ctx, active),
-            Mode::InventoryMode(x) => x.draw(ctx, active),
             Mode::DungeonMode(x) => x.draw(ctx, active),
             Mode::GameOverMode(x) => x.draw(ctx, active),
         }
@@ -101,7 +93,6 @@ impl Mode {
         match self {
             Mode::DungeonMode(_) => false,
             Mode::GameOverMode(_) => false,
-            Mode::InventoryMode(_) => true,
             Mode::MainMenuMode(_) => false,
         }
     }

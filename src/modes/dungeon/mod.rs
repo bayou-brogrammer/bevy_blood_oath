@@ -72,6 +72,7 @@ impl DungeonMode {
             spawner::spawn_room(world, room);
         });
 
+        spawner::confusion_scroll(world, start_pos);
         spawner::magic_missile_scroll(world, start_pos);
         spawner::fireball_scroll(world, start_pos);
 

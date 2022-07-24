@@ -9,19 +9,6 @@ pub fn setup_events(app: &mut App) {
     app.add_event::<WantsToPickupItem>();
     app.add_event::<WantsToUseItem>();
     app.add_event::<WantsToDropItem>();
-
-    // Effects
-    app.add_event::<AffectEntity>();
-    app.add_event::<AffectTile>();
-
-    // Effect Events
-    app.add_event::<DamageEvent>()
-        .add_event::<DeathEvent>()
-        .add_event::<HealEvent>()
-        .add_event::<ParticleEvent>();
-
-    // Trigger Events
-    app.add_event::<ItemTrigger>();
 }
 
 /**
@@ -48,7 +35,11 @@ pub fn setup_stages(app: &mut App) {
             SystemStage::parallel(),
         )
         // AI Stages
-        .add_stage_after(GameStage::GenerateAIActions, GameStage::HandleAIActions, SystemStage::parallel())
+        .add_stage_after(
+            GameStage::GenerateAIActions,
+            GameStage::HandleAIActions,
+            SystemStage::parallel(),
+        )
         .add_stage_after(GameStage::HandleAIActions, GameStage::AICleanup, SystemStage::parallel())
         .add_stage_after(GameStage::HandleAIActions, GameStage::Effects, SystemStage::parallel())
         .add_stage_after(GameStage::Effects, GameStage::Cleanup, SystemStage::parallel());

@@ -137,7 +137,7 @@ pub fn confusion_scroll(world: &mut World, pt: Point) {
     world
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Fireball Scroll"),
+            EntityBundle::new(Item, "Confusion Scroll"),
             RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)

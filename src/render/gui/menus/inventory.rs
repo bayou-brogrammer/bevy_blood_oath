@@ -29,7 +29,6 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     ranged_items: Query<&Ranged>,
     key: Res<Option<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
-    mut use_event: EventWriter<WantsToUseItem>,
     mut drop_event: EventWriter<WantsToDropItem>,
     items_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
 ) {
@@ -45,7 +44,14 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone())));
 
     let menu_type = InventoryMenu::menu_type(MENU_TYPE);
-    match item_result_menu(&mut draw_batch, menu_type.label(), items.len() as i32, &items, *key, *selection) {
+    match item_result_menu(
+        &mut draw_batch,
+        menu_type.label(),
+        items.len() as i32,
+        &items,
+        *key,
+        *selection,
+    ) {
         ItemMenuResult::Cancel => commands.insert_resource(TurnState::PlayerTurn),
         ItemMenuResult::UpSelection => {
             if *selection > 0 {
@@ -65,7 +71,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                         commands.insert_resource(TurnState::Targeting);
                         return;
                     } else {
-                        use_event.send(WantsToUseItem { item, target: None, creator: player });
+                        commands.entity(player).insert(WantsToUseItem { item, target: None });
                     }
                 }
                 InventoryMenu::Drop => {

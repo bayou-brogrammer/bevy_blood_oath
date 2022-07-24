@@ -29,78 +29,8 @@ pub struct WantsToPickupItem {
     pub collected_by: Entity,
 }
 
-#[derive(Debug)]
-pub struct WantsToUseItem {
-    pub item: Entity,
-    pub target: Option<Point>,
-    pub creator: Entity,
-}
-
 #[derive(Debug, Clone)]
 pub struct WantsToDropItem {
     pub item: Entity,
     pub dropper: Entity,
 }
-
-impl_new!(WantsToUseItem, item: Entity, target: Option<Point>, creator: Entity);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// Effects
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-#[derive(Debug)]
-pub struct AffectEntity {
-    pub entity: Entity,
-    pub effect: EffectSpawner,
-}
-
-#[derive(Debug)]
-pub struct AffectTile {
-    pub tile_idx: usize,
-    pub effect: EffectSpawner,
-}
-
-impl_new!(AffectEntity, entity: Entity, effect: EffectSpawner);
-impl_new!(AffectTile, tile_idx: usize, effect: EffectSpawner);
-
-/////////////
-/// Triggers
-/////////////
-
-#[derive(Debug)]
-pub struct ItemTrigger {
-    pub item: Entity,
-    pub targets: Targets,
-    pub creator: Option<Entity>,
-}
-
-impl_new!(ItemTrigger, item: Entity, creator: Option<Entity>, targets: Targets);
-
-////////////
-/// Events
-////////////
-
-#[derive(Debug)]
-pub struct DamageEvent {
-    pub target: Entity,
-    pub effect: EffectSpawner,
-}
-
-#[derive(Debug)]
-pub struct HealEvent {
-    pub target: Entity,
-    pub effect: EffectSpawner,
-}
-
-#[derive(Debug)]
-pub struct ParticleEvent {
-    pub tile_idx: usize,
-    pub effect: EffectSpawner,
-}
-
-#[derive(Debug)]
-pub struct DeathEvent(pub Entity);
-
-impl_new!(ParticleEvent, tile_idx: usize, effect: EffectSpawner);
-impl_new!(DamageEvent, target: Entity, effect: EffectSpawner);
-impl_new!(HealEvent, target: Entity, effect: EffectSpawner);
