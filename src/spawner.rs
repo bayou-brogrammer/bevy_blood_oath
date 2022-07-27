@@ -2,8 +2,11 @@ use crate::prelude::*;
 use bracket_lib::prelude::Rect;
 use std::collections::HashSet;
 
-pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
-    world
+pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
+    let start_pos = map.rooms[0].center();
+
+    // Spawn Player
+    commands
         .spawn()
         .insert_bundle(FighterBundle::new(
             EntityBundle::new(Player, "SecBot"),
@@ -14,14 +17,27 @@ pub fn spawn_player(world: &mut World, start_pos: Point) -> Entity {
             position: Position::new(start_pos),
             glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Actor),
         })
-        .insert(Description::new("A bot that can attack and move."))
-        .id()
+        .insert(Description::new("A bot that can attack and move."));
+
+    commands.insert_resource(start_pos);
+    commands.insert_resource(camera::GameCamera::new(start_pos));
+
+    spawner::confusion_scroll(&mut commands, start_pos);
+    spawner::magic_missile_scroll(&mut commands, start_pos);
+    spawner::fireball_scroll(&mut commands, start_pos);
+}
+
+pub fn spawn_enemies(mut commands: Commands, map: Res<Map>) {
+    // Spawn Enemies
+    map.rooms.iter().skip(1).for_each(|room| {
+        spawner::spawn_room(&mut commands, room);
+    });
 }
 
 const MAX_MONSTERS: i32 = 10;
 const MAX_ITEMS: i32 = 2;
 
-pub fn spawn_room(world: &mut World, room: &Rect) {
+pub fn spawn_room(commands: &mut Commands, room: &Rect) {
     let mut rng = crate::rng::RNG.lock();
 
     let num_monsters = i32::max(0, rng.roll_dice(1, MAX_MONSTERS + 2) - 3);
@@ -37,7 +53,7 @@ pub fn spawn_room(world: &mut World, room: &Rect) {
         }
     });
 
-    monster_spawn_points.iter().for_each(|pt| random_monster(world, &mut rng, *pt));
+    monster_spawn_points.iter().for_each(|pt| random_monster(commands, &mut rng, *pt));
 
     let num_items = rng.roll_dice(1, MAX_ITEMS + 2) - 3;
     let mut item_spawn_points: HashSet<Point> = HashSet::new();
@@ -52,28 +68,28 @@ pub fn spawn_room(world: &mut World, room: &Rect) {
         }
     });
 
-    item_spawn_points.iter().for_each(|pt| random_item(world, &mut rng, *pt));
+    item_spawn_points.iter().for_each(|pt| random_item(commands, &mut rng, *pt));
 }
 
 /// Spawns a random monster at a given location
-pub fn random_monster(world: &mut World, rng: &mut RandomNumberGenerator, pt: Point) {
+pub fn random_monster(commands: &mut Commands, rng: &mut RandomNumberGenerator, pt: Point) {
     let roll = rng.roll_dice(1, 2);
     match roll {
-        1 => orc(world, pt),
-        _ => goblin(world, pt),
+        1 => orc(commands, pt),
+        _ => goblin(commands, pt),
     };
 }
 
-fn orc(world: &mut World, pt: Point) {
-    monster(world, pt, 157, "Orc", "An ugly powerful orc")
+fn orc(commands: &mut Commands, pt: Point) {
+    monster(commands, pt, 157, "Orc", "An ugly powerful orc")
 }
 
-fn goblin(world: &mut World, pt: Point) {
-    monster(world, pt, to_cp437('g'), "Goblin", "An ugly goblin")
+fn goblin(commands: &mut Commands, pt: Point) {
+    monster(commands, pt, to_cp437('g'), "Goblin", "An ugly goblin")
 }
 
-pub fn monster(world: &mut World, start_pos: Point, glyph: FontCharType, name: &str, desc: &str) {
-    world
+pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, name: &str, desc: &str) {
+    commands
         .spawn()
         .insert_bundle(MonsterBundle::new(FighterBundle::new(
             EntityBundle::new(Monster, name),
@@ -87,18 +103,18 @@ pub fn monster(world: &mut World, start_pos: Point, glyph: FontCharType, name: &
         .insert(Description::new(desc));
 }
 
-fn random_item(ecs: &mut World, rng: &mut RandomNumberGenerator, pt: Point) {
+fn random_item(commands: &mut Commands, rng: &mut RandomNumberGenerator, pt: Point) {
     let roll = rng.roll_dice(1, 2);
     match roll {
-        1 => health_potion(ecs, pt),
-        2 => fireball_scroll(ecs, pt),
-        3 => confusion_scroll(ecs, pt),
-        _ => magic_missile_scroll(ecs, pt),
+        1 => health_potion(commands, pt),
+        2 => fireball_scroll(commands, pt),
+        3 => confusion_scroll(commands, pt),
+        _ => magic_missile_scroll(commands, pt),
     }
 }
 
-pub fn health_potion(world: &mut World, pt: Point) {
-    world
+pub fn health_potion(commands: &mut Commands, pt: Point) {
+    commands
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Health Potion"),
@@ -108,8 +124,8 @@ pub fn health_potion(world: &mut World, pt: Point) {
         .insert(ProvidesHealing(10));
 }
 
-pub fn magic_missile_scroll(world: &mut World, pt: Point) {
-    world
+pub fn magic_missile_scroll(commands: &mut Commands, pt: Point) {
+    commands
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Magic Missile Scroll"),
@@ -120,8 +136,8 @@ pub fn magic_missile_scroll(world: &mut World, pt: Point) {
         .insert(InflictsDamage { damage: 100 });
 }
 
-pub fn fireball_scroll(world: &mut World, pt: Point) {
-    world
+pub fn fireball_scroll(commands: &mut Commands, pt: Point) {
+    commands
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Fireball Scroll"),
@@ -133,8 +149,8 @@ pub fn fireball_scroll(world: &mut World, pt: Point) {
         .insert(AreaOfEffect { radius: 3 });
 }
 
-pub fn confusion_scroll(world: &mut World, pt: Point) {
-    world
+pub fn confusion_scroll(commands: &mut Commands, pt: Point) {
+    commands
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Confusion Scroll"),
@@ -143,4 +159,16 @@ pub fn confusion_scroll(world: &mut World, pt: Point) {
         .insert(Consumable)
         .insert(Ranged { range: 6 })
         .insert(Confusion { turns: 4 });
+}
+
+pub struct SpawnerPlugin;
+impl Plugin for SpawnerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_enter_system_set(
+            GameCondition::InGame,
+            ConditionSet::new().with_system(spawn_player).into(),
+        );
+
+        app.add_exit_system(GameCondition::InGame, cleanup_system::<Position>);
+    }
 }

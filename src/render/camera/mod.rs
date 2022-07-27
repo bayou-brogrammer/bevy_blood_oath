@@ -29,12 +29,12 @@ impl GameCamera {
 
     pub fn screen_to_world(&self, pt: Point) -> Point {
         let (min_x, _, min_y, _) = self.get_screen_bounds();
-        Point::new(pt.x - min_x, pt.y - min_y)
+        Point::new(pt.x - min_x, pt.y - min_y) + Point::new(1, 1)
     }
 
     pub fn world_to_screen(&self, pt: Point) -> Point {
         let (min_x, _, min_y, _) = self.get_screen_bounds();
-        Point::new(pt.x + min_x, pt.y + min_y)
+        Point::new(pt.x + min_x, pt.y + min_y) + Point::new(-1, -1)
     }
 }
 
@@ -46,6 +46,7 @@ impl Plugin for CameraPlugin {
         app.add_system_set(
             ConditionSet::new()
                 .after(StateLabel::Fov)
+                .run_in_state(GameCondition::InGame)
                 .with_system(map_renderer::map_render)
                 .with_system(entity_renderer::entity_render)
                 .with_system(tooltips::render_tooltips)

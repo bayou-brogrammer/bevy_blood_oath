@@ -1,4 +1,6 @@
-use crate::prelude::*;
+use bevy::ecs::schedule::ReportExecutionOrderAmbiguities;
+
+use crate::{prelude::*, spawner::SpawnerPlugin};
 
 pub fn setup_events(app: &mut App) {
     // Intent Events
@@ -12,15 +14,14 @@ pub fn setup_events(app: &mut App) {
 }
 
 /**
- * We need multiple stages to handle the following:
- * 1. Handle input from player and generate actions
- * 2. Generate Player Actions
- * 3. Handle Player Actions
- * 4. Generate AI Actions
- * 5. Handle AI Actions
- * 6. Effects
- */
-
+* We need multiple stages to handle the following:
+* 1. Handle input from player and generate actions
+* 2. Generate Player Actions
+* 3. Handle Player Actions
+* 4. Generate AI Actions
+* 5. Handle AI Actions
+* 6. Effects
+*/
 pub fn setup_stages(app: &mut App) {
     // Player Stages
     app.add_stage_after(CoreStage::Update, GameStage::GeneratePlayerActions, SystemStage::parallel())
@@ -59,4 +60,22 @@ pub fn setup_debug_systems(app: &mut App) {
             })
             .into(),
     );
+}
+
+fn setup_game(mut commands: Commands) {
+    commands.insert_resource(ParticleBuilder::new());
+    commands.insert_resource(TurnState::AwaitingInput);
+    commands.insert_resource(ReportExecutionOrderAmbiguities);
+    commands.insert_resource(Map::new(0, SCREEN_WIDTH, SCREEN_HEIGHT, "Dungeon"));
+
+    bo_logging::Logger::new().append("Welcome to").append_with_color("Rusty Roguelike", CYAN).log();
+}
+
+pub struct SetupPlugin;
+impl Plugin for SetupPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_exit_system(GameCondition::MainMenu, setup_game);
+
+        app.add_plugin(SpawnerPlugin);
+    }
 }

@@ -8,15 +8,18 @@ pub fn end_turn(
     let stats = player_stats_q.single();
 
     let current_state = *state;
-    let mut new_state = match current_state {
+    let new_state = match current_state {
         TurnState::PlayerTurn => TurnState::AITurn,
         TurnState::AITurn => TurnState::AwaitingInput,
         _ => current_state,
     };
 
     if stats.hp < 1 {
-        new_state = TurnState::GameOver;
+        commands.insert_resource(NextState(GameCondition::GameOver));
+        return;
     }
 
-    commands.insert_resource(new_state);
+    if new_state != current_state {
+        commands.insert_resource(new_state);
+    }
 }

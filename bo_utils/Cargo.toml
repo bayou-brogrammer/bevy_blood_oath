@@ -5,4 +5,6 @@ authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+lazy_static = "^1.4.0"
 bracket-terminal = "^0.8.5"
+bevy_ecs = { version = "^0.7.0" }

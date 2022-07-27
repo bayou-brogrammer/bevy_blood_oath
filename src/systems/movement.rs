@@ -2,7 +2,6 @@ use super::camera::GameCamera;
 use crate::prelude::*;
 
 pub fn movement(
-    turn_state: Res<TurnState>,
     map: Res<Map>,
     mut commands: Commands,
     positions: Query<&Position>,

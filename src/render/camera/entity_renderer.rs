@@ -16,7 +16,7 @@ pub fn entity_render(
             let entity_screen_pos = camera.screen_to_world(pos.0);
             if map.in_bounds(Point::new(entity_screen_pos.x, entity_screen_pos.y)) {
                 batch.set(
-                    Point::new(entity_screen_pos.x + 1, entity_screen_pos.y + 1),
+                    Point::new(entity_screen_pos.x, entity_screen_pos.y),
                     glyph.color,
                     glyph.glyph,
                 );

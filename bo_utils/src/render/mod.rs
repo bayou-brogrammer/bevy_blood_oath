@@ -1,7 +1,12 @@
 use bracket_terminal::prelude::{ColorPair, DrawBatch, Point};
 
 mod boxes;
+mod color;
+mod menus;
+
 pub use boxes::*;
+pub use color::*;
+pub use menus::*;
 
 pub fn safe_print_color<T: ToString>(batch: &mut DrawBatch, pos: Point, text: T, color: ColorPair) {
     let len = text.to_string().len();

@@ -6,12 +6,21 @@ use bo_utils::impl_new;
 use bracket_geometry::prelude::Point;
 
 mod bundle;
+mod run_criteria;
+
 pub use bundle::*;
+pub use run_criteria::*;
+
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
+pub enum GameCondition {
+    MainMenu,
+    GameOver,
+    InGame,
+    LoadGame,
+}
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum TurnState {
-    GameOver,
-
     // Turn States
     AwaitingInput,
     PlayerTurn,

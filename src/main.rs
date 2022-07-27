@@ -1,9 +1,9 @@
 pub mod spawner;
 
 mod effects;
-mod modes;
 mod render;
 mod rng;
+mod setup;
 mod systems;
 mod turn;
 
@@ -32,6 +32,7 @@ mod prelude {
     pub use crate::effects::*;
     pub use crate::render::*;
     pub use crate::rng::*;
+    pub use crate::setup::*;
     pub use crate::systems::*;
     pub use crate::turn::*;
 
@@ -58,19 +59,22 @@ mod prelude {
 pub use prelude::*;
 
 fn main() -> BError {
-    let context = BTermBuilder::simple(80, 60)
+    let mut context = BTermBuilder::simple(80, 60)
         .unwrap()
         .with_fps_cap(60.0)
         .with_tile_dimensions(12, 12)
         .with_dimensions(80, 60)
         .with_title("Roguelike Tutorial")
+        .with_resource_path("assets/")
         .with_font("vga.png", 8, 16)
-        // Log Box
+        // Log Box #1
         .with_sparse_console(80, 30, "vga.png")
-        // UI
-        .with_sparse_console(80, 60, "vga.png")
+        // UI #2
+        .with_sparse_console(80, 30, "vga.png")
         .with_vsync(false)
         .build()?;
+
+    context.with_post_scanlines(true);
 
     main_loop(context, GameWorld::new())
 }

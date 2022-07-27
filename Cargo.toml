@@ -30,7 +30,7 @@ rayon = "~1.5.3"
 
 lazy_static = "1.4.0"
 parking_lot = { version = "0.12.1", features = ["nightly"] }
-bitvec = "~1.0.1"
+bitvec = "^1.0.1"
 
 [build-dependencies]
 embed-resource = "1.7.3"

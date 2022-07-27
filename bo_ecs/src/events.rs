@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bo_utils::impl_new;
 use bracket_geometry::prelude::Point;
 
 // Differently from the source project, which uses resources, we use Bevy's messaging system for move

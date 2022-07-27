@@ -16,8 +16,8 @@ pub enum PlayerInputResult {
 }
 
 pub fn player_input(
-    key: Res<Option<VirtualKeyCode>>,
     mut commands: Commands,
+    key: Res<Option<VirtualKeyCode>>,
     // Events
     mut move_events: EventWriter<WantsToMove>,
     mut attack_events: EventWriter<WantsToAttack>,

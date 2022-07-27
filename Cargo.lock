@@ -670,7 +670,9 @@ dependencies = [
 name = "bo_utils"
 version = "0.1.0"
 dependencies = [
+ "bevy_ecs",
  "bracket-terminal",
+ "lazy_static",
 ]
 
 [[package]]

@@ -35,7 +35,11 @@ impl Plugin for ParticlePlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set_to_stage(
             CoreStage::PreUpdate,
-            ConditionSet::new().with_system(particle_spawn_system).with_system(update_particles).into(),
+            ConditionSet::new()
+                .run_in_state(GameCondition::InGame)
+                .with_system(particle_spawn_system)
+                .with_system(update_particles)
+                .into(),
         );
     }
 }
