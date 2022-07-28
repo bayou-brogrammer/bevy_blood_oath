@@ -1,7 +1,7 @@
 use bracket_terminal::prelude::{ColorPair, DrawBatch, Point};
 
 mod boxes;
-mod color;
+pub mod color;
 mod menus;
 
 pub use boxes::*;

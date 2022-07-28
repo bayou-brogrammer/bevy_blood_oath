@@ -64,8 +64,11 @@ pub fn setup_debug_systems(app: &mut App) {
 
 fn setup_game(mut commands: Commands) {
     commands.insert_resource(ParticleBuilder::new());
-    commands.insert_resource(TurnState::AwaitingInput);
     commands.insert_resource(ReportExecutionOrderAmbiguities);
+
+    // commands.insert_resource(TurnState::AwaitingInput);
+    // commands.insert_resource(StateStack::new(TurnState::AwaitingInput));
+
     commands.insert_resource(Map::new(0, SCREEN_WIDTH, SCREEN_HEIGHT, "Dungeon"));
 
     bo_logging::Logger::new().append("Welcome to").append_with_color("Rusty Roguelike", CYAN).log();
@@ -75,7 +78,6 @@ pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
     fn build(&self, app: &mut App) {
         app.add_exit_system(GameCondition::MainMenu, setup_game);
-
         app.add_plugin(SpawnerPlugin);
     }
 }

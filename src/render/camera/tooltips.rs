@@ -2,7 +2,7 @@ use super::*;
 
 pub fn render_tooltips(
     map: Res<Map>,
-    mouse: Res<Mouse>,
+    mouse: Res<MousePosition>,
     camera: Res<GameCamera>,
     tooltip_q: Query<(&Position, &Naming, Option<&Description>, Option<&CombatStats>)>,
 ) {
@@ -18,10 +18,8 @@ pub fn render_tooltips(
     }
 
     let mut lines = Vec::new();
-    tooltip_q
-        .iter()
-        .filter(|(pos, _, _, _)| pos.0 == mouse_map_pos)
-        .for_each(|(pos, name, desc, stats)| {
+    tooltip_q.iter().filter(|(pos, _, _, _)| pos.0 == mouse_map_pos).for_each(
+        |(pos, name, desc, stats)| {
             if map.visible.get_bit(pos.0) {
                 lines.push((CYAN, name.0.clone()));
 
@@ -33,7 +31,8 @@ pub fn render_tooltips(
                     lines.push((GRAY, format!("{}/{} hp", stats.hp, stats.max_hp)));
                 }
             }
-        });
+        },
+    );
 
     let mut batch = DrawBatch::new();
 
@@ -46,7 +45,8 @@ pub fn render_tooltips(
         } else {
             i32::max(0, (mouse_x * 2) - (width as i32 + 1))
         };
-        let tip_y = if mouse_map_pos.y > map.height as i32 / 2 { mouse_y - height as i32 } else { mouse_y };
+        let tip_y =
+            if mouse_map_pos.y > map.height as i32 / 2 { mouse_y - height as i32 } else { mouse_y };
 
         batch.draw_box(
             Rect::with_size(tip_x, tip_y - (lines.len() / 2) as i32, width as i32, height as i32),

@@ -2,16 +2,77 @@ use super::*;
 use crate::camera::GameCamera;
 use std::collections::HashSet;
 
-pub fn ranged_targeting(
-    map: Res<Map>,
-    mouse: Res<Mouse>,
+fn should_warn(radius: i32, player_pt: Point, mouse_pos: Point) -> bool {
+    let distance = DistanceAlg::Pythagoras.distance2d(player_pt, mouse_pos);
+    if player_pt == mouse_pos || (radius > 0 && distance <= radius as f32) {
+        return true;
+    }
+
+    false
+}
+
+pub fn ranged_input(
     mut commands: Commands,
     camera: Res<GameCamera>,
-    key: Res<Option<VirtualKeyCode>>,
+    mouse: Res<MousePosition>,
+    key: Option<Res<VirtualKeyCode>>,
+    yes_no_dialog: Option<Res<YesNoDialog>>,
+    left_click: Option<Res<MouseLeftClick>>,
+    // Queries
+    targeting: Option<Res<Targeting>>,
+    item_q: Query<Option<&AreaOfEffect>>,
+    mut stack: ResMut<StateStack<TurnState>>,
+    player_q: Query<(Entity, &Position), With<Player>>,
+) {
+    // Handle Escaping
+    if key.as_deref() == Some(&VirtualKeyCode::Escape) {
+        stack.set(TurnState::AwaitingInput).unwrap();
+    }
+
+    let (player_entity, player_pos) = player_q.single();
+    let map_mouse_pos = camera.world_to_screen(mouse.pt);
+
+    if let Some(targeting) = targeting {
+        let Targeting { item, range: _ } = *targeting;
+        let radius = if let Ok(Some(aoe)) = item_q.get(item) { aoe.radius } else { 0 };
+
+        // Handle Dialog Answer
+        if let Some(dialog) = yes_no_dialog {
+            if dialog.0 {
+                commands.remove_resource::<YesNoDialog>();
+                select_target(&mut commands, player_entity, item, map_mouse_pos);
+                return;
+            }
+        }
+
+        // Handle Left Mouse || Resturn Key Press
+        if key.as_deref() == Some(&VirtualKeyCode::Return) || left_click.is_some() {
+            if should_warn(radius, player_pos.0, map_mouse_pos) {
+                println!("Warning: You are about to attack a target within {} tiles!", radius);
+                stack
+                    .push(TurnState::Confirm("Are you sure you want to target yourself?".to_string()))
+                    .unwrap();
+            } else {
+                select_target(&mut commands, player_entity, item, map_mouse_pos);
+            };
+        }
+    }
+}
+
+fn select_target(commands: &mut Commands, player_entity: Entity, item: Entity, mouse_pos: Point) {
+    commands.remove_resource::<Targeting>();
+    commands.entity(player_entity).insert(WantsToUseItem::new(item, Some(mouse_pos)));
+    commands.insert_resource(StateStack::new(TurnState::PlayerTurn));
+}
+
+pub fn ranged_targeting(
+    map: Res<Map>,
+    mouse: Res<MousePosition>,
+    camera: Res<GameCamera>,
     // Queries
     targeting: Option<Res<Targeting>>,
     item_q: Query<(&Naming, Option<&AreaOfEffect>)>,
-    player_q: Query<(Entity, &Position, &FieldOfView), With<Player>>,
+    player_q: Query<(&Position, &FieldOfView), With<Player>>,
 ) {
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(LAYER_MAP);
@@ -20,7 +81,7 @@ pub fn ranged_targeting(
         let Targeting { range, item } = *targeting;
 
         let (item_name, item_aoe) = item_q.get(item).unwrap();
-        let (player_entity, player_pos, player_fov) = player_q.single();
+        let (player_pos, player_fov) = player_q.single();
 
         draw_batch.print_color(
             Point::new(2, 2),
@@ -59,44 +120,9 @@ pub fn ranged_targeting(
         }
 
         let is_valid_target = valid_cells.iter().filter(|pt| **pt == mouse_map_pos).count() > 0;
-        let action = *key == Some(VirtualKeyCode::Return)
-            || *key == Some(VirtualKeyCode::Escape)
-            || mouse.left_click;
 
         // Draw Mouse Cursor
         draw_batch.set_bg(mouse_pos, if is_valid_target { GREEN } else { RED });
-
-        let result = if action {
-            if *key == Some(VirtualKeyCode::Escape) {
-                ItemMenuResult::Cancel
-            } else {
-                if is_valid_target {
-                    ItemMenuResult::Selected(mouse_map_pos)
-                } else {
-                    ItemMenuResult::NoResponse
-                }
-            }
-        } else {
-            ItemMenuResult::NoResponse
-        };
-
-        let mut did_action = false;
-        match result {
-            ItemMenuResult::Cancel => {
-                commands.insert_resource(TurnState::AwaitingInput);
-                did_action = true
-            }
-            ItemMenuResult::Selected(pt) => {
-                commands.entity(player_entity).insert(WantsToUseItem::new(targeting.item, Some(pt)));
-                did_action = true
-            }
-            _ => {}
-        }
-
-        if did_action {
-            commands.remove_resource::<Targeting>();
-            commands.insert_resource(TurnState::PlayerTurn);
-        }
     }
 
     draw_batch.submit(BATCH_DECOR).expect("Batch error");

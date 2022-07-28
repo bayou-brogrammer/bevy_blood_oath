@@ -13,4 +13,4 @@ bracket-random = "^0.8.2"
 bitvec = "^1.0.1"
 lazy_static = "^1.4.0"
 parking_lot = "^0.12.1"
-bevy_ecs = { version = "~0.7.0" }
+bevy_ecs = { git = "https://github.com/bevyengine/bevy" }

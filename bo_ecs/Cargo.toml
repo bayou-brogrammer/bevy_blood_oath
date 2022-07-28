@@ -14,9 +14,9 @@ bracket-geometry = "^0.8.3"
 bracket-terminal = "^0.8.5"
 bracket-algorithm-traits = "^0.8.2"
 
-bevy_ecs = { version = "^0.7.0" }
-bevy_app = { version = "^0.7.0" }
-iyes_loopless = "^0.6.1"
+bevy_ecs = { git = "https://github.com/bevyengine/bevy" }
+bevy_app = { git = "https://github.com/bevyengine/bevy" }
+iyes_loopless = { git = "https://github.com/iyesgames/iyes_loopless", branch = "bevy_main" }
 
 parking_lot = "^0.12.1"
 lazy_static = "^1.4.0"

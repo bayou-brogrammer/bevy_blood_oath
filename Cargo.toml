@@ -24,12 +24,15 @@ bo_utils = { path = "bo_utils/" }
 bo_logging = { path = "bo_logging/" }
 
 bracket-lib = { version = "~0.8.1", features = ["serde"] }
-bevy = { version = "~0.7.0", default-features = false, features = ["dynamic"] }
-iyes_loopless = "~0.6.1"
-rayon = "~1.5.3"
+bevy = { git = "https://github.com/bevyengine/bevy", default-features = false, features = [
+  "dynamic",
+] }
+
+iyes_loopless = { git = "https://github.com/iyesgames/iyes_loopless", branch = "bevy_main" }
 
 lazy_static = "1.4.0"
 parking_lot = { version = "0.12.1", features = ["nightly"] }
+rayon = "~1.5.3"
 bitvec = "^1.0.1"
 
 [build-dependencies]

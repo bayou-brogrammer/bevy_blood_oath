@@ -27,10 +27,11 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     mut commands: Commands,
     mut selection: Local<usize>,
     ranged_items: Query<&Ranged>,
-    key: Res<Option<VirtualKeyCode>>,
+    key: Option<Res<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
     mut drop_event: EventWriter<WantsToDropItem>,
     items_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
+    mut stack: ResMut<StateStack<TurnState>>,
 ) {
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(0);
@@ -49,10 +50,10 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         menu_type.label(),
         items.len() as i32,
         &items,
-        *key,
+        key.as_deref(),
         *selection,
     ) {
-        ItemMenuResult::Cancel => commands.insert_resource(TurnState::PlayerTurn),
+        ItemMenuResult::Cancel => stack.set(TurnState::PlayerTurn).unwrap(),
         ItemMenuResult::UpSelection => {
             if *selection > 0 {
                 *selection -= 1;
@@ -68,7 +69,8 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                 InventoryMenu::Main => {
                     if let Ok(r) = ranged_items.get(item) {
                         commands.insert_resource(Targeting::new(item, r.range));
-                        commands.insert_resource(TurnState::Targeting);
+                        commands.insert_resource(SetState(TurnState::Targeting));
+
                         return;
                     } else {
                         commands.entity(player).insert(WantsToUseItem { item, target: None });
@@ -79,7 +81,8 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                 }
             }
 
-            commands.insert_resource(TurnState::PlayerTurn);
+            // commands.insert_resource(TurnState::PlayerTurn);
+            stack.set(TurnState::PlayerTurn).unwrap();
         }
         _ => {} // No Response
     }

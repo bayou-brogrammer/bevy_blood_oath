@@ -17,7 +17,7 @@ pub enum PlayerInputResult {
 
 pub fn player_input(
     mut commands: Commands,
-    key: Res<Option<VirtualKeyCode>>,
+    key: Option<Res<VirtualKeyCode>>,
     // Events
     mut move_events: EventWriter<WantsToMove>,
     mut attack_events: EventWriter<WantsToAttack>,
@@ -27,7 +27,7 @@ pub fn player_input(
     enemies_query: Query<(Entity, &Position), (With<Monster>, Without<Player>)>,
     mut player_query: Query<(Entity, &Position), (With<Player>, Without<Monster>)>,
 ) -> PlayerInputResult {
-    if let Some(key) = key.as_ref() {
+    if let Some(key) = key.as_deref() {
         let mut delta = Point::new(0, 0);
         let (player, pos) = player_query.single_mut();
 
@@ -74,13 +74,20 @@ pub fn player_input(
     PlayerInputResult::NoResult
 }
 
-pub fn player_turn_done(In(result): In<PlayerInputResult>, mut commands: Commands) {
+pub fn player_turn_done(
+    In(result): In<PlayerInputResult>,
+    mut commands: Commands,
+    mut stack: ResMut<StateStack<TurnState>>,
+) {
     match result {
         PlayerInputResult::NoResult => {}
         PlayerInputResult::AppQuit => commands.insert_resource(AppExit),
-        PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
-        PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::Inventory),
-        PlayerInputResult::ShowDropMenu => commands.insert_resource(TurnState::ShowDropMenu),
+        PlayerInputResult::TurnDone => stack.set(TurnState::PlayerTurn).unwrap(),
+        PlayerInputResult::ShowInventory => stack.set(TurnState::Inventory).unwrap(),
+        PlayerInputResult::ShowDropMenu => stack.set(TurnState::ShowDropMenu).unwrap(),
+        // PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
+        // PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::Inventory),
+        // PlayerInputResult::ShowDropMenu => commands.insert_resource(TurnState::ShowDropMenu),
     }
 }
 

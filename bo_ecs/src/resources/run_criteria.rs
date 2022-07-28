@@ -4,6 +4,8 @@ use bevy_ecs::{
 };
 use iyes_loopless::state::CurrentState;
 
+use super::TurnState;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Run Criteria
 ////////////////////////////////////////////////////////////////////////////////
@@ -20,13 +22,61 @@ pub fn run_in_state_bevy<T: StateData>(
     }
 }
 
-pub fn run_in_stack<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> bool + Clone + 'static {
-    move |stack: Res<StateStack<T>>| -> bool {
+pub fn run_in_state(state: TurnState) -> impl Fn(Res<StateStack<TurnState>>) -> bool + Clone + 'static {
+    move |stack: Res<StateStack<TurnState>>| -> bool {
         if stack.stack.is_empty() {
             return false;
         }
 
-        stack.stack.iter().all(|stack_state| *stack_state == state)
+        *stack.current() == state
+    }
+}
+
+pub fn run_in_stack(state: TurnState) -> impl Fn(Res<StateStack<TurnState>>) -> bool + Clone + 'static {
+    move |stack: Res<StateStack<TurnState>>| -> bool {
+        if stack.stack.is_empty() {
+            return false;
+        }
+
+        stack.stack.iter().any(|stack_state| *stack_state == state)
+    }
+}
+
+pub fn run_not_in_stack(
+    state: TurnState,
+) -> impl Fn(Res<StateStack<TurnState>>) -> bool + Clone + 'static {
+    move |stack: Res<StateStack<TurnState>>| -> bool {
+        if stack.stack.is_empty() {
+            return false;
+        }
+
+        !stack.stack.iter().any(|stack_state| *stack_state == state)
+    }
+}
+
+pub fn run_in_confirm() -> impl Fn(Res<StateStack<TurnState>>) -> bool + Clone + 'static {
+    move |stack: Res<StateStack<TurnState>>| -> bool {
+        if stack.stack.is_empty() {
+            return false;
+        }
+
+        match *stack.current() {
+            TurnState::Confirm(_) => true,
+            _ => false,
+        }
+    }
+}
+
+pub fn run_not_in_confirm() -> impl Fn(Res<StateStack<TurnState>>) -> bool + Clone + 'static {
+    move |stack: Res<StateStack<TurnState>>| -> bool {
+        if stack.stack.is_empty() {
+            return false;
+        }
+
+        match *stack.current() {
+            TurnState::Confirm(_) => false,
+            _ => true,
+        }
     }
 }
 
@@ -34,7 +84,7 @@ pub fn run_in_stack<T: StateData>(state: T) -> impl Fn(Res<StateStack<T>>) -> bo
 
 #[derive(Debug)]
 pub struct StateStack<T: StateData> {
-    stack: Vec<T>,
+    pub stack: Vec<T>,
 }
 
 impl<T> StateStack<T>

@@ -28,9 +28,9 @@ fn game_over_input(
     mut commands: Commands,
     mut selection: Local<usize>,
     mut exit: EventWriter<AppExit>,
-    key: Res<Option<VirtualKeyCode>>,
+    key: Option<Res<VirtualKeyCode>>,
 ) -> usize {
-    if let Some(key) = key.as_ref() {
+    if let Some(key) = key.as_deref() {
         let actions = GameOver::actions();
 
         match key {
