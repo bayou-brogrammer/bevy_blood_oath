@@ -1,0 +1,11 @@
+[package]
+name = "bo_pathfinding"
+version = "0.1.0"
+authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+bracket-pathfinding = { version = "^0.8.4" }
+bracket-algorithm-traits = "^0.8.2"
+bracket-geometry = "^0.8.3"
+smallvec = "^1.9.0"

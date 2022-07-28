@@ -1,5 +1,4 @@
 use super::*;
-use bracket_lib::prelude::Rect;
 
 mod game_menus;
 mod title_menus;

@@ -15,8 +15,10 @@ mod prelude {
     pub use iyes_loopless::prelude::*;
 
     // Bracket Lib
-    pub use bracket_lib::prelude::Rect;
-    pub use bracket_lib::prelude::*;
+    pub use bracket_color::prelude::*;
+    pub use bracket_geometry::prelude::*;
+    pub use bracket_random::prelude::*;
+    pub use bracket_terminal::prelude::*;
 
     // Random Helper Crates
     pub use rayon::prelude::*;
@@ -25,6 +27,7 @@ mod prelude {
     pub use bo_ecs::prelude::*;
     pub use bo_logging::prelude::*;
     pub use bo_map::prelude::*;
+    pub use bo_pathfinding::prelude::*;
     pub use bo_utils::prelude::*;
 
     pub use crate::spawner;

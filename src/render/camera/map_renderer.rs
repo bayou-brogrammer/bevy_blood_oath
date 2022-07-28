@@ -15,10 +15,8 @@ pub fn map_render(camera: Res<GameCamera>, map: Res<Map>) {
                 let idx = map.point2d_to_index(pt);
 
                 if map.revealed.get_bit(pt) {
-                    let tt = &map.tiles[idx];
-                    let tint = if map.visible.get_bit(pt) { GREEN } else { DARK_GRAY };
-                    let color = ColorPair::new(tint, tt.color.bg);
-                    draw_batch.set(Point::new(x + 1, y + 1), color, tt.glyph);
+                    let (glyph, color) = tile_glyph(idx, &*map);
+                    draw_batch.set(Point::new(x + 1, y + 1), color, glyph);
                 }
             }
         }

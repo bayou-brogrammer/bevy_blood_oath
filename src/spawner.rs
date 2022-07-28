@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bracket_lib::prelude::Rect;
 use std::collections::HashSet;
 
 pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
@@ -166,7 +165,7 @@ impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
         app.add_enter_system_set(
             GameCondition::InGame,
-            ConditionSet::new().with_system(spawn_player).into(),
+            ConditionSet::new().with_system(spawn_player).with_system(spawn_enemies).into(),
         );
 
         app.add_exit_system(GameCondition::InGame, cleanup_system::<Position>);
