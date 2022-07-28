@@ -97,15 +97,13 @@ impl Plugin for GUIPlugin {
         // GUI Inventory Systems
         app.add_system_set(
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::Inventory))
-                // .run_if_resource_equals(TurnState::Inventory)
+                .run_if_resource_equals(TurnState::Inventory)
                 .with_system(game_menus::show_inventory::<{ InventoryMenu::Main as u8 }>)
                 .into(),
         )
         .add_system_set(
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::ShowDropMenu))
-                // .run_if_resource_equals(TurnState::ShowDropMenu)
+                .run_if_resource_equals(TurnState::ShowDropMenu)
                 .with_system(game_menus::show_inventory::<{ InventoryMenu::Drop as u8 }>)
                 .into(),
         );
@@ -113,21 +111,9 @@ impl Plugin for GUIPlugin {
         // Targeting
         app.add_system_set(
             ConditionSet::new()
-                .run_if(run_in_stack(TurnState::Targeting))
+                .run_if_resource_equals(TurnState::Targeting)
                 .with_system(game_menus::ranged_targeting)
-                .into(),
-        );
-        app.add_system_set(
-            ConditionSet::new()
-                .run_if(run_in_state(TurnState::Targeting))
                 .with_system(game_menus::ranged_input)
-                .into(),
-        );
-
-        app.add_system_set(
-            ConditionSet::new()
-                .run_if(run_in_confirm())
-                .with_system(game_menus::confirm_input.chain(game_menus::confirm))
                 .into(),
         );
     }

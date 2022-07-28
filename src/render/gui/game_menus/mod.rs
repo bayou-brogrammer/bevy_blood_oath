@@ -1,10 +1,8 @@
 use super::*;
 
-mod confirm;
 mod inventory;
 mod ranged;
 
-pub use confirm::*;
 pub use inventory::*;
 pub use ranged::*;
 

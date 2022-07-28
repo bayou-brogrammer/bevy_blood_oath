@@ -31,7 +31,6 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     player: Query<Entity, With<Player>>,
     mut drop_event: EventWriter<WantsToDropItem>,
     items_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
-    mut stack: ResMut<StateStack<TurnState>>,
 ) {
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(0);
@@ -53,7 +52,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
         key.as_deref(),
         *selection,
     ) {
-        ItemMenuResult::Cancel => stack.set(TurnState::PlayerTurn).unwrap(),
+        ItemMenuResult::Cancel => commands.insert_resource(TurnState::PlayerTurn),
         ItemMenuResult::UpSelection => {
             if *selection > 0 {
                 *selection -= 1;
@@ -69,8 +68,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                 InventoryMenu::Main => {
                     if let Ok(r) = ranged_items.get(item) {
                         commands.insert_resource(Targeting::new(item, r.range));
-                        commands.insert_resource(SetState(TurnState::Targeting));
-
+                        commands.insert_resource(TurnState::Targeting);
                         return;
                     } else {
                         commands.entity(player).insert(WantsToUseItem { item, target: None });
@@ -81,8 +79,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                 }
             }
 
-            // commands.insert_resource(TurnState::PlayerTurn);
-            stack.set(TurnState::PlayerTurn).unwrap();
+            commands.insert_resource(TurnState::PlayerTurn);
         }
         _ => {} // No Response
     }

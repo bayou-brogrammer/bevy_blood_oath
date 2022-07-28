@@ -19,7 +19,7 @@ pub enum GameCondition {
     LoadGame,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum TurnState {
     // Turn States
     AwaitingInput,
@@ -29,7 +29,6 @@ pub enum TurnState {
     Inventory,
     ShowDropMenu,
     Targeting,
-    Confirm(String),
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]
@@ -66,18 +65,3 @@ pub struct MousePosition {
 pub struct MouseLeftClick(pub bool);
 
 impl_new!(MousePosition, pt: Point, pos: (i32, i32));
-
-#[derive(Debug)]
-pub struct YesNoDialog(pub bool);
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-/// State Management
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-#[derive(Debug)]
-pub struct PopState;
-#[derive(Debug)]
-pub struct PushState(pub TurnState);
-
-#[derive(Debug)]
-pub struct SetState(pub TurnState);

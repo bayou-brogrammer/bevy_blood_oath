@@ -1,10 +1,6 @@
 use super::*;
 
-pub fn entity_render(
-    map: Res<Map>,
-    camera: Res<GameCamera>,
-    glyph_q: Query<(&Position, &Glyph), Without<ParticleLifetime>>,
-) {
+pub fn entity_render(map: Res<Map>, camera: Res<GameCamera>, glyph_q: Query<(&Position, &Glyph)>) {
     let mut batch = DrawBatch::new();
     batch.target(LAYER_MAP);
 
@@ -26,21 +22,3 @@ pub fn entity_render(
 
     batch.submit(BATCH_CHARS).expect("Error batching map");
 }
-
-// pub fn particle_render(
-//     map: Res<Map>,
-//     camera: Res<GameCamera>,
-//     particles_q: Query<(&Position, &Glyph), (With<ParticleLifetime>, Without<Item>)>,
-// ) {
-//     let mut batch = DrawBatch::new();
-//     batch.target(LAYER_PARTICLES);
-
-//     for (pos, glyph) in particles_q.iter() {
-//         if map.visible.get_bit(pos.0) {
-//             let screen_pos = camera.world_to_screen(pos.0);
-//             batch.set(screen_pos, glyph.color, glyph.glyph);
-//         }
-//     }
-
-//     batch.submit(1000000).expect("Error batching particles");
-// }

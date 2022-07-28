@@ -74,20 +74,13 @@ pub fn player_input(
     PlayerInputResult::NoResult
 }
 
-pub fn player_turn_done(
-    In(result): In<PlayerInputResult>,
-    mut commands: Commands,
-    mut stack: ResMut<StateStack<TurnState>>,
-) {
+pub fn player_turn_done(In(result): In<PlayerInputResult>, mut commands: Commands) {
     match result {
         PlayerInputResult::NoResult => {}
         PlayerInputResult::AppQuit => commands.insert_resource(AppExit),
-        PlayerInputResult::TurnDone => stack.set(TurnState::PlayerTurn).unwrap(),
-        PlayerInputResult::ShowInventory => stack.set(TurnState::Inventory).unwrap(),
-        PlayerInputResult::ShowDropMenu => stack.set(TurnState::ShowDropMenu).unwrap(),
-        // PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
-        // PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::Inventory),
-        // PlayerInputResult::ShowDropMenu => commands.insert_resource(TurnState::ShowDropMenu),
+        PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
+        PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::Inventory),
+        PlayerInputResult::ShowDropMenu => commands.insert_resource(TurnState::ShowDropMenu),
     }
 }
 

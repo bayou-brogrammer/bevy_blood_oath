@@ -1,13 +1,13 @@
 use crate::prelude::*;
 
 pub fn end_turn(
+    state: Res<TurnState>,
     mut commands: Commands,
-    mut stack: ResMut<StateStack<TurnState>>,
     player_stats_q: Query<&CombatStats, With<Player>>,
 ) {
     let stats = player_stats_q.single();
 
-    let current_state = stack.current().clone();
+    let current_state = *state;
     let new_state = match current_state {
         TurnState::PlayerTurn => TurnState::AITurn,
         TurnState::AITurn => TurnState::AwaitingInput,
@@ -19,5 +19,5 @@ pub fn end_turn(
         return;
     }
 
-    stack.set(new_state).unwrap();
+    commands.insert_resource(new_state);
 }

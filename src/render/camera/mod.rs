@@ -49,13 +49,6 @@ impl Plugin for CameraPlugin {
                 .run_in_state(GameCondition::InGame)
                 .with_system(map_renderer::map_render)
                 .with_system(entity_renderer::entity_render)
-                .into(),
-        );
-
-        app.add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameCondition::InGame)
-                .run_if(run_not_in_confirm())
                 .with_system(tooltips::render_tooltips)
                 .into(),
         );

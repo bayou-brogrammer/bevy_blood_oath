@@ -2,7 +2,7 @@ use super::*;
 
 pub fn monster_ai(
     mut map: ResMut<Map>,
-    state: Res<StateStack<TurnState>>,
+    state: Res<TurnState>,
     mut commands: Commands,
     mut attack_events: EventWriter<WantsToAttack>,
     mut move_events: EventWriter<WantsToMove>,
@@ -12,7 +12,7 @@ pub fn monster_ai(
         (With<Monster>, Without<Player>),
     >,
 ) {
-    if *state.current() != TurnState::AITurn {
+    if *state != TurnState::AITurn {
         return;
     }
 

@@ -41,8 +41,7 @@ impl Plugin for AwaitingInputPlugin {
             CoreStage::Update,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
-                .run_if(run_in_stack(TurnState::AwaitingInput))
-                // .run_if_resource_equals(TurnState::AwaitingInput)
+                .run_if_resource_equals(TurnState::AwaitingInput)
                 .with_system(player::player_input.chain(player::player_turn_done))
                 .into(),
         );
@@ -56,8 +55,7 @@ impl Plugin for PlayerPlugin {
             GameStage::GeneratePlayerActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
-                .run_if(run_in_stack(TurnState::PlayerTurn))
-                // .run_if_resource_equals(TurnState::PlayerTurn)
+                .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .with_system(inventory::item_use)
@@ -68,8 +66,7 @@ impl Plugin for PlayerPlugin {
             GameStage::HandlePlayerActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
-                .run_if(run_in_stack(TurnState::PlayerTurn))
-                // .run_if_resource_equals(TurnState::PlayerTurn)
+                .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
@@ -92,8 +89,7 @@ impl Plugin for AIPlugin {
             GameStage::GenerateAIActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
-                .run_if(run_in_stack(TurnState::AITurn))
-                // .run_if_resource_equals(TurnState::AITurn)
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(monster_ai::monster_ai)
                 .into(),
         )
@@ -101,8 +97,7 @@ impl Plugin for AIPlugin {
             GameStage::HandleAIActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
-                .run_if(run_in_stack(TurnState::AITurn))
-                // .run_if_resource_equals(TurnState::AITurn)
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .into(),
@@ -111,8 +106,7 @@ impl Plugin for AIPlugin {
             GameStage::AICleanup,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
-                .run_if(run_in_stack(TurnState::AITurn))
-                // .run_if_resource_equals(TurnState::AITurn)
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(map_indexing::map_indexing)
                 .with_system(fov::fov_system)
                 .with_system(end_turn::end_turn)
