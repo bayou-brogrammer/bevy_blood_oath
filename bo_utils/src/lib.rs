@@ -3,6 +3,7 @@ mod ecs;
 mod macros;
 mod render;
 
+pub mod rng;
 pub use crate::render::color::*;
 
 pub mod prelude {

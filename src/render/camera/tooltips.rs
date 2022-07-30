@@ -13,7 +13,7 @@ pub fn render_tooltips(
     mouse_map_pos.x += min_x - 1;
     mouse_map_pos.y += min_y - 1;
 
-    if !map.in_bounds(mouse_map_pos) || !map.visible.get_bit(Point::from(mouse_map_pos)) {
+    if !map.in_bounds(mouse_map_pos) || !map.visible.get_bit(mouse_map_pos) {
         return;
     }
 

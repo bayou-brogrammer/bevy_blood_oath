@@ -7,4 +7,6 @@ edition = "2021"
 [dependencies]
 lazy_static = "^1.4.0"
 bracket-terminal = "^0.8.5"
+parking_lot = "^0.12.1"
 bevy_ecs = { git = "https://github.com/bevyengine/bevy" }
+bracket-random = "^0.8.2"

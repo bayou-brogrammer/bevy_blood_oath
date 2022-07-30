@@ -37,7 +37,7 @@ const MAX_MONSTERS: i32 = 10;
 const MAX_ITEMS: i32 = 2;
 
 pub fn spawn_room(commands: &mut Commands, room: &Rect) {
-    let mut rng = crate::rng::RNG.lock();
+    let mut rng = bo_utils::rng::RNG.lock();
 
     let num_monsters = i32::max(0, rng.roll_dice(1, MAX_MONSTERS + 2) - 3);
     let mut monster_spawn_points: HashSet<Point> = HashSet::new();

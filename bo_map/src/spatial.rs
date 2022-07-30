@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use bevy_ecs::entity::Entity;
+use bo_ecs::prelude::Entity;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
@@ -30,6 +30,7 @@ pub fn clear() {
         b.0 = false;
         b.1 = false;
     });
+
     for content in lock.tile_content.iter_mut() {
         content.clear();
     }
@@ -38,7 +39,7 @@ pub fn clear() {
 pub fn populate_blocked_from_map(map: &Map) {
     let mut lock = SPATIAL_MAP.lock();
     for (i, tile) in map.tiles.iter().enumerate() {
-        lock.blocked[i].0 = !tile_walkable(*tile);
+        lock.blocked[i].0 = !tile.walkable;
     }
 }
 

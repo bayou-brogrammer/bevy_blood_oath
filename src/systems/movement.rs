@@ -23,7 +23,7 @@ pub fn movement(
                     fov.is_dirty = true;
                 }
 
-                if let Some(_) = player {
+                if player.is_some() {
                     commands.insert_resource(destination);
                     commands.insert_resource(GameCamera::new(destination));
                 }

@@ -1,8 +1,10 @@
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::type_complexity)]
+
 pub mod spawner;
 
 mod effects;
 mod render;
-mod rng;
 mod setup;
 mod systems;
 mod turn;
@@ -34,7 +36,6 @@ mod prelude {
 
     pub use crate::effects::*;
     pub use crate::render::*;
-    pub use crate::rng::*;
     pub use crate::setup::*;
     pub use crate::systems::*;
     pub use crate::turn::*;

@@ -593,6 +593,7 @@ checksum = "1bc2832c24239b0141d5674bb9174f9d68a8b5b3f2753311927c172ca46f7e9c"
 dependencies = [
  "funty",
  "radium",
+ "serde",
  "tap",
  "wyz",
 ]
@@ -632,7 +633,6 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bo_logging",
- "bo_map",
  "bo_utils",
  "bracket-algorithm-traits",
  "bracket-geometry",
@@ -656,14 +656,15 @@ dependencies = [
 name = "bo_map"
 version = "0.1.0"
 dependencies = [
- "bevy_ecs",
  "bitvec",
+ "bo_ecs",
+ "bo_utils",
  "bracket-geometry",
  "bracket-pathfinding",
- "bracket-random",
  "bracket-terminal",
  "lazy_static",
  "parking_lot 0.12.1",
+ "serde",
 ]
 
 [[package]]
@@ -681,8 +682,10 @@ name = "bo_utils"
 version = "0.1.0"
 dependencies = [
  "bevy_ecs",
+ "bracket-random",
  "bracket-terminal",
  "lazy_static",
+ "parking_lot 0.12.1",
 ]
 
 [[package]]

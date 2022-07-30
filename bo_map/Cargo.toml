@@ -5,12 +5,14 @@ authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+bo_ecs = { path = "../bo_ecs" }
+bo_utils = { path = "../bo_utils" }
+
 bracket-geometry = "^0.8.3"
 bracket-terminal = "^0.8.5"
 bracket-pathfinding = "^0.8.4"
-bracket-random = "^0.8.2"
 
-bitvec = "^1.0.1"
+bitvec = { version = "^1.0.1", features = ['serde'] }
 lazy_static = "^1.4.0"
 parking_lot = "^0.12.1"
-bevy_ecs = { git = "https://github.com/bevyengine/bevy" }
+serde = { version = "^1.0.140", features = ["derive"] }

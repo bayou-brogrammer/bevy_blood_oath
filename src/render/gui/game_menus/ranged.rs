@@ -63,8 +63,8 @@ pub fn ranged_targeting(
             .visible_tiles
             .iter()
             .filter(|pt| DistanceAlg::Pythagoras.distance2d(player_pos.0, **pt) < range as f32)
-            .filter(|pt| map.tiles[map.point2d_to_index(**pt)] == TileType::Floor)
-            .map(|pt| *pt)
+            .filter(|pt| map.tiles[map.point2d_to_index(**pt)].tile_type == TileType::Floor)
+            .copied()
             .collect::<HashSet<Point>>();
 
         // Draw potential valid cells

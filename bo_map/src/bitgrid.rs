@@ -1,8 +1,10 @@
 use bitvec::prelude::*;
+use bracket_geometry::prelude::Point;
 use bracket_pathfinding::prelude::*;
+use serde::{Deserialize, Serialize};
 
 /// A width-by-height&-sized BitVec for convenient handling of a grid of boolean values.
-#[derive(Debug, Clone)]
+#[derive(Default, Serialize, Deserialize, Clone, Debug)]
 pub struct BitGrid {
     width: i32,
     height: i32,

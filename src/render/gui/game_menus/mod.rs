@@ -70,7 +70,7 @@ pub fn item_result_menu<S: ToString>(
     let x = box_rect.x1;
     let mut y = box_rect.y1;
 
-    if items.len() <= 0 {
+    if items.is_empty() {
         draw_batch.print_color_centered_at(
             Point::new(x + box_rect.width() / 2, y + box_rect.height() / 2),
             "<Empty>",

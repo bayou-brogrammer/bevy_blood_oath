@@ -28,6 +28,7 @@ pub struct ParticleRequest {
 
 impl_new!(ParticleRequest, pt: Point, color: ColorPair, glyph: FontCharType, lifetime: f32);
 
+#[derive(Default)]
 pub struct ParticleBuilder {
     pub requests: Vec<ParticleRequest>,
 }

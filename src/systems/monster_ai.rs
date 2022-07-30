@@ -1,7 +1,7 @@
 use super::*;
 
 pub fn monster_ai(
-    mut map: ResMut<Map>,
+    map: Res<Map>,
     state: Res<TurnState>,
     mut commands: Commands,
     mut attack_events: EventWriter<WantsToAttack>,
@@ -39,7 +39,7 @@ pub fn monster_ai(
                 let path = a_star_search(
                     map.point2d_to_index(pos.0),
                     map.point2d_to_index(player_pos.0),
-                    &mut *map,
+                    &*map,
                 );
 
                 if path.success && path.steps.len() > 1 && path.steps.len() < 15 {

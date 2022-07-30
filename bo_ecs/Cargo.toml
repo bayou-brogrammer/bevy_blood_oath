@@ -5,7 +5,6 @@ authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-bo_map = { path = "../bo_map" }
 bo_utils = { path = "../bo_utils" }
 bo_logging = { path = "../bo_logging" }
 
