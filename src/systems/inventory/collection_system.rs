@@ -8,7 +8,7 @@ pub fn item_collection(
 ) {
     for WantsToPickupItem { item, collected_by } in pickup_events.drain() {
         commands.entity(item).remove::<Position>();
-        commands.entity(item).insert(InBackpack(collected_by));
+        commands.entity(item).insert(InBackpack::new(collected_by));
 
         if collected_by == player_q.single() {
             let item_name = names_q.get(item).unwrap();

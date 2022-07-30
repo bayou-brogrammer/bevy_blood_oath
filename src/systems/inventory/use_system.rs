@@ -5,7 +5,7 @@ pub fn item_use(
     mut commands: Commands,
     // Basic Queries
     player_q: Query<Entity, With<Player>>,
-    // Item Effects?
+    // Item Effects
     aoe_item_q: Query<&AreaOfEffect>,
     wants_to_use: Query<(Entity, &WantsToUseItem)>,
 ) {

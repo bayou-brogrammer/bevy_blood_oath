@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use bo_utils::impl_new;
 use bracket_geometry::prelude::Point;
 
 // Differently from the source project, which uses resources, we use Bevy's messaging system for move
@@ -33,3 +34,15 @@ pub struct WantsToDropItem {
     pub item: Entity,
     pub dropper: Entity,
 }
+
+#[derive(Debug, Clone)]
+pub struct WantsToRemoveItem {
+    pub item: Entity,
+    pub remover: Entity,
+}
+
+impl_new!(WantsToMove, entity: Entity, destination: Point);
+impl_new!(WantsToAttack, attacker: Entity, victim: Entity);
+impl_new!(WantsToDropItem, item: Entity, dropper: Entity);
+impl_new!(WantsToRemoveItem, item: Entity, remover: Entity);
+impl_new!(WantsToPickupItem, item: Entity, collected_by: Entity);

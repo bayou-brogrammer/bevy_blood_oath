@@ -26,9 +26,10 @@ pub enum TurnState {
     PlayerTurn,
     AITurn,
 
+    Targeting,
     Inventory,
     ShowDropMenu,
-    Targeting,
+    ShowRemoveMenu,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]

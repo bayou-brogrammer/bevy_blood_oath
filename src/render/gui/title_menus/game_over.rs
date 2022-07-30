@@ -52,6 +52,7 @@ fn game_over_input(
             VirtualKeyCode::Return => {
                 assert!(*selection < actions.len());
 
+                *selection = 0;
                 match actions[*selection] {
                     GameOver::Quit => exit.send(AppExit),
                     GameOver::NewGame => commands.insert_resource(NextState(GameCondition::InGame)),

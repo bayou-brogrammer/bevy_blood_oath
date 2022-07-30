@@ -1,5 +1,7 @@
 mod backpack;
+mod combat;
 mod description;
+mod equipment;
 mod fov;
 mod glyph;
 mod intent;
@@ -12,7 +14,9 @@ mod stats;
 mod tags;
 
 pub use backpack::InBackpack;
+pub use combat::*;
 pub use description::Description;
+pub use equipment::*;
 pub use fov::FieldOfView;
 pub use glyph::{Glyph, RenderOrder};
 pub use intent::*;

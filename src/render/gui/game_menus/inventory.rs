@@ -4,12 +4,14 @@ use super::*;
 pub enum InventoryMenu {
     Main = 0,
     Drop = 1,
+    Remove = 2,
 }
 
 impl InventoryMenu {
     pub fn menu_type(menu_type: u8) -> InventoryMenu {
         match menu_type {
             1 => InventoryMenu::Drop,
+            2 => InventoryMenu::Remove,
             _ => InventoryMenu::Main,
         }
     }
@@ -18,6 +20,7 @@ impl InventoryMenu {
         match self {
             InventoryMenu::Main => "Inventory",
             InventoryMenu::Drop => "Drop Which Item?",
+            InventoryMenu::Remove => "Remove Which Item?",
         }
     }
 }
@@ -27,23 +30,32 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     mut commands: Commands,
     mut selection: Local<usize>,
     ranged_items: Query<&Ranged>,
+    equippable_items: Query<&Equippable>,
     key: Option<Res<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
     mut drop_event: EventWriter<WantsToDropItem>,
-    items_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
+    mut remove_event: EventWriter<WantsToRemoveItem>,
+    backpack_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
+    equipped_q: Query<(Entity, &Naming, &Equipped), With<Item>>,
 ) {
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(0);
 
     let player = player.single();
+    let menu_type = InventoryMenu::menu_type(MENU_TYPE);
 
     let mut items: Vec<(Entity, String)> = Vec::new();
-    items_q
-        .iter()
-        .filter(|(_, _, backpack)| backpack.0 == player)
-        .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone())));
+    match menu_type {
+        InventoryMenu::Main | InventoryMenu::Drop => backpack_q
+            .iter()
+            .filter(|(_, _, backpack)| backpack.owner == player)
+            .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone()))),
+        InventoryMenu::Remove => equipped_q
+            .iter()
+            .filter(|(_, _, backpack)| backpack.owner == player)
+            .for_each(|(item, item_name, _)| items.push((item, item_name.0.clone()))),
+    }
 
-    let menu_type = InventoryMenu::menu_type(MENU_TYPE);
     match item_result_menu(
         &mut draw_batch,
         menu_type.label(),
@@ -64,18 +76,25 @@ pub fn show_inventory<const MENU_TYPE: u8>(
             }
         }
         ItemMenuResult::Selected(item) => {
+            *selection = 0;
+
             match menu_type {
                 InventoryMenu::Main => {
                     if let Ok(r) = ranged_items.get(item) {
                         commands.insert_resource(Targeting::new(item, r.range));
                         commands.insert_resource(TurnState::Targeting);
                         return;
+                    } else if equippable_items.get(item).is_ok() {
+                        commands.entity(player).insert(WantsToEquipItem::new(item));
                     } else {
-                        commands.entity(player).insert(WantsToUseItem { item, target: None });
+                        commands.entity(player).insert(WantsToUseItem::new(item, None));
                     }
                 }
                 InventoryMenu::Drop => {
-                    drop_event.send(WantsToDropItem { item, dropper: player });
+                    drop_event.send(WantsToDropItem::new(item, player));
+                }
+                InventoryMenu::Remove => {
+                    remove_event.send(WantsToRemoveItem::new(item, player));
                 }
             }
 

@@ -1,5 +1,6 @@
 use crate::prelude::*;
-use std::collections::HashSet;
+use std::collections::hash_map::Entry::Vacant;
+use std::collections::HashMap;
 
 pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
     let start_pos = map.rooms[0].center();
@@ -29,54 +30,55 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
 pub fn spawn_enemies(mut commands: Commands, map: Res<Map>) {
     // Spawn Enemies
     map.rooms.iter().skip(1).for_each(|room| {
-        spawner::spawn_room(&mut commands, room);
+        spawner::spawn_room(&mut commands, room, map.depth);
     });
+
+    dagger(&mut commands, map.rooms[0].center());
+    shield(&mut commands, map.rooms[0].center());
 }
 
 const MAX_MONSTERS: i32 = 10;
-const MAX_ITEMS: i32 = 2;
 
-pub fn spawn_room(commands: &mut Commands, room: &Rect) {
+pub fn spawn_room(commands: &mut Commands, room: &Rect, map_depth: i32) {
     let mut rng = bo_utils::rng::RNG.lock();
+    let spawn_table = room_table(map_depth);
+    let mut spawn_points: HashMap<Point, String> = HashMap::new();
 
-    let num_monsters = i32::max(0, rng.roll_dice(1, MAX_MONSTERS + 2) - 3);
-    let mut monster_spawn_points: HashSet<Point> = HashSet::new();
-    (0..num_monsters).for_each(|_| loop {
-        let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
-        let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
-        let pt = Point::new(x, y);
+    // Scope to keep the borrow checker happy
+    {
+        let num_spawns = rng.roll_dice(1, MAX_MONSTERS + 3) + (map_depth - 1) - 3;
 
-        if !monster_spawn_points.contains(&pt) {
-            monster_spawn_points.insert(pt);
-            break;
+        for _i in 0..num_spawns {
+            let mut added = false;
+            let mut tries = 0;
+
+            while !added && tries < 20 {
+                let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
+                let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
+
+                if let Vacant(e) = spawn_points.entry(Point::new(x, y)) {
+                    e.insert(spawn_table.roll(&mut rng));
+                    added = true;
+                } else {
+                    tries += 1;
+                }
+
+                tries += 1;
+            }
         }
+    }
+
+    spawn_points.iter().for_each(|(pt, spawn_name)| match spawn_name.as_ref() {
+        "Orc" => orc(commands, *pt),
+        "Goblin" => goblin(commands, *pt),
+        "Dagger" => dagger(commands, *pt),
+        "Shield" => shield(commands, *pt),
+        "Health Potion" => health_potion(commands, *pt),
+        "Fireball Scroll" => fireball_scroll(commands, *pt),
+        "Confusion Scroll" => confusion_scroll(commands, *pt),
+        "Magic Missile Scroll" => magic_missile_scroll(commands, *pt),
+        _ => {}
     });
-
-    monster_spawn_points.iter().for_each(|pt| random_monster(commands, &mut rng, *pt));
-
-    let num_items = rng.roll_dice(1, MAX_ITEMS + 2) - 3;
-    let mut item_spawn_points: HashSet<Point> = HashSet::new();
-    (0..num_items).for_each(|_| loop {
-        let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
-        let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
-        let pt = Point::new(x, y);
-
-        if !item_spawn_points.contains(&pt) {
-            item_spawn_points.insert(pt);
-            break;
-        }
-    });
-
-    item_spawn_points.iter().for_each(|pt| random_item(commands, &mut rng, *pt));
-}
-
-/// Spawns a random monster at a given location
-pub fn random_monster(commands: &mut Commands, rng: &mut RandomNumberGenerator, pt: Point) {
-    let roll = rng.roll_dice(1, 2);
-    match roll {
-        1 => orc(commands, pt),
-        _ => goblin(commands, pt),
-    };
 }
 
 fn orc(commands: &mut Commands, pt: Point) {
@@ -92,7 +94,7 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
         .spawn()
         .insert_bundle(MonsterBundle::new(FighterBundle::new(
             EntityBundle::new(Monster, name),
-            FieldOfView::new(6),
+            FieldOfView::new(8),
             CombatStats::new(16, 16, 1, 4),
         )))
         .insert_bundle(RenderBundle {
@@ -100,16 +102,6 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
             glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
         })
         .insert(Description::new(desc));
-}
-
-fn random_item(commands: &mut Commands, rng: &mut RandomNumberGenerator, pt: Point) {
-    let roll = rng.roll_dice(1, 2);
-    match roll {
-        1 => health_potion(commands, pt),
-        2 => fireball_scroll(commands, pt),
-        3 => confusion_scroll(commands, pt),
-        _ => magic_missile_scroll(commands, pt),
-    }
 }
 
 pub fn health_potion(commands: &mut Commands, pt: Point) {
@@ -170,4 +162,38 @@ impl Plugin for SpawnerPlugin {
 
         app.add_exit_system(GameCondition::InGame, cleanup_system::<Position>);
     }
+}
+
+fn room_table(map_depth: i32) -> RandomTable {
+    RandomTable::new()
+        .add("Goblin", 10)
+        .add("Orc", 1 + map_depth)
+        .add("Health Potion", 7)
+        .add("Fireball Scroll", 2 + map_depth)
+        .add("Confusion Scroll", 2 + map_depth)
+        .add("Magic Missile Scroll", 4)
+        .add("Dagger", 3)
+        .add("Shield", 3)
+}
+
+fn dagger(commands: &mut Commands, pt: Point) {
+    commands
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Dagger"),
+            RenderBundle::new(to_cp437('/'), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Equippable { slot: EquipmentSlot::Melee })
+        .insert(MeleePowerBonus::new(2));
+}
+
+fn shield(commands: &mut Commands, pt: Point) {
+    commands
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Shield"),
+            RenderBundle::new(to_cp437('('), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Equippable { slot: EquipmentSlot::Melee })
+        .insert(DefenseBonus::new(1));
 }

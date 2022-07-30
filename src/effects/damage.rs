@@ -50,16 +50,7 @@ pub fn heal_damage(world: &mut World, effect: &EffectSpawner, target: Entity) {
                 .append("hp")
                 .log();
 
-            // add_effect(
-            //     None,
-            //     EffectType::Particle {
-            //         glyph: rltk::to_cp437('‼'),
-            //         fg: rltk::RGB::named(rltk::GREEN),
-            //         bg: rltk::RGB::named(rltk::BLACK),
-            //         lifespan: 200.0,
-            //     },
-            //     Targets::Single { target },
-            // );
+            add_heal_particle(target);
         }
     }
 }

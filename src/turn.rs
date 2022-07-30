@@ -50,7 +50,7 @@ impl GameWorld {
 
 impl GameState for GameWorld {
     fn tick(&mut self, ctx: &mut BTerm) {
-        ctx.clear_consoles(&[LAYER_MAP, LAYER_LOG, LAYER_TEXT]);
+        ctx.clear_consoles(&[LAYER_MAP, LAYER_ENTITY, LAYER_LOG, LAYER_TEXT]);
 
         self.inject_bracket_context(ctx);
         self.app.update();

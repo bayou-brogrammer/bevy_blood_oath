@@ -4,6 +4,7 @@
 pub mod spawner;
 
 mod effects;
+mod random_table;
 mod render;
 mod setup;
 mod systems;
@@ -35,6 +36,7 @@ mod prelude {
     pub use crate::spawner;
 
     pub use crate::effects::*;
+    pub use crate::random_table::*;
     pub use crate::render::*;
     pub use crate::setup::*;
     pub use crate::systems::*;
@@ -47,8 +49,9 @@ mod prelude {
     pub const UI_HEIGHT: i32 = 30;
 
     pub const LAYER_MAP: usize = 0;
-    pub const LAYER_LOG: usize = 1;
-    pub const LAYER_TEXT: usize = 2;
+    pub const LAYER_ENTITY: usize = 1;
+    pub const LAYER_LOG: usize = 2;
+    pub const LAYER_TEXT: usize = 3;
 
     pub const BATCH_ZERO: usize = 0;
     pub const BATCH_DECOR: usize = 1000;
@@ -71,9 +74,11 @@ fn main() -> BError {
         .with_title("Roguelike Tutorial")
         .with_resource_path("assets/")
         .with_font("vga.png", 8, 16)
-        // Log Box #1
+        // Entity Console #1
+        .with_sparse_console(80, 60, "terminal8x8.png")
+        // Log Console #2
         .with_sparse_console(80, 30, "vga.png")
-        // UI #2
+        // UI Console #3
         .with_sparse_console(80, 30, "vga.png")
         .with_vsync(false)
         .build()?;

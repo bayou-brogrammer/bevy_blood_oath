@@ -20,3 +20,27 @@ pub fn add_damage_particle(target: Entity) {
         Targets::Single { target },
     );
 }
+
+pub fn add_hit_miss_particle(target: Entity) {
+    add_effect(
+        None,
+        EffectType::Particle {
+            glyph: to_cp437('‼'),
+            color: ColorPair::new(CYAN, BLACK),
+            lifespan: 200.0,
+        },
+        Targets::Single { target },
+    );
+}
+
+pub fn add_heal_particle(target: Entity) {
+    add_effect(
+        None,
+        EffectType::Particle {
+            glyph: to_cp437('‼'),
+            color: ColorPair::new(GREEN, BLACK),
+            lifespan: 200.0,
+        },
+        Targets::Single { target },
+    );
+}

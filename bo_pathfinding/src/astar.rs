@@ -80,7 +80,14 @@ impl AStar {
         let mut open_list: BinaryHeap<Node> = BinaryHeap::new();
         open_list.push(Node { idx: start, f: 0.0, g: 0.0 });
 
-        AStar { start, end, open_list, parents: HashMap::new(), closed_list: HashMap::new(), step_counter: 0 }
+        AStar {
+            start,
+            end,
+            open_list,
+            parents: HashMap::new(),
+            closed_list: HashMap::new(),
+            step_counter: 0,
+        }
     }
 
     /// Wrapper to the BaseMap's distance function.
@@ -193,7 +200,6 @@ mod test {
     fn avoid_expensive_shortcut_on_triangle() {
         let map = TriangleMap;
         let path = a_star_search(0, 2, &map);
-        println!("{:?}", path.steps);
         assert_eq!(path.steps, [0, 1, 2]);
     }
 
@@ -234,7 +240,6 @@ mod test {
         let len = 15;
         let map = ExpensiveShortcutMap { len };
         let path = a_star_search(0, len - 1, &map);
-        println!("{:?}", path.steps);
         assert_eq!(path.steps, (0..len).collect::<Vec<_>>());
     }
 }

@@ -8,4 +8,10 @@ pub struct WantsToUseItem {
     pub target: Option<Point>,
 }
 
+#[derive(Debug, Component)]
+pub struct WantsToEquipItem {
+    pub item: Entity,
+}
+
+impl_new!(WantsToEquipItem, item: Entity);
 impl_new!(WantsToUseItem, item: Entity, target: Option<Point>);

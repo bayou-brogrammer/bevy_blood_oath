@@ -105,6 +105,12 @@ impl Plugin for GUIPlugin {
                 .run_if_resource_equals(TurnState::ShowDropMenu)
                 .with_system(game_menus::show_inventory::<{ InventoryMenu::Drop as u8 }>)
                 .into(),
+        )
+        .add_system_set(
+            ConditionSet::new()
+                .run_if_resource_equals(TurnState::ShowRemoveMenu)
+                .with_system(game_menus::show_inventory::<{ InventoryMenu::Remove as u8 }>)
+                .into(),
         );
 
         // Targeting

@@ -49,7 +49,7 @@ pub fn item_result_menu<S: ToString>(
 
     let box_rect = center_box_with_title(
         draw_batch,
-        (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
+        (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT * 2),
         BoxConfigWithTitle {
             box_config: BoxConfig::new(
                 (max_width, max_height),

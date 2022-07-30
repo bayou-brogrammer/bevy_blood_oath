@@ -55,6 +55,7 @@ fn main_menu_input(
             VirtualKeyCode::Return => {
                 assert!(*selection < actions.len());
 
+                *selection = 0;
                 match actions[*selection] {
                     MainMenu::Quit => exit.send(AppExit),
                     MainMenu::NewGame => commands.insert_resource(NextState(GameCondition::InGame)),

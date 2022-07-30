@@ -35,6 +35,10 @@ impl EffectType {
     pub fn new_particle(glyph: FontCharType, color: ColorPair, lifespan: f32) -> Self {
         EffectType::Particle { glyph, color, lifespan }
     }
+
+    pub fn new_healing(amount: i32) -> Self {
+        EffectType::Healing { amount }
+    }
 }
 
 #[derive(Clone, Debug)]
