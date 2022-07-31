@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bo_utils::impl_new;
 use bracket_geometry::prelude::Point;
 
 // Differently from the source project, which uses resources, we use Bevy's messaging system for move
@@ -10,39 +9,22 @@ use bracket_geometry::prelude::Point;
 // important to know.
 
 #[derive(Debug)]
-pub struct WantsToMove {
-    pub entity: Entity,
-    // Event type fields don't need to be components; in this case we don't need to use PointC, but
-    // it can be trivially done.
-    pub destination: Point,
-}
+pub struct WantsToMove(pub Entity, pub Point);
 
 #[derive(Debug)]
-pub struct WantsToAttack {
-    pub attacker: Entity,
-    pub victim: Entity,
-}
+pub struct WantsToAttack(pub Entity, pub Entity);
 
 #[derive(Debug)]
-pub struct WantsToPickupItem {
-    pub item: Entity,
-    pub collected_by: Entity,
-}
+pub struct WantsToPickupItem(pub Entity, pub Entity);
 
 #[derive(Debug, Clone)]
-pub struct WantsToDropItem {
-    pub item: Entity,
-    pub dropper: Entity,
-}
+pub struct WantsToDropItem(pub Entity, pub Entity);
 
 #[derive(Debug, Clone)]
-pub struct WantsToRemoveItem {
-    pub item: Entity,
-    pub remover: Entity,
-}
+pub struct WantsToRemoveItem(pub Entity, pub Entity);
 
-impl_new!(WantsToMove, entity: Entity, destination: Point);
-impl_new!(WantsToAttack, attacker: Entity, victim: Entity);
-impl_new!(WantsToDropItem, item: Entity, dropper: Entity);
-impl_new!(WantsToRemoveItem, item: Entity, remover: Entity);
-impl_new!(WantsToPickupItem, item: Entity, collected_by: Entity);
+#[derive(Debug, Clone)]
+pub struct WantsToEquipItem(pub Entity, pub Entity);
+
+#[derive(Debug, Component)]
+pub struct WantsToUseItem(pub Entity, pub Entity, pub Option<Point>);

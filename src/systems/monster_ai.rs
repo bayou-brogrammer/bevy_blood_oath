@@ -33,7 +33,7 @@ pub fn monster_ai(
         if can_act {
             let distance = DistanceAlg::Pythagoras.distance2d(pos.0, player_pos.0);
             if distance < 1.5 {
-                attack_events.send(WantsToAttack { attacker: entity, victim: player_ent });
+                attack_events.send(WantsToAttack(entity, player_ent));
             } else if fov.visible_tiles.contains(&player_pos.0) {
                 // Path to the player
                 let path = a_star_search(
@@ -44,7 +44,7 @@ pub fn monster_ai(
 
                 if path.success && path.steps.len() > 1 && path.steps.len() < 15 {
                     let destination = map.index_to_point2d(path.steps[1]);
-                    move_events.send(WantsToMove { entity, destination });
+                    move_events.send(WantsToMove(entity, destination));
                 }
             }
         }

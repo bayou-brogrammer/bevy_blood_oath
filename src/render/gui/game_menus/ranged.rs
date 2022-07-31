@@ -11,6 +11,8 @@ pub fn ranged_input(
     // Queries
     targeting: Option<Res<Targeting>>,
     player_q: Query<Entity, With<Player>>,
+    //Evs
+    mut wants_to_use: ResMut<Events<WantsToUseItem>>,
 ) {
     // Handle Escaping
     if key.as_deref() == Some(&VirtualKeyCode::Escape) {
@@ -19,20 +21,16 @@ pub fn ranged_input(
 
     if let Some(targeting) = targeting {
         let Targeting { item, range: _ } = *targeting;
-        let player_entity = player_q.single();
+        let player = player_q.single();
         let map_mouse_pos = camera.world_to_screen(mouse.pt);
 
         // Handle Left Mouse || Resturn Key Press
         if key.as_deref() == Some(&VirtualKeyCode::Return) || left_click.is_some() {
-            select_target(&mut commands, player_entity, item, map_mouse_pos);
+            commands.remove_resource::<Targeting>();
+            wants_to_use.send(WantsToUseItem(player, item, Some(map_mouse_pos)));
+            commands.insert_resource(TurnState::PlayerTurn);
         }
     }
-}
-
-fn select_target(commands: &mut Commands, player_entity: Entity, item: Entity, mouse_pos: Point) {
-    commands.remove_resource::<Targeting>();
-    commands.entity(player_entity).insert(WantsToUseItem::new(item, Some(mouse_pos)));
-    commands.insert_resource(TurnState::PlayerTurn);
 }
 
 pub fn ranged_targeting(

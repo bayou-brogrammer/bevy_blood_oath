@@ -8,9 +8,10 @@ pub fn setup_events(app: &mut App) {
     app.add_event::<WantsToAttack>();
 
     // Item Events
-    app.add_event::<WantsToPickupItem>();
     app.add_event::<WantsToUseItem>();
     app.add_event::<WantsToDropItem>();
+    app.add_event::<WantsToEquipItem>();
+    app.add_event::<WantsToPickupItem>();
     app.add_event::<WantsToRemoveItem>();
 }
 

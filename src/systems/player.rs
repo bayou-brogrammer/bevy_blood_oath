@@ -50,7 +50,7 @@ pub fn player_input(
             VirtualKeyCode::G => match try_pickup_item(pos.0, items_query) {
                 None => {}
                 Some(item) => {
-                    pickup_event.send(WantsToPickupItem { item, collected_by: player });
+                    pickup_event.send(WantsToPickupItem(player, item));
                 }
             },
             VirtualKeyCode::I => return PlayerInputResult::ShowInventory,
@@ -90,12 +90,12 @@ pub fn player_input(
             for (entity, pos) in enemies_query.iter() {
                 if pos.0 == destination {
                     hit_something = true;
-                    attack_events.send(WantsToAttack { attacker: player, victim: entity });
+                    attack_events.send(WantsToAttack(player, entity));
                 }
             }
 
             if !hit_something {
-                move_events.send(WantsToMove { destination, entity: player });
+                move_events.send(WantsToMove(player, destination));
             }
         }
 

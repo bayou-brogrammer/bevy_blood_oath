@@ -6,8 +6,8 @@ pub fn item_drop(
     location_q: Query<(&Position, Option<&Player>)>,
     mut drop_events: ResMut<Events<WantsToDropItem>>,
 ) {
-    for WantsToDropItem { item, dropper } in drop_events.drain() {
-        let (dropped_pos, player) = location_q.get(dropper).unwrap();
+    for WantsToDropItem(entity, item) in drop_events.drain() {
+        let (dropped_pos, player) = location_q.get(entity).unwrap();
 
         commands.entity(item).insert(Position(dropped_pos.0)).remove::<InBackpack>();
 

@@ -6,7 +6,7 @@ pub fn combat(
     defense_bonus: Query<(Entity, &DefenseBonus, &Equipped)>,
     melee_bonus: Query<(Entity, &MeleePowerBonus, &Equipped)>,
 ) {
-    for WantsToAttack { victim, attacker } in attack_events.drain() {
+    for WantsToAttack(attacker, victim) in attack_events.drain() {
         if let Ok((attacker_stats, attacker_name)) = stats_query.get(attacker) {
             if attacker_stats.hp > 0 {
                 let mut offensive_bonus = 0;

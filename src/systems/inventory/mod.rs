@@ -28,6 +28,14 @@ impl Plugin for InventoryPlugin {
             CoreStage::Update,
             ConditionSet::new()
                 .run_in_state(GameCondition::InGame)
+                .run_on_event::<WantsToUseItem>()
+                .with_system(item_use)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .run_in_state(GameCondition::InGame)
                 .run_on_event::<WantsToDropItem>()
                 .with_system(item_drop)
                 .into(),
@@ -38,6 +46,14 @@ impl Plugin for InventoryPlugin {
                 .run_in_state(GameCondition::InGame)
                 .run_on_event::<WantsToRemoveItem>()
                 .with_system(remove_item)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            CoreStage::Update,
+            ConditionSet::new()
+                .run_in_state(GameCondition::InGame)
+                .run_on_event::<WantsToEquipItem>()
+                .with_system(equip_use)
                 .into(),
         );
     }

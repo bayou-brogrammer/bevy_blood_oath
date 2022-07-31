@@ -6,11 +6,11 @@ pub fn item_collection(
     player_q: Query<Entity, With<Player>>,
     names_q: Query<&Naming>,
 ) {
-    for WantsToPickupItem { item, collected_by } in pickup_events.drain() {
+    for WantsToPickupItem(entity, item) in pickup_events.drain() {
         commands.entity(item).remove::<Position>();
-        commands.entity(item).insert(InBackpack::new(collected_by));
+        commands.entity(item).insert(InBackpack::new(entity));
 
-        if collected_by == player_q.single() {
+        if entity == player_q.single() {
             let item_name = names_q.get(item).unwrap();
 
             bo_logging::Logger::new().append("You pick up the").item_name(item_name.0.clone()).log();
