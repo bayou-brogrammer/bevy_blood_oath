@@ -29,7 +29,7 @@ impl GameWorld {
     }
 
     fn inject_bracket_context(&mut self, ctx: &mut BTerm) {
-        ctx.set_active_console(LAYER_MAP);
+        ctx.set_active_console(LAYER_ZERO);
         self.app.insert_resource(MousePosition::new(ctx.mouse_point(), ctx.mouse_pos()));
 
         if let Some(key) = ctx.key {
@@ -50,7 +50,7 @@ impl GameWorld {
 
 impl GameState for GameWorld {
     fn tick(&mut self, ctx: &mut BTerm) {
-        ctx.clear_consoles(&[LAYER_MAP, LAYER_ENTITY, LAYER_LOG, LAYER_TEXT]);
+        ctx.clear_consoles(&[LAYER_ZERO, LAYER_ENTITY, LAYER_TEXT]);
 
         self.inject_bracket_context(ctx);
         self.app.update();

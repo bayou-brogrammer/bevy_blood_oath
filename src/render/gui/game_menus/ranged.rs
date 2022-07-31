@@ -43,7 +43,7 @@ pub fn ranged_targeting(
     player_q: Query<(&Position, &FieldOfView), With<Player>>,
 ) {
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(LAYER_MAP);
+    draw_batch.target(LAYER_ZERO);
 
     if let Some(targeting) = targeting {
         let Targeting { range, item } = *targeting;

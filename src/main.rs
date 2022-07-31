@@ -48,16 +48,15 @@ mod prelude {
     pub const UI_WIDTH: i32 = 80;
     pub const UI_HEIGHT: i32 = 30;
 
-    pub const LAYER_MAP: usize = 0;
+    pub const LAYER_ZERO: usize = 0;
     pub const LAYER_ENTITY: usize = 1;
-    pub const LAYER_LOG: usize = 2;
-    pub const LAYER_TEXT: usize = 3;
+    pub const LAYER_TEXT: usize = 2;
+    pub const LAYER_TOOL: usize = 3;
 
     pub const BATCH_ZERO: usize = 0;
     pub const BATCH_DECOR: usize = 1000;
     pub const BATCH_ITEMS: usize = 2000;
     pub const BATCH_CHARS: usize = 3000;
-    pub const BATCH_PARTICLES: usize = 4000;
     pub const BATCH_UI: usize = 10_000;
     pub const BATCH_UI_INV: usize = 15_000;
     pub const BATCH_TOOLTIPS: usize = 100_000; // Over everything
@@ -79,7 +78,7 @@ fn main() -> BError {
         // Log Console #2
         .with_sparse_console(80, 30, "vga.png")
         // UI Console #3
-        .with_sparse_console(80, 30, "vga.png")
+        .with_sparse_console(80, 60, "terminal8x8.png")
         .with_vsync(false)
         .build()?;
 

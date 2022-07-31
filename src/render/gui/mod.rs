@@ -76,7 +76,7 @@ fn render_ui(map: Res<Map>, stats_q: Query<&CombatStats, With<Player>>) {
     box_framework(&mut gui_batch);
     map_label(&mut gui_batch, map);
     draw_stats(&mut gui_batch, &stats_q);
-    print_log(LAYER_LOG, Point::new(1, UI_HEIGHT - LOG_PANEL_HEIGHT + 1));
+    print_log(LAYER_TEXT, Point::new(1, UI_HEIGHT - LOG_PANEL_HEIGHT + 1));
 
     gui_batch.submit(BATCH_UI).expect("Batch error"); // On top of everything
 }

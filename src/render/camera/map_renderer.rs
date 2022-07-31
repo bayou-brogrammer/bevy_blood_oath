@@ -2,7 +2,7 @@ use super::*;
 
 pub fn map_render(camera: Res<GameCamera>, map: Res<Map>) {
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(LAYER_MAP);
+    draw_batch.target(LAYER_ZERO);
 
     let (min_x, max_x, min_y, max_y) = camera.get_screen_bounds();
     let map_width = map.width - 1;

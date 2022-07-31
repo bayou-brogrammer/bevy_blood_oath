@@ -8,15 +8,15 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
     // Spawn Player
     commands
         .spawn()
-        .insert_bundle(FighterBundle::new(
-            EntityBundle::new(Player, "SecBot"),
+        .insert_bundle(PlayerBundle::new(FighterBundle::new(
             FieldOfView::new(8),
             CombatStats::new(30, 30, 2, 5),
-        ))
+        )))
         .insert_bundle(RenderBundle {
             position: Position::new(start_pos),
             glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Actor),
         })
+        .insert(Naming("SecBot".to_string()))
         .insert(Description::new("A bot that can attack and move."));
 
     commands.insert_resource(start_pos);
@@ -93,7 +93,6 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
     commands
         .spawn()
         .insert_bundle(MonsterBundle::new(FighterBundle::new(
-            EntityBundle::new(Monster, name),
             FieldOfView::new(8),
             CombatStats::new(16, 16, 1, 4),
         )))
@@ -101,6 +100,7 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
             position: Position::new(start_pos),
             glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
         })
+        .insert(Naming(name.to_string()))
         .insert(Description::new(desc));
 }
 

@@ -28,7 +28,7 @@ pub fn death(world: &mut World, _effect: &EffectSpawner, target: Entity) {
         if let Some(glyph) = entity.get::<Glyph>() {
             entity.insert(Glyph {
                 glyph: glyph.glyph,
-                color: ColorPair::new(DARK_RED, DARK_GRAY),
+                color: ColorPair::new(DARK_GRAY, glyph.color.bg),
                 render_order: RenderOrder::Corpse,
             });
         }

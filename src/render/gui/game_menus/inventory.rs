@@ -41,7 +41,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     equipped_q: Query<(Entity, &Naming, &Equipped), With<Item>>,
 ) {
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(0);
+    draw_batch.target(LAYER_ZERO);
 
     let player = player.single();
     let menu_type = InventoryMenu::menu_type(MENU_TYPE);
@@ -60,6 +60,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
 
     match item_result_menu(
         &mut draw_batch,
+        (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT * 2),
         menu_type.label(),
         items.len() as i32,
         &items,

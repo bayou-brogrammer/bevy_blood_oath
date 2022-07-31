@@ -147,18 +147,18 @@ fn draw_title(
 
 pub fn box_with_title(batch: &mut DrawBatch, pt: Point, config: BoxConfigWithTitle) -> Rect {
     let BoxConfigWithTitle {
-        box_config: BoxConfig { color, double, hollow, dimensions: (width, height) },
+        box_config: BoxConfig { color, double, hollow, dimensions },
         text_config: TextConfig { title, alignment, title_color, footer, footer_color },
     } = config;
 
+    let (box_w, box_h) = dimensions;
+
     assert!(pt.x >= 0);
     assert!(pt.y >= 0);
-    assert!(width > 0);
-    assert!(height > 0);
+    assert!(box_w > 0);
+    assert!(box_h > 0);
 
-    let end_x = width;
-    let end_y = height / 2;
-    let box_rect = Rect::with_size(pt.x, pt.y, end_x, end_y);
+    let box_rect = Rect::with_size(pt.x, pt.y, box_w, box_h);
 
     draw_box(batch, box_rect, double, hollow, color);
     draw_title(batch, box_rect, title, title_color, footer, footer_color, alignment);
@@ -170,15 +170,15 @@ pub fn center_box(batch: &mut DrawBatch, screen_bounds: (i32, i32), config: BoxC
     let BoxConfig { color, double, hollow, dimensions } = config;
 
     let (screen_w, screen_h) = screen_bounds;
-    let (width, height) = dimensions;
+    let (box_w, box_h) = dimensions;
 
-    assert!(screen_w > width);
-    assert!(screen_h > height);
+    assert!(screen_w > box_w);
+    assert!(screen_h > box_h);
 
-    let start_x = screen_w / 2 - width / 2;
-    let start_y = screen_h / 2 - height / 2;
-    let end_x = width;
-    let end_y = height / 2;
+    let start_x = (screen_w / 2) - (box_w / 2);
+    let start_y = (screen_h / 2) - (box_h / 2);
+    let end_x = box_w;
+    let end_y = box_h;
 
     let box_rect = Rect::with_size(start_x, start_y, end_x, end_y);
     draw_box(batch, box_rect, double, hollow, color)

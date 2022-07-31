@@ -35,15 +35,17 @@ pub fn render_tooltips(
     );
 
     let mut batch = DrawBatch::new();
+    batch.target(LAYER_TOOL);
+    batch.cls();
 
     if !lines.is_empty() {
         let height = lines.len() + 1;
         let width = lines.iter().map(|s| s.1.len()).max().unwrap() + 2;
 
         let tip_x = if mouse_map_pos.x < map.width as i32 / 2 {
-            i32::min((mouse_x * 2) + 1, 111)
+            i32::min((mouse_x) + 1, 111)
         } else {
-            i32::max(0, (mouse_x * 2) - (width as i32 + 1))
+            i32::max(0, (mouse_x) - (width as i32 + 1))
         };
         let tip_y =
             if mouse_map_pos.y > map.height as i32 / 2 { mouse_y - height as i32 } else { mouse_y };

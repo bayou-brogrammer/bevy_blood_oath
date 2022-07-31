@@ -29,29 +29,41 @@ impl<TAG: Component> EntityBundle<TAG> {
 }
 
 #[derive(Bundle, Component)]
-pub struct FighterBundle<TYPE: Component> {
-    #[bundle]
-    pub entity: EntityBundle<TYPE>,
+pub struct FighterBundle {
     pub fov: FieldOfView,
     pub stats: CombatStats,
 }
 
-impl<TYPE: Component> FighterBundle<TYPE> {
-    pub fn new(entity: EntityBundle<TYPE>, fov: FieldOfView, stats: CombatStats) -> Self {
-        Self { entity, fov, stats }
+impl FighterBundle {
+    pub fn new(fov: FieldOfView, stats: CombatStats) -> Self {
+        Self { fov, stats }
+    }
+}
+
+#[derive(Bundle, Component)]
+pub struct PlayerBundle {
+    pub tag: Player,
+    #[bundle]
+    pub fighter: FighterBundle,
+}
+
+impl PlayerBundle {
+    pub fn new(fighter: FighterBundle) -> Self {
+        Self { fighter, tag: Player }
     }
 }
 
 #[derive(Bundle, Component)]
 pub struct MonsterBundle {
+    pub tag: Monster,
     #[bundle]
-    pub fighter: FighterBundle<Monster>,
+    pub fighter: FighterBundle,
     pub blocks: BlocksTile,
 }
 
 impl MonsterBundle {
-    pub fn new(fighter: FighterBundle<Monster>) -> Self {
-        Self { fighter, blocks: BlocksTile }
+    pub fn new(fighter: FighterBundle) -> Self {
+        Self { fighter, blocks: BlocksTile, tag: Monster }
     }
 }
 
