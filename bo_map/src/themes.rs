@@ -11,7 +11,7 @@ pub fn tile_glyph(idx: usize, map: &Map) -> (FontCharType, ColorPair) {
     };
 
     if map.bloodstains.contains_key(&idx) {
-        color.bg = RGB::from_f32(0.75, 0., 0.).into();
+        color.bg = (*map.bloodstains.get(&idx).unwrap()).into();
     }
 
     if !map.visible.get_bit(map.index_to_point2d(idx)) {

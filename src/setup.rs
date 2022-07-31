@@ -8,7 +8,6 @@ pub fn setup_events(app: &mut App) {
     app.add_event::<WantsToAttack>();
 
     // Item Events
-    app.add_event::<WantsToUseItem>();
     app.add_event::<WantsToDropItem>();
     app.add_event::<WantsToEquipItem>();
     app.add_event::<WantsToPickupItem>();
@@ -76,7 +75,9 @@ fn setup_game(mut commands: Commands) {
 pub struct SetupPlugin;
 impl Plugin for SetupPlugin {
     fn build(&self, app: &mut App) {
-        app.add_exit_system(GameCondition::MainMenu, setup_game);
         app.add_plugin(SpawnerPlugin);
+
+        app.add_exit_system(GameCondition::MainMenu, setup_game);
+        app.add_exit_system(GameCondition::GameOver, setup_game);
     }
 }

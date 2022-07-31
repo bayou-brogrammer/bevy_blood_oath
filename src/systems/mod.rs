@@ -58,8 +58,7 @@ impl Plugin for PlayerPlugin {
                 .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
-                // .with_system(inventory::item_use)
-                // .with_system(inventory::equip_use)
+                .with_system(inventory::item_use)
                 .into(),
         );
 

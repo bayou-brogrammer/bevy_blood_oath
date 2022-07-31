@@ -121,7 +121,7 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
         })
         .insert(Naming(name.to_string()))
         .insert(Description::new(desc))
-        .insert(Blood(DARK_GREEN.into()));
+        .insert(Blood(LIGHT_GREEN.into()));
 }
 
 pub fn health_potion(commands: &mut Commands, pt: Point) {
@@ -224,6 +224,11 @@ impl Plugin for SpawnerPlugin {
             ConditionSet::new().with_system(spawn_player).with_system(spawn_enemies).into(),
         );
 
-        app.add_exit_system(GameCondition::InGame, clear_entities);
+        app.add_exit_system(GameCondition::InGame, |mut commands: Commands, q: Query<Entity>| {
+            println!("Exiting game");
+            q.iter().for_each(|e| {
+                commands.entity(e).despawn_recursive();
+            });
+        });
     }
 }

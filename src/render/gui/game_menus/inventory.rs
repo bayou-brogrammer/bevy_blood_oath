@@ -33,7 +33,6 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     equippable_items: Query<&Equippable>,
     key: Option<Res<VirtualKeyCode>>,
     player: Query<Entity, With<Player>>,
-    mut use_event: EventWriter<WantsToUseItem>,
     mut drop_event: EventWriter<WantsToDropItem>,
     mut equip_event: EventWriter<WantsToEquipItem>,
     mut remove_event: EventWriter<WantsToRemoveItem>,
@@ -90,8 +89,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                     } else if equippable_items.get(item).is_ok() {
                         equip_event.send(WantsToEquipItem(player, item));
                     } else {
-                        println!("Wants to Use {:?}", item);
-                        use_event.send(WantsToUseItem(player, item, None));
+                        commands.entity(player).insert(WantsToUseItem(item, None));
                     }
                 }
                 InventoryMenu::Drop => {

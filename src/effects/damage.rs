@@ -14,7 +14,6 @@ pub fn inflict_damage(world: &mut World, effect: &EffectSpawner, target: Entity)
     }
 
     if let Some(blood) = world.get::<Blood>(target) {
-        println!("{:?}", blood);
         add_effect(None, EffectType::Bloodstain(blood.0), Targets::Single { target });
     }
 }

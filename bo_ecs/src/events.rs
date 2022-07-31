@@ -27,4 +27,4 @@ pub struct WantsToRemoveItem(pub Entity, pub Entity);
 pub struct WantsToEquipItem(pub Entity, pub Entity);
 
 #[derive(Debug, Component)]
-pub struct WantsToUseItem(pub Entity, pub Entity, pub Option<Point>);
+pub struct WantsToUseItem(pub Entity, pub Option<Point>);
