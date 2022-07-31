@@ -55,6 +55,14 @@ impl GameState for GameWorld {
         self.inject_bracket_context(ctx);
         self.app.update();
 
+        quit_system(ctx, &mut self.app.world);
+
         render_draw_buffer(ctx).expect("Render error");
+    }
+}
+
+fn quit_system(ctx: &mut BTerm, world: &mut World) {
+    if world.get_resource::<AppExit>().is_some() {
+        ctx.quit()
     }
 }

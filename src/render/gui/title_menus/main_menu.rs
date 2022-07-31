@@ -30,14 +30,13 @@ impl ActionMenu<MainMenu> for MainMenu {
 fn main_menu_input(
     mut commands: Commands,
     mut selection: Local<usize>,
-    mut exit: EventWriter<AppExit>,
     key: Option<Res<VirtualKeyCode>>,
 ) -> usize {
     if let Some(key) = key.as_deref() {
         let actions = MainMenu::actions();
 
         match key {
-            VirtualKeyCode::Escape => exit.send(AppExit),
+            VirtualKeyCode::Escape => commands.insert_resource(AppExit),
             VirtualKeyCode::Down => {
                 if *selection < actions.len().saturating_sub(1) {
                     *selection += 1;
@@ -55,11 +54,13 @@ fn main_menu_input(
             VirtualKeyCode::Return => {
                 assert!(*selection < actions.len());
 
-                *selection = 0;
                 match actions[*selection] {
-                    MainMenu::Quit => exit.send(AppExit),
-                    MainMenu::NewGame => commands.insert_resource(NextState(GameCondition::InGame)),
+                    MainMenu::Quit => commands.insert_resource(AppExit),
                     MainMenu::LoadGame => {}
+                    MainMenu::NewGame => {
+                        commands.insert_resource(NextState(GameCondition::InGame));
+                        *selection = 0;
+                    }
                 }
             }
             _ => {}

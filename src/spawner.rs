@@ -29,6 +29,20 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
     spawner::fireball_scroll(&mut commands, start_pos);
 }
 
+fn room_table(map_depth: i32) -> RandomTable {
+    RandomTable::new()
+        .add("Goblin", 10)
+        .add("Orc", 1 + map_depth)
+        .add("Health Potion", 7)
+        .add("Fireball Scroll", 2 + map_depth)
+        .add("Confusion Scroll", 2 + map_depth)
+        .add("Magic Missile Scroll", 4)
+        .add("Dagger", 3)
+        .add("Shield", 3)
+        .add("Longsword", map_depth - 1)
+        .add("Tower Shield", map_depth - 1)
+}
+
 pub fn spawn_enemies(mut commands: Commands, map: Res<Map>) {
     // Spawn Enemies
     map.rooms.iter().skip(1).for_each(|room| {
@@ -75,6 +89,8 @@ pub fn spawn_room(commands: &mut Commands, room: &Rect, map_depth: i32) {
         "Goblin" => goblin(commands, *pt),
         "Dagger" => dagger(commands, *pt),
         "Shield" => shield(commands, *pt),
+        "Longsword" => longsword(commands, *pt),
+        "Tower Shield" => tower_shield(commands, *pt),
         "Health Potion" => health_potion(commands, *pt),
         "Fireball Scroll" => fireball_scroll(commands, *pt),
         "Confusion Scroll" => confusion_scroll(commands, *pt),
@@ -154,30 +170,6 @@ pub fn confusion_scroll(commands: &mut Commands, pt: Point) {
         .insert(Confusion { turns: 4 });
 }
 
-pub struct SpawnerPlugin;
-impl Plugin for SpawnerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameCondition::InGame,
-            ConditionSet::new().with_system(spawn_player).with_system(spawn_enemies).into(),
-        );
-
-        app.add_exit_system(GameCondition::InGame, cleanup_system::<Position>);
-    }
-}
-
-fn room_table(map_depth: i32) -> RandomTable {
-    RandomTable::new()
-        .add("Goblin", 10)
-        .add("Orc", 1 + map_depth)
-        .add("Health Potion", 7)
-        .add("Fireball Scroll", 2 + map_depth)
-        .add("Confusion Scroll", 2 + map_depth)
-        .add("Magic Missile Scroll", 4)
-        .add("Dagger", 3)
-        .add("Shield", 3)
-}
-
 fn dagger(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
@@ -198,4 +190,38 @@ fn shield(commands: &mut Commands, pt: Point) {
         ))
         .insert(Equippable { slot: EquipmentSlot::Melee })
         .insert(DefenseBonus::new(1));
+}
+
+fn longsword(commands: &mut Commands, pt: Point) {
+    commands
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Longsword"),
+            RenderBundle::new(to_cp437('/'), ColorPair::new(YELLOW, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Equippable { slot: EquipmentSlot::Melee })
+        .insert(MeleePowerBonus::new(4));
+}
+
+fn tower_shield(commands: &mut Commands, pt: Point) {
+    commands
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Tower Shield"),
+            RenderBundle::new(to_cp437('('), ColorPair::new(YELLOW, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Equippable { slot: EquipmentSlot::Shield })
+        .insert(DefenseBonus::new(3));
+}
+
+pub struct SpawnerPlugin;
+impl Plugin for SpawnerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_enter_system_set(
+            GameCondition::InGame,
+            ConditionSet::new().with_system(spawn_player).with_system(spawn_enemies).into(),
+        );
+
+        app.add_exit_system(GameCondition::InGame, clear_entities);
+    }
 }

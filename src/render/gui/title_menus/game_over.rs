@@ -27,14 +27,13 @@ impl ActionMenu<GameOver> for GameOver {
 fn game_over_input(
     mut commands: Commands,
     mut selection: Local<usize>,
-    mut exit: EventWriter<AppExit>,
     key: Option<Res<VirtualKeyCode>>,
 ) -> usize {
     if let Some(key) = key.as_deref() {
         let actions = GameOver::actions();
 
         match key {
-            VirtualKeyCode::Escape => exit.send(AppExit),
+            VirtualKeyCode::Escape => commands.insert_resource(AppExit),
             VirtualKeyCode::Down => {
                 if *selection < actions.len().saturating_sub(1) {
                     *selection += 1;
@@ -52,9 +51,8 @@ fn game_over_input(
             VirtualKeyCode::Return => {
                 assert!(*selection < actions.len());
 
-                *selection = 0;
                 match actions[*selection] {
-                    GameOver::Quit => exit.send(AppExit),
+                    GameOver::Quit => commands.insert_resource(AppExit),
                     GameOver::NewGame => commands.insert_resource(NextState(GameCondition::InGame)),
                 }
             }
