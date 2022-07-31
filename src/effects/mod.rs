@@ -1,4 +1,5 @@
 use super::*;
+use bo_utils::impl_new;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use std::collections::VecDeque;
@@ -19,15 +20,12 @@ lazy_static! {
 
 #[derive(Debug)]
 pub enum EffectType {
-    // WellFed,
     Bloodstain,
     EntityDeath,
     Damage { amount: i32 },
     Healing { amount: i32 },
     Confusion { turns: i32 },
     ItemUse { item: Entity },
-    // TriggerFire { trigger: Entity },
-    // TeleportTo { x: i32, y: i32, depth: i32, player_only: bool },
     Particle { glyph: FontCharType, color: ColorPair, lifespan: f32 },
 }
 
@@ -55,6 +53,8 @@ pub struct EffectSpawner {
     pub effect_type: EffectType,
     pub targets: Targets,
 }
+
+impl_new!(EffectSpawner, creator: Option<Entity>, effect_type: EffectType, targets: Targets);
 
 pub fn add_effect(creator: Option<Entity>, effect_type: EffectType, targets: Targets) {
     EFFECT_QUEUE.lock().push_back(EffectSpawner { creator, effect_type, targets });

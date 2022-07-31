@@ -6,7 +6,7 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
     let start_pos = map.rooms[0].center();
 
     // Spawn Player
-    commands
+    let player = commands
         .spawn()
         .insert_bundle(PlayerBundle::new(FighterBundle::new(
             FieldOfView::new(8),
@@ -17,8 +17,10 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
             glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Actor),
         })
         .insert(Naming("SecBot".to_string()))
-        .insert(Description::new("A bot that can attack and move."));
+        .insert(Description::new("A bot that can attack and move."))
+        .id();
 
+    commands.insert_resource(player);
     commands.insert_resource(start_pos);
     commands.insert_resource(camera::GameCamera::new(start_pos));
 
