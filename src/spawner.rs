@@ -18,6 +18,7 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
         })
         .insert(Naming("SecBot".to_string()))
         .insert(Description::new("A bot that can attack and move."))
+        .insert(Blood(DARK_RED.into()))
         .id();
 
     commands.insert_resource(player);
@@ -119,7 +120,8 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
             glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
         })
         .insert(Naming(name.to_string()))
-        .insert(Description::new(desc));
+        .insert(Description::new(desc))
+        .insert(Blood(DARK_GREEN.into()));
 }
 
 pub fn health_potion(commands: &mut Commands, pt: Point) {

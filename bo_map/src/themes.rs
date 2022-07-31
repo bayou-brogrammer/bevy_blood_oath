@@ -10,6 +10,10 @@ pub fn tile_glyph(idx: usize, map: &Map) -> (FontCharType, ColorPair) {
         _ => get_tile_glyph_default(idx, map),
     };
 
+    if map.bloodstains.contains_key(&idx) {
+        color.bg = RGB::from_f32(0.75, 0., 0.).into();
+    }
+
     if !map.visible.get_bit(map.index_to_point2d(idx)) {
         color.fg = color.fg.to_greyscale();
         color.bg = RGBA::from_f32(0., 0., 0., 0.); // Don't show stains out of visual range

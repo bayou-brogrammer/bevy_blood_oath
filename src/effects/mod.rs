@@ -1,5 +1,4 @@
 use super::*;
-use bo_utils::impl_new;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use std::collections::VecDeque;
@@ -20,7 +19,7 @@ lazy_static! {
 
 #[derive(Debug)]
 pub enum EffectType {
-    Bloodstain,
+    Bloodstain(RGB),
     EntityDeath,
     Damage { amount: i32 },
     Healing { amount: i32 },
@@ -53,8 +52,6 @@ pub struct EffectSpawner {
     pub effect_type: EffectType,
     pub targets: Targets,
 }
-
-impl_new!(EffectSpawner, creator: Option<Entity>, effect_type: EffectType, targets: Targets);
 
 pub fn add_effect(creator: Option<Entity>, effect_type: EffectType, targets: Targets) {
     EFFECT_QUEUE.lock().push_back(EffectSpawner { creator, effect_type, targets });
@@ -102,7 +99,7 @@ fn affect_tile(ecs: &mut World, effect: &EffectSpawner, tile_idx: usize) {
     }
 
     match &effect.effect_type {
-        EffectType::Bloodstain => damage::bloodstain(ecs, tile_idx),
+        EffectType::Bloodstain(color) => damage::bloodstain(ecs, tile_idx, color),
         EffectType::Particle { .. } => particle::particle_to_tile(ecs, tile_idx, effect),
         _ => {}
     }
@@ -119,9 +116,9 @@ fn affect_entity(ecs: &mut World, effect: &EffectSpawner, target: Entity) {
                 particle::particle_to_tile(ecs, pos, effect)
             }
         }
-        EffectType::Bloodstain { .. } => {
+        EffectType::Bloodstain(color) => {
             if let Some(pos) = entity_position(ecs, target) {
-                damage::bloodstain(ecs, pos)
+                damage::bloodstain(ecs, pos, color)
             }
         }
         _ => {}

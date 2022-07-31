@@ -12,11 +12,16 @@ pub fn inflict_damage(world: &mut World, effect: &EffectSpawner, target: Entity)
             }
         }
     }
+
+    if let Some(blood) = world.get::<Blood>(target) {
+        println!("{:?}", blood);
+        add_effect(None, EffectType::Bloodstain(blood.0), Targets::Single { target });
+    }
 }
 
-pub fn bloodstain(_ecs: &mut World, _tile_idx: usize) {
-    // let mut map = ecs.fetch_mut::<Map>();
-    // map.bloodstains.insert(tile_idx);
+pub fn bloodstain(world: &mut World, tile_idx: usize, blood_color: &RGB) {
+    let mut map = world.resource_mut::<Map>();
+    map.bloodstains.insert(tile_idx, *blood_color);
 }
 
 pub fn death(world: &mut World, _effect: &EffectSpawner, target: Entity) {
