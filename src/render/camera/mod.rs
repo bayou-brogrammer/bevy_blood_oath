@@ -52,6 +52,13 @@ impl Plugin for CameraPlugin {
                 .with_system(tooltips::render_tooltips)
                 .into(),
         );
+
+        app.add_system_set(
+            ConditionSet::new()
+                .run_in_state(GameCondition::MapGen(MapGenState::Generate))
+                .with_system(map_renderer::map_render_debug)
+                .into(),
+        );
     }
 }
 

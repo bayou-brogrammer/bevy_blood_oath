@@ -1,99 +1,58 @@
 use super::*;
 
-#[derive(Debug)]
-pub enum GameOver {
-    NewGame,
-    Quit,
-}
-
-impl ActionMenu<GameOver> for GameOver {
-    fn actions() -> Vec<GameOver> {
-        let mut actions = vec![GameOver::NewGame];
-
-        #[cfg(not(target_arch = "wasm32"))]
-        actions.push(GameOver::Quit);
-
-        actions
-    }
-
-    fn label(&self) -> &'static str {
-        match self {
-            GameOver::NewGame => "New Game",
-            GameOver::Quit => "Quit",
-        }
-    }
-}
-
-fn game_over_input(
-    mut commands: Commands,
-    mut selection: Local<usize>,
-    key: Option<Res<VirtualKeyCode>>,
-) -> usize {
+fn game_over_input(mut commands: Commands, key: Option<Res<VirtualKeyCode>>) {
     if let Some(key) = key.as_deref() {
-        let actions = GameOver::actions();
-
         match key {
             VirtualKeyCode::Escape => commands.insert_resource(AppExit),
-            VirtualKeyCode::Down => {
-                if *selection < actions.len().saturating_sub(1) {
-                    *selection += 1;
-                } else {
-                    *selection = 0;
-                }
-            }
-            VirtualKeyCode::Up => {
-                if *selection > 0 {
-                    *selection -= 1;
-                } else {
-                    *selection = actions.len().saturating_sub(1);
-                }
-            }
-            VirtualKeyCode::Return => {
-                assert!(*selection < actions.len());
-
-                match actions[*selection] {
-                    GameOver::Quit => commands.insert_resource(AppExit),
-                    GameOver::NewGame => commands.insert_resource(NextState(GameCondition::InGame)),
-                }
-            }
-            _ => {}
+            _ => commands.insert_resource(NextState(GameCondition::MainMenu)),
         }
     }
-
-    *selection
 }
 
-pub fn game_over(In(selection): In<usize>) {
-    let mut batch = DrawBatch::new();
+pub fn game_over(assets: Res<RexAssets>) {
+    let mut draw_batch = DrawBatch::new();
 
-    let box_rect = bo_utils::prelude::center_box_with_title(
-        &mut batch,
-        (SCREEN_WIDTH, SCREEN_HEIGHT),
-        BoxConfigWithTitle {
-            box_config: BoxConfig::new((40, 20), ColorPair::new(WHITE, BLACK), true, false),
-            text_config: TextConfig::new("GameOver", ColorPair::new(RED, BLACK), Alignment::Center),
-        },
+    let sprite = MultiTileSprite::from_xp(&assets.skull);
+    sprite.add_to_batch(&mut draw_batch, Point::new(SCREEN_WIDTH / 2 - 15, SCREEN_HEIGHT / 2 - 15));
+
+    draw_batch.print_color_centered(15, "Your journey has ended!", ColorPair::new(YELLOW, BLACK));
+    draw_batch.print_color_centered(
+        17,
+        "One day, we'll tell you all about how you did.",
+        ColorPair::new(WHITE, BLACK),
+    );
+    draw_batch.print_color_centered(
+        18,
+        "That day, sadly, is not in this chapter..",
+        ColorPair::new(WHITE, BLACK),
     );
 
-    let mut y = SCREEN_HEIGHT / 2 - 10;
-    batch.print_color_centered(
-        y + 1,
-        "Use Up/Down Arrows and Enter",
-        ColorPair::new(RGB::named(GRAY), RGB::named(BLACK)),
+    draw_batch.print_color_centered(
+        19,
+        &format!("You lived for {} turns.", bo_logging::get_event_count(TURN_DONE_EVENT)),
+        ColorPair::new(WHITE, BLACK),
+    );
+    draw_batch.print_color_centered(
+        20,
+        &format!("You suffered {} points of damage.", bo_logging::get_event_count(DAMAGE_TAKE_EVENT)),
+        ColorPair::new(RED, BLACK),
+    );
+    draw_batch.print_color_centered(
+        21,
+        &format!(
+            "You inflicted {} points of damage.",
+            bo_logging::get_event_count(DAMAGE_INFLICT_EVENT)
+        ),
+        ColorPair::new(RED, BLACK),
     );
 
-    y = box_rect.center().y - 2;
-    for (i, action) in GameOver::actions().iter().enumerate() {
-        let color = if i == selection { RGB::named(MAGENTA) } else { RGB::named(GRAY) };
+    draw_batch.print_color_centered(
+        23,
+        "Press any key to return to the menu.",
+        ColorPair::new(MAGENTA, BLACK),
+    );
 
-        batch.print_color_centered(
-            y + i as i32,
-            action.label(),
-            ColorPair::new(color, RGB::named(BLACK)),
-        );
-    }
-
-    batch.submit(BATCH_ZERO).expect("Error batching title");
+    draw_batch.submit(BATCH_ZERO).expect("Error batching title");
 }
 
 pub struct GameOverPlugin;

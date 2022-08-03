@@ -6,6 +6,7 @@ pub fn setup_events(app: &mut App) {
     // Intent Events
     app.add_event::<WantsToMove>();
     app.add_event::<WantsToAttack>();
+    app.add_event::<WantsToUseItem>();
 
     // Item Events
     app.add_event::<WantsToDropItem>();
@@ -43,8 +44,7 @@ pub fn setup_stages(app: &mut App) {
             SystemStage::parallel(),
         )
         .add_stage_after(GameStage::HandleAIActions, GameStage::AICleanup, SystemStage::parallel())
-        .add_stage_after(GameStage::HandleAIActions, GameStage::Effects, SystemStage::parallel())
-        .add_stage_after(GameStage::Effects, GameStage::Cleanup, SystemStage::parallel());
+        .add_stage_after(GameStage::HandleAIActions, GameStage::Cleanup, SystemStage::parallel());
 }
 
 pub fn setup_debug_systems(app: &mut App) {
@@ -65,8 +65,8 @@ pub fn setup_debug_systems(app: &mut App) {
 
 fn setup_game(mut commands: Commands) {
     commands.insert_resource(ParticleBuilder::new());
-    commands.insert_resource(ReportExecutionOrderAmbiguities);
     commands.insert_resource(TurnState::AwaitingInput);
+    commands.insert_resource(ReportExecutionOrderAmbiguities);
     commands.insert_resource(Map::new(0, SCREEN_WIDTH, SCREEN_HEIGHT, "Dungeon"));
 
     bo_logging::Logger::new().append("Welcome to").append_with_color("Rusty Roguelike", CYAN).log();
@@ -77,7 +77,9 @@ impl Plugin for SetupPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(SpawnerPlugin);
 
-        app.add_exit_system(GameCondition::MainMenu, setup_game);
-        app.add_exit_system(GameCondition::GameOver, setup_game);
+        app.add_startup_system(setup_game);
+
+        // app.add_exit_system(GameCondition::MainMenu, setup_game);
+        // app.add_exit_system(GameCondition::GameOver, setup_game);
     }
 }

@@ -2,6 +2,10 @@ use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use std::collections::HashMap;
 
+pub const TURN_DONE_EVENT: &str = "Turn";
+pub const DAMAGE_TAKE_EVENT: &str = "Damage Taken";
+pub const DAMAGE_INFLICT_EVENT: &str = "Damage Inflicted";
+
 lazy_static! {
     static ref EVENTS: Mutex<HashMap<String, i32>> = Mutex::new(HashMap::new());
 }

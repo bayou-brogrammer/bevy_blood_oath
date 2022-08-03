@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bo_map::prelude::Map;
 use bracket_geometry::prelude::Point;
 
 pub fn entity_position(world: &mut World, entity: Entity) -> Option<usize> {

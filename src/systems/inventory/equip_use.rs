@@ -8,7 +8,7 @@ pub fn equip_use(
     names_q: Query<&Naming>,
     mut equipped_ev: ResMut<Events<WantsToEquipItem>>,
     equippable: Query<&Equippable, Without<Equipped>>,
-    equipped: Query<(Entity, &Equipped, &Naming), Without<Equippable>>,
+    equipped: Query<(Entity, &Equipped, &Naming)>,
 ) {
     for WantsToEquipItem(entity, item) in equipped_ev.drain() {
         let player_entity = player_q.single();

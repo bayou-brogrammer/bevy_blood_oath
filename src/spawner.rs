@@ -1,12 +1,13 @@
 use crate::prelude::*;
-use std::collections::hash_map::Entry::Vacant;
 use std::collections::HashMap;
 
-pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
-    let start_pos = map.rooms[0].center();
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Entities
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
+pub fn spawn_player(world: &mut World, start_pos: Point) {
     // Spawn Player
-    let player = commands
+    let player = world
         .spawn()
         .insert_bundle(PlayerBundle::new(FighterBundle::new(
             FieldOfView::new(8),
@@ -21,13 +22,13 @@ pub fn spawn_player(mut commands: Commands, map: Res<Map>) {
         .insert(Blood(DARK_RED.into()))
         .id();
 
-    commands.insert_resource(player);
-    commands.insert_resource(start_pos);
-    commands.insert_resource(camera::GameCamera::new(start_pos));
+    world.insert_resource(player);
+    world.insert_resource(start_pos);
+    world.insert_resource(camera::GameCamera::new(start_pos));
 
-    spawner::confusion_scroll(&mut commands, start_pos);
-    spawner::magic_missile_scroll(&mut commands, start_pos);
-    spawner::fireball_scroll(&mut commands, start_pos);
+    // spawner::confusion_scroll(&mut world, start_pos);
+    // spawner::magic_missile_scroll(&mut world, start_pos);
+    // spawner::fireball_scroll(&mut world, start_pos);
 }
 
 fn room_table(map_depth: i32) -> RandomTable {
@@ -44,72 +45,93 @@ fn room_table(map_depth: i32) -> RandomTable {
         .add("Tower Shield", map_depth - 1)
 }
 
-pub fn spawn_enemies(mut commands: Commands, map: Res<Map>) {
-    // Spawn Enemies
-    map.rooms.iter().skip(1).for_each(|room| {
-        spawner::spawn_room(&mut commands, room, map.depth);
-    });
-
-    dagger(&mut commands, map.rooms[0].center());
-    shield(&mut commands, map.rooms[0].center());
-}
-
 const MAX_MONSTERS: i32 = 10;
 
-pub fn spawn_room(commands: &mut Commands, room: &Rect, map_depth: i32) {
-    let mut rng = bo_utils::rng::RNG.lock();
-    let spawn_table = room_table(map_depth);
-    let mut spawn_points: HashMap<Point, String> = HashMap::new();
-
-    // Scope to keep the borrow checker happy
+/// Fills a room with stuff!
+pub fn spawn_room(map: &Map, room: &Rect, map_depth: i32, spawn_list: &mut Vec<(usize, String)>) {
+    let mut possible_targets: Vec<usize> = Vec::new();
     {
-        let num_spawns = rng.roll_dice(1, MAX_MONSTERS + 3) + (map_depth - 1) - 3;
-
-        for _i in 0..num_spawns {
-            let mut added = false;
-            let mut tries = 0;
-
-            while !added && tries < 20 {
-                let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
-                let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
-
-                if let Vacant(e) = spawn_points.entry(Point::new(x, y)) {
-                    e.insert(spawn_table.roll(&mut rng));
-                    added = true;
-                } else {
-                    tries += 1;
+        // Borrow scope - to keep access to the map separated
+        for y in room.y1 + 1..room.y2 {
+            for x in room.x1 + 1..room.x2 {
+                let idx = map.xy_idx(x, y);
+                if map.tiles[idx].tile_type == TileType::Floor {
+                    possible_targets.push(idx);
                 }
-
-                tries += 1;
             }
         }
     }
 
-    spawn_points.iter().for_each(|(pt, spawn_name)| match spawn_name.as_ref() {
-        "Orc" => orc(commands, *pt),
-        "Goblin" => goblin(commands, *pt),
-        "Dagger" => dagger(commands, *pt),
-        "Shield" => shield(commands, *pt),
-        "Longsword" => longsword(commands, *pt),
-        "Tower Shield" => tower_shield(commands, *pt),
-        "Health Potion" => health_potion(commands, *pt),
-        "Fireball Scroll" => fireball_scroll(commands, *pt),
-        "Confusion Scroll" => confusion_scroll(commands, *pt),
-        "Magic Missile Scroll" => magic_missile_scroll(commands, *pt),
+    spawn_region(map, &possible_targets, map_depth, spawn_list);
+}
+
+/// Fills a region with stuff!
+pub fn spawn_region(_map: &Map, area: &[usize], map_depth: i32, spawn_list: &mut Vec<(usize, String)>) {
+    let spawn_table = room_table(map_depth);
+    let mut spawn_points: HashMap<usize, String> = HashMap::new();
+    let mut areas: Vec<usize> = Vec::from(area);
+
+    // Scope to keep the borrow checker happy
+    {
+        let num_spawns = i32::min(
+            areas.len() as i32,
+            bo_utils::rng::roll_dice(1, MAX_MONSTERS + 3) + (map_depth - 1) - 3,
+        );
+        if num_spawns == 0 {
+            return;
+        }
+
+        for _i in 0..num_spawns {
+            let array_index = if areas.len() == 1 {
+                0usize
+            } else {
+                (bo_utils::rng::roll_dice(1, areas.len() as i32) - 1) as usize
+            };
+
+            let map_idx = areas[array_index];
+            spawn_points.insert(map_idx, spawn_table.roll());
+            areas.remove(array_index);
+        }
+    }
+
+    // Actually spawn the monsters
+    for spawn in spawn_points.iter() {
+        spawn_list.push((*spawn.0, spawn.1.to_string()));
+    }
+}
+
+/// Spawns a named entity (name in tuple.1) at the location in (tuple.0)
+pub fn spawn_entity(world: &mut World, spawn: &(&usize, &String)) {
+    let map = world.resource::<Map>();
+    let pt = map.index_to_point2d(*spawn.0);
+
+    match spawn.1.as_ref() {
+        "Orc" => orc(world, pt),
+        "Dagger" => dagger(world, pt),
+        "Shield" => shield(world, pt),
+        "Goblin" => goblin(world, pt),
+        // "Rations" => rations(world, pt),
+        // "Bear Trap" => bear_trap(world, pt),
+        "Longsword" => longsword(world, pt),
+        "Tower Shield" => tower_shield(world, pt),
+        "Health Potion" => health_potion(world, pt),
+        "Fireball Scroll" => fireball_scroll(world, pt),
+        "Confusion Scroll" => confusion_scroll(world, pt),
+        "Magic Missile Scroll" => magic_missile_scroll(world, pt),
+        // "Magic Mapping Scroll" => magic_mapping_scroll(world, pt),
         _ => {}
-    });
+    }
 }
 
-fn orc(commands: &mut Commands, pt: Point) {
-    monster(commands, pt, 157, "Orc", "An ugly powerful orc")
+fn orc(world: &mut World, pt: Point) {
+    monster(world, pt, 157, "Orc", "An ugly powerful orc")
+}
+fn goblin(world: &mut World, pt: Point) {
+    monster(world, pt, to_cp437('g'), "Goblin", "An ugly goblin")
 }
 
-fn goblin(commands: &mut Commands, pt: Point) {
-    monster(commands, pt, to_cp437('g'), "Goblin", "An ugly goblin")
-}
-
-pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, name: &str, desc: &str) {
-    commands
+pub fn monster(world: &mut World, start_pos: Point, glyph: FontCharType, name: &str, desc: &str) {
+    world
         .spawn()
         .insert_bundle(MonsterBundle::new(FighterBundle::new(
             FieldOfView::new(8),
@@ -124,8 +146,12 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
         .insert(Blood(LIGHT_GREEN.into()));
 }
 
-pub fn health_potion(commands: &mut Commands, pt: Point) {
-    commands
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Items
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+pub fn health_potion(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Health Potion"),
@@ -135,8 +161,8 @@ pub fn health_potion(commands: &mut Commands, pt: Point) {
         .insert(ProvidesHealing(10));
 }
 
-pub fn magic_missile_scroll(commands: &mut Commands, pt: Point) {
-    commands
+pub fn magic_missile_scroll(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Magic Missile Scroll"),
@@ -147,8 +173,8 @@ pub fn magic_missile_scroll(commands: &mut Commands, pt: Point) {
         .insert(InflictsDamage { damage: 100 });
 }
 
-pub fn fireball_scroll(commands: &mut Commands, pt: Point) {
-    commands
+pub fn fireball_scroll(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Fireball Scroll"),
@@ -160,8 +186,8 @@ pub fn fireball_scroll(commands: &mut Commands, pt: Point) {
         .insert(AreaOfEffect { radius: 3 });
 }
 
-pub fn confusion_scroll(commands: &mut Commands, pt: Point) {
-    commands
+pub fn confusion_scroll(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Confusion Scroll"),
@@ -172,8 +198,8 @@ pub fn confusion_scroll(commands: &mut Commands, pt: Point) {
         .insert(Confusion { turns: 4 });
 }
 
-fn dagger(commands: &mut Commands, pt: Point) {
-    commands
+fn dagger(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Dagger"),
@@ -183,19 +209,19 @@ fn dagger(commands: &mut Commands, pt: Point) {
         .insert(MeleePowerBonus::new(2));
 }
 
-fn shield(commands: &mut Commands, pt: Point) {
-    commands
+fn shield(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Shield"),
             RenderBundle::new(to_cp437('('), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
         ))
-        .insert(Equippable { slot: EquipmentSlot::Melee })
+        .insert(Equippable { slot: EquipmentSlot::Shield })
         .insert(DefenseBonus::new(1));
 }
 
-fn longsword(commands: &mut Commands, pt: Point) {
-    commands
+fn longsword(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Longsword"),
@@ -205,8 +231,8 @@ fn longsword(commands: &mut Commands, pt: Point) {
         .insert(MeleePowerBonus::new(4));
 }
 
-fn tower_shield(commands: &mut Commands, pt: Point) {
-    commands
+fn tower_shield(world: &mut World, pt: Point) {
+    world
         .spawn()
         .insert_bundle(ItemBundle::new(
             EntityBundle::new(Item, "Tower Shield"),
@@ -216,14 +242,45 @@ fn tower_shield(commands: &mut Commands, pt: Point) {
         .insert(DefenseBonus::new(3));
 }
 
+fn rations(world: &mut World, pt: Point) {
+    world
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Rations"),
+            RenderBundle::new(to_cp437('%'), ColorPair::new(GREEN, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Consumable)
+        .insert(ProvidesFood {});
+}
+
+pub fn magic_mapping_scroll(world: &mut World, pt: Point) {
+    world
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Scroll of Magic Mapping"),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN3, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Consumable {})
+        .insert(MagicMapper {});
+}
+
+fn bear_trap(world: &mut World, pt: Point) {
+    world
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Bear Trap"),
+            RenderBundle::new(to_cp437('^'), ColorPair::new(RED, BLACK), RenderOrder::Item, pt),
+        ))
+        .insert(Hidden {})
+        .insert(EntryTrigger {})
+        .insert(InflictsDamage::new(6))
+        .insert(SingleActivation {});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 pub struct SpawnerPlugin;
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameCondition::InGame,
-            ConditionSet::new().with_system(spawn_player).with_system(spawn_enemies).into(),
-        );
-
         app.add_exit_system(GameCondition::InGame, |mut commands: Commands, q: Query<Entity>| {
             println!("Exiting game");
             q.iter().for_each(|e| {
@@ -232,3 +289,4 @@ impl Plugin for SpawnerPlugin {
         });
     }
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////

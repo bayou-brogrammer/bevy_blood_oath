@@ -36,6 +36,7 @@ pub fn show_inventory<const MENU_TYPE: u8>(
     mut drop_event: EventWriter<WantsToDropItem>,
     mut equip_event: EventWriter<WantsToEquipItem>,
     mut remove_event: EventWriter<WantsToRemoveItem>,
+    mut use_event: EventWriter<WantsToUseItem>,
     backpack_q: Query<(Entity, &Naming, &InBackpack), With<Item>>,
     equipped_q: Query<(Entity, &Naming, &Equipped), With<Item>>,
 ) {
@@ -89,7 +90,8 @@ pub fn show_inventory<const MENU_TYPE: u8>(
                     } else if equippable_items.get(item).is_ok() {
                         equip_event.send(WantsToEquipItem(player, item));
                     } else {
-                        commands.entity(player).insert(WantsToUseItem(item, None));
+                        use_event.send(WantsToUseItem(player, item, None));
+                        // commands.entity(player).insert(WantsToUseItem(player, item, None));
                     }
                 }
                 InventoryMenu::Drop => {

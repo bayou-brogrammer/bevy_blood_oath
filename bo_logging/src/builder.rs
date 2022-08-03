@@ -1,5 +1,4 @@
-use super::LogFragment;
-use crate::prelude::*;
+use super::*;
 use bracket_terminal::prelude::*;
 
 #[derive(Default)]

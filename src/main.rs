@@ -3,12 +3,14 @@
 
 pub mod spawner;
 
+mod ecs;
 mod effects;
+mod map;
 mod random_table;
 mod render;
+mod rex_assets;
 mod setup;
 mod systems;
-mod turn;
 
 mod prelude {
     // Bevy
@@ -20,27 +22,36 @@ mod prelude {
     // Bracket Lib
     pub use bracket_color::prelude::*;
     pub use bracket_geometry::prelude::*;
+    pub use bracket_noise::prelude::*;
     pub use bracket_random::prelude::*;
     pub use bracket_terminal::prelude::*;
 
     // Random Helper Crates
+    pub use lazy_static::lazy_static;
     pub use rayon::prelude::*;
+    pub use serde::{Deserialize, Serialize};
 
     // Local Helper Libs
-    pub use bo_ecs::prelude::*;
-    pub use bo_logging::prelude::*;
-    pub use bo_map::prelude::*;
+    pub use bo_logging::*;
     pub use bo_pathfinding::prelude::*;
     pub use bo_utils::prelude::*;
 
+    // Local Crates
     pub use crate::spawner;
+    pub use bo_utils::impl_new;
 
+    pub use crate::ecs::*;
     pub use crate::effects::*;
+    pub use crate::map::*;
     pub use crate::random_table::*;
     pub use crate::render::*;
+    pub use crate::rex_assets::*;
     pub use crate::setup::*;
     pub use crate::systems::*;
-    pub use crate::turn::*;
+
+    pub const SHOW_BOUNDARIES: bool = true;
+    pub const SHOW_MAPGEN_VISUALIZER: bool = true;
+    pub const MAP_GEN_VISTUALIZER_SPEED: f32 = 0.5;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 60;
@@ -63,6 +74,81 @@ mod prelude {
 }
 
 pub use prelude::*;
+
+#[derive(Default)]
+pub struct GameWorld {
+    pub app: App,
+}
+
+impl GameWorld {
+    pub fn new() -> Self {
+        let mut app = App::new();
+
+        // Add Time Resource to the world
+        app.init_resource::<Time>();
+        app.add_system(|mut time: ResMut<Time>| time.update());
+
+        app.insert_resource(RexAssets::new());
+        app.add_loopless_state(GameCondition::MainMenu);
+
+        // Setup Scheduler
+        setup_events(&mut app);
+        setup_stages(&mut app);
+        setup_debug_systems(&mut app);
+
+        // Plugins
+        app.add_plugin(SetupPlugin);
+        app.add_plugin(map_builders::MapGenPlugin);
+        app.add_plugin(RenderPlugin);
+        app.add_plugin(SystemsPlugin);
+
+        #[cfg(target_arch = "wasm32")]
+        app.add_plugin(bevy_webgl2::WebGL2Plugin);
+
+        Self { app }
+    }
+
+    fn inject_bracket_context(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(LAYER_ZERO);
+        self.app.insert_resource(MousePosition::new(ctx.mouse_point(), ctx.mouse_pos()));
+
+        if let Some(key) = ctx.key {
+            self.app.insert_resource(key);
+        } else {
+            // In order to keep consistency with the Legion version, we need to access Bevy's World
+            // directly, since App doesn't support removing resources.
+            self.app.world.remove_resource::<VirtualKeyCode>();
+        }
+
+        if ctx.left_click {
+            self.app.insert_resource(MouseLeftClick(ctx.left_click));
+        } else {
+            self.app.world.remove_resource::<MouseLeftClick>();
+        }
+
+        self.app.insert_resource(BracketContext::new(ctx.frame_time_ms, ctx.get_char_size()));
+    }
+}
+
+impl GameState for GameWorld {
+    fn tick(&mut self, ctx: &mut BTerm) {
+        ctx.clear_consoles(&[LAYER_ZERO, LAYER_ENTITY, LAYER_TEXT]);
+
+        self.inject_bracket_context(ctx);
+        self.app.update();
+
+        quit_system(ctx, &mut self.app.world);
+        render_draw_buffer(ctx).expect("Render error");
+
+        println!("{:?}", self.app.world.get_resource::<CurrentState<GameCondition>>());
+    }
+}
+
+fn quit_system(ctx: &mut BTerm, world: &mut World) {
+    if world.get_resource::<AppExit>().is_some() {
+        ctx.quit()
+    }
+}
 
 fn main() -> BError {
     let mut context = BTermBuilder::simple(80, 60)

@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Debug)]
-#[allow(dead_code)]
+
 pub enum MainMenu {
     NewGame,
     LoadGame,
@@ -58,7 +58,7 @@ fn main_menu_input(
                     MainMenu::Quit => commands.insert_resource(AppExit),
                     MainMenu::LoadGame => {}
                     MainMenu::NewGame => {
-                        commands.insert_resource(NextState(GameCondition::InGame));
+                        commands.insert_resource(NextState(GameCondition::MapGen(MapGenState::NewGame)));
                         *selection = 0;
                     }
                 }

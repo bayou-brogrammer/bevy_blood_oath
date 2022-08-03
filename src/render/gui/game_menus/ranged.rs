@@ -11,6 +11,7 @@ pub fn ranged_input(
     // Queries
     targeting: Option<Res<Targeting>>,
     player_q: Query<Entity, With<Player>>,
+    mut use_event: EventWriter<WantsToUseItem>,
 ) {
     // Handle Escaping
     if key.as_deref() == Some(&VirtualKeyCode::Escape) {
@@ -25,7 +26,7 @@ pub fn ranged_input(
         // Handle Left Mouse || Resturn Key Press
         if key.as_deref() == Some(&VirtualKeyCode::Return) || left_click.is_some() {
             commands.remove_resource::<Targeting>();
-            commands.entity(player).insert(WantsToUseItem(item, Some(map_mouse_pos)));
+            use_event.send(WantsToUseItem(player, item, Some(map_mouse_pos)));
             commands.insert_resource(TurnState::PlayerTurn);
         }
     }

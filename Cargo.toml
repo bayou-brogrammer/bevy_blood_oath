@@ -14,14 +14,13 @@ codegen-units = 1
 lto = true
 
 [dependencies]
-bo_ecs = { path = "bo_ecs/" }
-bo_map = { path = "bo_map/" }
 bo_utils = { path = "bo_utils/" }
 bo_logging = { path = "bo_logging/" }
 bo_pathfinding = { path = "bo_pathfinding/" }
 
 # Core Crates
 bracket-terminal = "^0.8.5"
+bracket-noise = "^0.8.2"
 bracket-geometry = { version = "^0.8.3", features = ['serde'] }
 bracket-color = { version = "^0.8.2", features = ['serde'] }
 bracket-random = { version = "^0.8.2", features = ['serde'] }
@@ -32,10 +31,11 @@ bevy = { git = "https://github.com/bevyengine/bevy", default-features = false, f
 ] }
 
 # Utility Crates
-lazy_static = "^1.4.0"
 parking_lot = { version = "^0.12.1", features = ["nightly"] }
+serde = { version = "^1.0.140", features = ["derive"] }
+bitvec = { version = "^1.0.1", features = ["serde"] }
+lazy_static = "^1.4.0"
 rayon = "^1.5.3"
-bitvec = "^1.0.1"
 
 [build-dependencies]
 embed-resource = "^1.7.3"
@@ -43,4 +43,4 @@ embed-resource = "^1.7.3"
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!
 
-members = ["bo_map", "bo_ecs", "bo_utils", "bo_logging", "bo_pathfinding"]
+members = ["bo_utils", "bo_logging", "bo_pathfinding"]

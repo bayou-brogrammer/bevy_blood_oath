@@ -1,5 +1,3 @@
-use bracket_random::prelude::RandomNumberGenerator;
-
 pub struct RandomEntry {
     name: String,
     weight: i32,
@@ -23,17 +21,19 @@ impl RandomTable {
     }
 
     pub fn add<S: ToString>(mut self, name: S, weight: i32) -> RandomTable {
-        self.total_weight += weight;
-        self.entries.push(RandomEntry::new(name.to_string(), weight));
+        if weight > 0 {
+            self.total_weight += weight;
+            self.entries.push(RandomEntry::new(name.to_string(), weight));
+        }
         self
     }
 
-    pub fn roll(&self, rng: &mut RandomNumberGenerator) -> String {
+    pub fn roll(&self) -> String {
         if self.total_weight == 0 {
             return "None".to_string();
         }
 
-        let mut roll = rng.roll_dice(1, self.total_weight) - 1;
+        let mut roll = bo_utils::rng::roll_dice(1, self.total_weight) - 1;
         let mut index: usize = 0;
 
         while roll > 0 {

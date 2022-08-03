@@ -7,21 +7,21 @@ pub fn item_use(
     player_q: Query<Entity, With<Player>>,
     // Item Effects
     aoe_item_q: Query<&AreaOfEffect>,
-    wants_to_use: Query<(Entity, &WantsToUseItem)>,
+    mut wants_to_use: ResMut<Events<WantsToUseItem>>,
 ) {
-    for (entity, WantsToUseItem(item, target)) in wants_to_use.iter() {
+    for WantsToUseItem(entity, item, target) in wants_to_use.drain() {
         let player_entity = player_q.single();
 
         add_effect(
             Some(entity),
-            EffectType::ItemUse { item: *item },
+            EffectType::ItemUse { item },
             match target {
                 None => Targets::Single { target: player_entity },
                 Some(target) => {
-                    if let Ok(aoe) = aoe_item_q.get(*item) {
-                        Targets::Tiles { tiles: aoe_tiles(&*map, *target, aoe.radius) }
+                    if let Ok(aoe) = aoe_item_q.get(item) {
+                        Targets::Tiles { tiles: aoe_tiles(&*map, target, aoe.radius) }
                     } else {
-                        Targets::Tile { tile_idx: map.point2d_to_index(*target) }
+                        Targets::Tile { tile_idx: map.point2d_to_index(target) }
                     }
                 }
             },
