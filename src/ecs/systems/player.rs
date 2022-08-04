@@ -27,38 +27,37 @@ pub fn player_input(
     enemies_query: Query<(Entity, &Position), (With<Monster>, Without<Player>)>,
     mut player_query: Query<(Entity, &Position, &FieldOfView), (With<Player>, Without<Monster>)>,
 ) -> PlayerInputResult {
-    if let Some(key) = key.as_deref() {
+    if let Some(control) = key.as_deref().get_key() {
         let mut delta = Point::new(0, 0);
         let (player, pos, fov) = player_query.single_mut();
 
-        match key {
-            VirtualKeyCode::Escape => return PlayerInputResult::AppQuit,
+        match control {
+            GameKey::Escape => return PlayerInputResult::AppQuit,
 
             // Cardinals
-            VirtualKeyCode::Left => delta += Point::new(-1, 0),
-            VirtualKeyCode::Right => delta += Point::new(1, 0),
-            VirtualKeyCode::Up => delta += Point::new(0, -1),
-            VirtualKeyCode::Down => delta += Point::new(0, 1),
-
+            GameKey::Left => delta += Point::new(-1, 0),
+            GameKey::Right => delta += Point::new(1, 0),
+            GameKey::Up => delta += Point::new(0, -1),
+            GameKey::Down => delta += Point::new(0, 1),
             // Diagonals
-            VirtualKeyCode::Y => delta += Point::new(-1, -1),
-            VirtualKeyCode::U => delta += Point::new(1, -1),
-            VirtualKeyCode::B => delta += Point::new(-1, 1),
-            VirtualKeyCode::N => delta += Point::new(1, 1),
+            GameKey::LeftUp => delta += Point::new(-1, -1),
+            GameKey::RightUp => delta += Point::new(1, -1),
+            GameKey::LeftDown => delta += Point::new(-1, 1),
+            GameKey::RightDown => delta += Point::new(1, 1),
 
             // Inventory
-            VirtualKeyCode::G => match try_pickup_item(pos.0, items_query) {
+            GameKey::Pickup => match try_pickup_item(pos.0, items_query) {
                 None => {}
                 Some(item) => {
                     pickup_event.send(WantsToPickupItem(player, item));
                 }
             },
-            VirtualKeyCode::I => return PlayerInputResult::ShowInventory,
-            VirtualKeyCode::D => return PlayerInputResult::ShowDropMenu,
-            VirtualKeyCode::R => return PlayerInputResult::ShowRemoveMenu,
+            GameKey::Inventory => return PlayerInputResult::ShowInventory,
+            GameKey::Drop => return PlayerInputResult::ShowDropMenu,
+            GameKey::Remove => return PlayerInputResult::ShowRemoveMenu,
 
             // Skip Turn
-            VirtualKeyCode::Numpad5 | VirtualKeyCode::Space => {
+            GameKey::SkipTurn => {
                 let enemies = enemies_query.iter().map(|q| q.1 .0).collect::<Vec<_>>();
 
                 let mut can_heal = true;

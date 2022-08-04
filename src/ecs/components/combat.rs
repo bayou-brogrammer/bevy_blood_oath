@@ -1,6 +1,4 @@
 use crate::prelude::*;
-use bo_utils::impl_new;
-use bracket_terminal::prelude::RGB;
 
 #[derive(Component, Clone)]
 pub struct MeleePowerBonus {

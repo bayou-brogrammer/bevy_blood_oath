@@ -1,4 +1,4 @@
-use bracket_terminal::prelude::{ColorPair, DrawBatch, Point};
+use crate::prelude::*;
 
 mod boxes;
 pub mod color;

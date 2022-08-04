@@ -1,5 +1,4 @@
-use bracket_terminal::prelude::*;
-use lazy_static::lazy_static;
+use crate::prelude::*;
 
 lazy_static! {
     pub static ref WHITE_BLACK: ColorPair = ColorPair::new(WHITE, BLACK);

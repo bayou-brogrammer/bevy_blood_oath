@@ -1,4 +1,4 @@
-use bracket_terminal::prelude::{BTerm, BACKEND_INTERNAL};
+use crate::prelude::*;
 
 pub trait BTermClear {
     fn reset_consoles();

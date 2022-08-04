@@ -46,7 +46,7 @@ impl Plugin for CameraPlugin {
         app.add_system_set(
             ConditionSet::new()
                 .after(StateLabel::Fov)
-                .run_in_state(GameCondition::InGame)
+                .run_in_state(GameCondition::Playing)
                 .with_system(map_renderer::map_render)
                 .with_system(entity_renderer::entity_render)
                 .with_system(tooltips::render_tooltips)

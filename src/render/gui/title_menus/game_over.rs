@@ -1,9 +1,9 @@
 use super::*;
 
 fn game_over_input(mut commands: Commands, key: Option<Res<VirtualKeyCode>>) {
-    if let Some(key) = key.as_deref() {
-        match key {
-            VirtualKeyCode::Escape => commands.insert_resource(AppExit),
+    if let Some(game_key) = key.as_deref().get_key() {
+        match game_key {
+            GameKey::Escape => commands.insert_resource(AppExit),
             _ => commands.insert_resource(NextState(GameCondition::MainMenu)),
         }
     }

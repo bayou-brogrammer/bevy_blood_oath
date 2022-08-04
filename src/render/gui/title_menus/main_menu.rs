@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Debug)]
-
+#[allow(dead_code)]
 pub enum MainMenu {
     NewGame,
     LoadGame,
@@ -32,26 +32,26 @@ fn main_menu_input(
     mut selection: Local<usize>,
     key: Option<Res<VirtualKeyCode>>,
 ) -> usize {
-    if let Some(key) = key.as_deref() {
+    if let Some(game_key) = key.as_deref().get_key() {
         let actions = MainMenu::actions();
 
-        match key {
-            VirtualKeyCode::Escape => commands.insert_resource(AppExit),
-            VirtualKeyCode::Down => {
+        match game_key {
+            GameKey::Escape => commands.insert_resource(AppExit),
+            GameKey::Down => {
                 if *selection < actions.len().saturating_sub(1) {
                     *selection += 1;
                 } else {
                     *selection = 0;
                 }
             }
-            VirtualKeyCode::Up => {
+            GameKey::Up => {
                 if *selection > 0 {
                     *selection -= 1;
                 } else {
                     *selection = actions.len().saturating_sub(1);
                 }
             }
-            VirtualKeyCode::Return => {
+            GameKey::Select => {
                 assert!(*selection < actions.len());
 
                 match actions[*selection] {
@@ -74,7 +74,7 @@ pub fn main_menu(In(selection): In<usize>) {
     let mut batch = DrawBatch::new();
     batch.cls();
 
-    let box_rect = bo_utils::prelude::center_box_with_title(
+    let box_rect = crate::utils::center_box_with_title(
         &mut batch,
         (SCREEN_WIDTH, SCREEN_HEIGHT),
         BoxConfigWithTitle {

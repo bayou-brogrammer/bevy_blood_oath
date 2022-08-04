@@ -13,7 +13,7 @@ mod tiletype;
 
 pub use bitgrid::*;
 // pub use dungeon::*;
-pub use map_builders::MapGenResource;
+pub use map_builders::{BuilderMap, MapGenTimer};
 pub use themes::*;
 pub use tiletype::*;
 

@@ -16,7 +16,7 @@ impl VoronoiSpawning {
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let mut noise_areas: HashMap<i32, Vec<usize>> = HashMap::new();
-        let mut noise = FastNoise::seeded(bo_utils::rng::roll_dice(1, 65536) as u64);
+        let mut noise = FastNoise::seeded(crate::rng::roll_dice(1, 65536) as u64);
         noise.set_noise_type(NoiseType::Cellular);
         noise.set_frequency(0.08);
         noise.set_cellular_distance_function(CellularDistanceFunction::Manhattan);
@@ -39,12 +39,7 @@ impl VoronoiSpawning {
 
         // Spawn the entities
         for area in noise_areas.iter() {
-            spawner::spawn_region(
-                &build_data.map,
-                area.1,
-                build_data.map.depth,
-                &mut build_data.spawn_list,
-            );
+            spawner::spawn_region(area.1, build_data.map.depth, &mut build_data.spawn_list);
         }
     }
 }

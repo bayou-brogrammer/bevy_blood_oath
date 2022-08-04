@@ -33,7 +33,7 @@ impl RandomTable {
             return "None".to_string();
         }
 
-        let mut roll = bo_utils::rng::roll_dice(1, self.total_weight) - 1;
+        let mut roll = crate::rng::roll_dice(1, self.total_weight) - 1;
         let mut index: usize = 0;
 
         while roll > 0 {

@@ -16,16 +16,7 @@ lto = true
 [features]
 dev = ["bevy/dynamic"]
 
-web = [
-  "bevy_webgl2",
-  "getrandom/wasm-bindgen",
-  "console_error_panic_hook",
-  "wee_alloc",
-  "wasm-bindgen",
-]
-
 [dependencies]
-bo_utils = { path = "bo_utils/" }
 bo_logging = { path = "bo_logging/" }
 bo_pathfinding = { path = "bo_pathfinding/" }
 
@@ -46,12 +37,6 @@ bitvec = { version = "^1.0.1", features = ["serde"] }
 lazy_static = "^1.4.0"
 rayon = "^1.5.3"
 
-console_error_panic_hook = { version = "0.1", optional = true }
-bevy_webgl2 = { version = "0.5.2", optional = true }
-wee_alloc = { version = "0.4.5", optional = true }
-getrandom = { version = "0.2.7" }
-wasm-bindgen = { version = "*", optional = true }
-
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 bevy_internal = { version = "0.8.0", default-features = false, features = [
   "webgl",
@@ -63,4 +48,4 @@ embed-resource = "^1.7.3"
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!
 
-members = ["bo_utils", "bo_logging", "bo_pathfinding"]
+members = ["bo_logging", "bo_pathfinding"]

@@ -104,8 +104,8 @@ impl DLABuilder {
             match self.algorithm {
                 // Inwards walker
                 DLAAlgorithm::WalkInwards => {
-                    let mut digger_x = bo_utils::rng::roll_dice(1, build_data.map.width - 3) + 1;
-                    let mut digger_y = bo_utils::rng::roll_dice(1, build_data.map.height - 3) + 1;
+                    let mut digger_x = crate::rng::roll_dice(1, build_data.map.width - 3) + 1;
+                    let mut digger_y = crate::rng::roll_dice(1, build_data.map.height - 3) + 1;
                     let mut prev_x = digger_x;
                     let mut prev_y = digger_y;
 
@@ -113,7 +113,7 @@ impl DLABuilder {
                     while build_data.map.tiles[digger_idx].tile_type == TileType::Wall {
                         prev_x = digger_x;
                         prev_y = digger_y;
-                        let stagger_direction = bo_utils::rng::roll_dice(1, 4);
+                        let stagger_direction = crate::rng::roll_dice(1, 4);
                         match stagger_direction {
                             1 => {
                                 if digger_x > 2 {
@@ -149,7 +149,7 @@ impl DLABuilder {
                     let mut digger_idx = build_data.map.xy_idx(digger_x, digger_y);
 
                     while build_data.map.tiles[digger_idx].tile_type == TileType::Floor {
-                        let stagger_direction = bo_utils::rng::roll_dice(1, 4);
+                        let stagger_direction = crate::rng::roll_dice(1, 4);
                         match stagger_direction {
                             1 => {
                                 if digger_x > 2 {
@@ -179,8 +179,8 @@ impl DLABuilder {
 
                 // Central walker
                 DLAAlgorithm::CentralAttractor => {
-                    let mut digger_x = bo_utils::rng::roll_dice(1, build_data.map.width - 3) + 1;
-                    let mut digger_y = bo_utils::rng::roll_dice(1, build_data.map.height - 3) + 1;
+                    let mut digger_x = crate::rng::roll_dice(1, build_data.map.width - 3) + 1;
+                    let mut digger_y = crate::rng::roll_dice(1, build_data.map.height - 3) + 1;
                     let mut prev_x = digger_x;
                     let mut prev_y = digger_y;
                     let mut digger_idx = build_data.map.xy_idx(digger_x, digger_y);

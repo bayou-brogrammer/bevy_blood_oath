@@ -1,7 +1,4 @@
 use crate::prelude::*;
-use bo_utils::impl_new;
-use bracket_geometry::prelude::Point;
-use bracket_terminal::prelude::*;
 
 #[derive(Clone)]
 pub struct ParticleAnimation {

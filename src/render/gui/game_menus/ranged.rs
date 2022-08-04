@@ -5,26 +5,25 @@ use std::collections::HashSet;
 pub fn ranged_input(
     mut commands: Commands,
     camera: Res<GameCamera>,
-    mouse: Res<MousePosition>,
+    ctx: Res<BracketContext>,
     key: Option<Res<VirtualKeyCode>>,
-    left_click: Option<Res<MouseLeftClick>>,
     // Queries
     targeting: Option<Res<Targeting>>,
     player_q: Query<Entity, With<Player>>,
     mut use_event: EventWriter<WantsToUseItem>,
 ) {
     // Handle Escaping
-    if key.as_deref() == Some(&VirtualKeyCode::Escape) {
+    if key.as_deref().get_key() == Some(GameKey::Escape) {
         commands.insert_resource(TurnState::AwaitingInput);
     }
 
     if let Some(targeting) = targeting {
         let Targeting { item, range: _ } = *targeting;
         let player = player_q.single();
-        let map_mouse_pos = camera.world_to_screen(mouse.pt);
+        let map_mouse_pos = camera.world_to_screen(ctx.mouse_pt);
 
         // Handle Left Mouse || Resturn Key Press
-        if key.as_deref() == Some(&VirtualKeyCode::Return) || left_click.is_some() {
+        if key.as_deref().get_key() == Some(GameKey::Select) || ctx.mouse_left_click {
             commands.remove_resource::<Targeting>();
             use_event.send(WantsToUseItem(player, item, Some(map_mouse_pos)));
             commands.insert_resource(TurnState::PlayerTurn);
@@ -34,8 +33,8 @@ pub fn ranged_input(
 
 pub fn ranged_targeting(
     map: Res<Map>,
-    mouse: Res<MousePosition>,
     camera: Res<GameCamera>,
+    ctx: Res<BracketContext>,
     // Queries
     targeting: Option<Res<Targeting>>,
     item_q: Query<(&Naming, Option<&AreaOfEffect>)>,
@@ -70,8 +69,8 @@ pub fn ranged_targeting(
             draw_batch.set_bg(screen_pt, BLUE);
         });
 
-        let mouse_pos = mouse.pt;
-        let mouse_map_pos = camera.world_to_screen(mouse.pt);
+        let mouse_pos = ctx.mouse_pt;
+        let mouse_map_pos = camera.world_to_screen(mouse_pos);
 
         // Draw Blast Radius
         if let Some(aoe) = item_aoe {

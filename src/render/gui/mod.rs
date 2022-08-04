@@ -12,11 +12,11 @@ use lazy_static::lazy_static;
 
 // Log Panel
 pub const LOG_PANEL_WIDTH: i32 = UI_WIDTH - 1;
-pub const LOG_PANEL_HEIGHT: i32 = 10;
+pub const LOG_PANEL_HEIGHT: i32 = 7;
 
 // Map Panel
 pub const MAP_PANEL_WIDTH: i32 = UI_WIDTH - 31;
-pub const MAP_PANEL_HEIGHT: i32 = UI_HEIGHT - 10;
+pub const MAP_PANEL_HEIGHT: i32 = UI_HEIGHT - 8;
 
 // Map Panel
 pub const STATS_PANEL_WIDTH: i32 = 30;
@@ -90,28 +90,10 @@ impl Plugin for GUIPlugin {
 
         // GUI Ticking Systems
         app.add_system_set(
-            ConditionSet::new().run_in_state(GameCondition::InGame).with_system(render_ui).into(),
+            ConditionSet::new().run_in_state(GameCondition::Playing).with_system(render_ui).into(),
         );
 
-        // GUI Inventory Systems
-        app.add_system_set(
-            ConditionSet::new()
-                .run_if_resource_equals(TurnState::Inventory)
-                .with_system(game_menus::show_inventory::<{ InventoryMenu::Main as u8 }>)
-                .into(),
-        )
-        .add_system_set(
-            ConditionSet::new()
-                .run_if_resource_equals(TurnState::ShowDropMenu)
-                .with_system(game_menus::show_inventory::<{ InventoryMenu::Drop as u8 }>)
-                .into(),
-        )
-        .add_system_set(
-            ConditionSet::new()
-                .run_if_resource_equals(TurnState::ShowRemoveMenu)
-                .with_system(game_menus::show_inventory::<{ InventoryMenu::Remove as u8 }>)
-                .into(),
-        );
+        app.add_plugin(InventoryMenuPlugin);
 
         // Targeting
         app.add_system_set(

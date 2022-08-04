@@ -1,4 +1,4 @@
-use super::*;
+use crate::prelude::*;
 
 pub fn particle_spawn_system(mut commands: Commands, mut particle_builder: ResMut<ParticleBuilder>) {
     for ParticleRequest { pt, color, glyph, lifetime } in particle_builder.requests.iter() {
@@ -36,7 +36,7 @@ impl Plugin for ParticlePlugin {
         app.add_system_set_to_stage(
             CoreStage::PreUpdate,
             ConditionSet::new()
-                .run_in_state(GameCondition::InGame)
+                .run_in_state(GameCondition::Playing)
                 .with_system(particle_spawn_system)
                 .with_system(update_particles)
                 .into(),

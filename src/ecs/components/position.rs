@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bracket_geometry::prelude::Point;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
 pub struct Position(pub Point);

@@ -13,19 +13,19 @@ pub use random::*;
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Default)]
-pub struct MapGenResource {
+pub struct MapGenTimer {
     pub mapgen_index: usize,
     pub mapgen_timer: f32,
     pub mapgen_history: Vec<Map>,
     pub mapgen_next_state: Option<GameCondition>,
 }
 
-impl MapGenResource {
+impl MapGenTimer {
     fn new() -> Self {
         Self {
             mapgen_index: 0,
             mapgen_timer: 0.0,
-            mapgen_next_state: Some(GameCondition::InGame),
+            mapgen_next_state: Some(GameCondition::Playing),
             mapgen_history: Vec::new(),
         }
     }
@@ -34,10 +34,7 @@ impl MapGenResource {
 pub struct MapGenPlugin;
 impl Plugin for MapGenPlugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system(
-            GameCondition::MapGen(MapGenState::NewGame),
-            setup_new_game.exclusive_system(),
-        );
+        app.add_enter_system(GameCondition::MapGen(MapGenState::NewGame), setup_new_game);
 
         app.add_system_set(
             ConditionSet::new()
@@ -45,36 +42,31 @@ impl Plugin for MapGenPlugin {
                 .with_system(run_map_gen)
                 .into(),
         );
-        // app.add_system(system);
     }
 }
 
 // Setup Game for Map Generation
-fn setup_new_game(world: &mut World) {
-    let mut map_gen = MapGenResource::new();
+fn setup_new_game(mut commands: Commands) {
+    let mut map_gen = MapGenTimer::new();
 
-    let mut builder = map_builders::random_builder(1, 80, 50);
+    let mut builder = map_builders::level_builder(1, 80, 50);
     builder.build_map();
-
-    {
-        spawner::spawn_player(world, builder.build_data.starting_position.unwrap());
-        builder.spawn_entities(world);
-    }
+    commands.insert_resource(builder.build_data.clone());
 
     map_gen.mapgen_history = builder.build_data.history;
 
-    world.insert_resource(map_gen);
-    world.insert_resource(builder.build_data.map);
-    world.insert_resource(NextState(GameCondition::MapGen(MapGenState::Generate)));
+    commands.insert_resource(map_gen);
+    commands.insert_resource(builder.build_data.map);
+    commands.insert_resource(NextState(GameCondition::MapGen(MapGenState::Generate)));
 }
 
-fn run_map_gen(mut commands: Commands, mut map_gen: ResMut<MapGenResource>, ctx: Res<BracketContext>) {
+fn run_map_gen(mut commands: Commands, mut map_gen: ResMut<MapGenTimer>, ctx: Res<BracketContext>) {
     if !SHOW_MAPGEN_VISUALIZER {
         commands.insert_resource(NextState(map_gen.mapgen_next_state.unwrap()))
     } else {
         map_gen.mapgen_timer += ctx.frame_time_ms;
 
-        if map_gen.mapgen_timer > 200.0 {
+        if map_gen.mapgen_timer > MAP_GEN_TIMER {
             map_gen.mapgen_timer = 0.0;
             map_gen.mapgen_index += 1;
             if map_gen.mapgen_index >= map_gen.mapgen_history.len() {
@@ -98,15 +90,16 @@ pub trait MetaMapBuilder {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#[derive(Debug, Clone)]
 pub struct BuilderMap {
     pub map: Map,
     pub width: i32,
     pub height: i32,
     pub history: Vec<Map>,
-    pub spawn_list: Vec<(usize, String)>,
     pub rooms: Option<Vec<Rect>>,
-    pub corridors: Option<Vec<Vec<usize>>>,
+    pub spawn_list: Vec<(usize, String)>,
     pub starting_position: Option<Point>,
+    pub corridors: Option<Vec<Vec<usize>>>,
 }
 
 impl BuilderMap {
@@ -169,11 +162,11 @@ impl BuilderChain {
         }
     }
 
-    pub fn spawn_entities(&mut self, world: &mut World) {
-        for entity in self.build_data.spawn_list.iter() {
-            spawner::spawn_entity(world, &(&entity.0, &entity.1));
-        }
-    }
+    // pub fn spawn_entities(&mut self, world: &mut World) {
+    //     for entity in self.build_data.spawn_list.iter() {
+    //         spawner::spawn_entity(world, &(&entity.0, &entity.1));
+    //     }
+    // }
 }
 
 pub fn level_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {

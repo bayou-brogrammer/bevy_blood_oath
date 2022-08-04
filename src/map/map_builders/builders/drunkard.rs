@@ -123,8 +123,8 @@ impl DrunkardsWalkBuilder {
                         drunk_x = starting_position.x;
                         drunk_y = starting_position.y;
                     } else {
-                        drunk_x = bo_utils::rng::roll_dice(1, build_data.map.width - 3) + 1;
-                        drunk_y = bo_utils::rng::roll_dice(1, build_data.map.height - 3) + 1;
+                        drunk_x = crate::rng::roll_dice(1, build_data.map.width - 3) + 1;
+                        drunk_y = crate::rng::roll_dice(1, build_data.map.height - 3) + 1;
                     }
                 }
             }
@@ -145,7 +145,7 @@ impl DrunkardsWalkBuilder {
                 );
                 build_data.map.tiles[drunk_idx] = GameTile::stairs_down();
 
-                let stagger_direction = bo_utils::rng::roll_dice(1, 4);
+                let stagger_direction = crate::rng::roll_dice(1, 4);
                 match stagger_direction {
                     1 => {
                         if drunk_x > 2 {

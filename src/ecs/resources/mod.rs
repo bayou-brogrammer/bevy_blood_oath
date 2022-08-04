@@ -15,10 +15,11 @@ pub enum MapGenState {
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum GameCondition {
+    Loading,
     MainMenu,
-    GameOver,
-    InGame,
     MapGen(MapGenState),
+    Playing,
+    GameOver,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
@@ -57,18 +58,20 @@ pub struct Targeting {
     pub item: Entity,
 }
 
-pub struct MousePosition {
-    pub pt: Point,
-    pub pos: (i32, i32),
-}
-
-pub struct MouseLeftClick(pub bool);
-
 pub struct BracketContext {
+    pub mouse_pt: Point,
     pub frame_time_ms: f32,
     pub char_size: (u32, u32),
+    pub mouse_pos: (i32, i32),
+    pub mouse_left_click: bool,
 }
 
 impl_new!(Targeting, item: Entity, range: i32);
-impl_new!(MousePosition, pt: Point, pos: (i32, i32));
-impl_new!(BracketContext, frame_time_ms: f32, char_size: (u32, u32));
+impl_new!(
+    BracketContext,
+    frame_time_ms: f32,
+    char_size: (u32, u32),
+    mouse_pos: (i32, i32),
+    mouse_pt: Point,
+    mouse_left_click: bool
+);

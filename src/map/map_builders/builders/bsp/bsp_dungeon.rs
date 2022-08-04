@@ -63,7 +63,7 @@ impl BspDungeonBuilder {
         if self.rects.len() == 1 {
             return self.rects[0];
         }
-        let idx = (bo_utils::rng::roll_dice(1, self.rects.len() as i32) - 1) as usize;
+        let idx = (crate::rng::roll_dice(1, self.rects.len() as i32) - 1) as usize;
         self.rects[idx]
     }
 
@@ -72,11 +72,11 @@ impl BspDungeonBuilder {
         let rect_width = i32::abs(rect.x1 - rect.x2);
         let rect_height = i32::abs(rect.y1 - rect.y2);
 
-        let w = i32::max(3, bo_utils::rng::roll_dice(1, i32::min(rect_width, 20)) - 1) + 1;
-        let h = i32::max(3, bo_utils::rng::roll_dice(1, i32::min(rect_height, 20)) - 1) + 1;
+        let w = i32::max(3, crate::rng::roll_dice(1, i32::min(rect_width, 20)) - 1) + 1;
+        let h = i32::max(3, crate::rng::roll_dice(1, i32::min(rect_height, 20)) - 1) + 1;
 
-        result.x1 += bo_utils::rng::roll_dice(1, 6) - 1;
-        result.y1 += bo_utils::rng::roll_dice(1, 6) - 1;
+        result.x1 += crate::rng::roll_dice(1, 6) - 1;
+        result.y1 += crate::rng::roll_dice(1, 6) - 1;
         result.x2 = result.x1 + w;
         result.y2 = result.y1 + h;
 

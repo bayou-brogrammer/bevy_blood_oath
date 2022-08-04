@@ -77,7 +77,7 @@ impl CellularAutomataBuilder {
         // First we completely randomize the map, setting 55% of it to be floor.
         for y in 1..build_data.map.height - 1 {
             for x in 1..build_data.map.width - 1 {
-                let roll = bo_utils::rng::roll_dice(1, 100);
+                let roll = crate::rng::roll_dice(1, 100);
                 let idx = build_data.map.xy_idx(x, y);
                 if roll > 55 {
                     build_data.map.tiles[idx] = GameTile::floor()

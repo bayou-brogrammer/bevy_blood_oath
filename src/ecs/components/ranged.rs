@@ -1,4 +1,5 @@
 use crate::prelude::*;
+
 #[derive(Component, Debug)]
 pub struct Ranged {
     pub range: i32,

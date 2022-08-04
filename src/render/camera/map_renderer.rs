@@ -5,8 +5,8 @@ pub fn map_render(camera: Res<GameCamera>, map: Res<Map>) {
     draw_batch.target(LAYER_ZERO);
 
     let (min_x, max_x, min_y, max_y) = camera.get_screen_bounds();
-    let map_width = map.width - 1;
-    let map_height = map.height - 1;
+    let map_width = map.width;
+    let map_height = map.height;
 
     for (y, ty) in (min_y..max_y).enumerate() {
         for (x, tx) in (min_x..max_x).enumerate() {
@@ -27,7 +27,7 @@ pub fn map_render(camera: Res<GameCamera>, map: Res<Map>) {
     draw_batch.submit(BATCH_ZERO).expect("Error batching map");
 }
 
-pub fn map_render_debug(map_gen: Res<MapGenResource>, ctx: Res<BracketContext>) {
+pub fn map_render_debug(map_gen: Res<MapGenTimer>, ctx: Res<BracketContext>) {
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(LAYER_ZERO);
 
@@ -43,8 +43,8 @@ pub fn map_render_debug(map_gen: Res<MapGenResource>, ctx: Res<BracketContext>) 
         let min_y = player_pos.y - center_y;
         let max_y = min_y + y_chars as i32;
 
-        let map_width = map.width - 1;
-        let map_height = map.height - 1;
+        let map_width = map.width;
+        let map_height = map.height;
 
         // Render Map
         for (y, ty) in (min_y..max_y).enumerate() {

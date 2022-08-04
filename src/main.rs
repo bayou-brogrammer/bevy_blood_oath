@@ -1,16 +1,19 @@
 #![allow(clippy::all)]
 #![deny(clippy::correctness)]
 
+pub mod rng;
 pub mod spawner;
 
+mod actions;
 mod ecs;
 mod effects;
 mod map;
+mod menu_memory;
 mod random_table;
 mod render;
 mod rex_assets;
 mod setup;
-mod systems;
+mod utils;
 
 mod prelude {
     // Bevy
@@ -34,24 +37,26 @@ mod prelude {
     // Local Helper Libs
     pub use bo_logging::*;
     pub use bo_pathfinding::prelude::*;
-    pub use bo_utils::prelude::*;
 
     // Local Crates
+    pub use crate::impl_new;
+    pub use crate::rng;
     pub use crate::spawner;
-    pub use bo_utils::impl_new;
 
+    pub use crate::actions::*;
     pub use crate::ecs::*;
     pub use crate::effects::*;
     pub use crate::map::*;
+    pub use crate::menu_memory::*;
     pub use crate::random_table::*;
     pub use crate::render::*;
     pub use crate::rex_assets::*;
     pub use crate::setup::*;
-    pub use crate::systems::*;
+    pub use crate::utils::*;
 
     pub const SHOW_BOUNDARIES: bool = true;
-    pub const SHOW_MAPGEN_VISUALIZER: bool = true;
-    pub const MAP_GEN_VISTUALIZER_SPEED: f32 = 0.5;
+    pub const SHOW_MAPGEN_VISUALIZER: bool = false;
+    pub const MAP_GEN_TIMER: f32 = 100.0;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 60;
@@ -89,6 +94,7 @@ impl GameWorld {
         app.add_system(|mut time: ResMut<Time>| time.update());
 
         app.insert_resource(RexAssets::new());
+        app.insert_resource(MenuMemory::new());
         app.add_loopless_state(GameCondition::MainMenu);
 
         // Setup Scheduler
@@ -110,7 +116,6 @@ impl GameWorld {
 
     fn inject_bracket_context(&mut self, ctx: &mut BTerm) {
         ctx.set_active_console(LAYER_ZERO);
-        self.app.insert_resource(MousePosition::new(ctx.mouse_point(), ctx.mouse_pos()));
 
         if let Some(key) = ctx.key {
             self.app.insert_resource(key);
@@ -120,13 +125,13 @@ impl GameWorld {
             self.app.world.remove_resource::<VirtualKeyCode>();
         }
 
-        if ctx.left_click {
-            self.app.insert_resource(MouseLeftClick(ctx.left_click));
-        } else {
-            self.app.world.remove_resource::<MouseLeftClick>();
-        }
-
-        self.app.insert_resource(BracketContext::new(ctx.frame_time_ms, ctx.get_char_size()));
+        self.app.insert_resource(BracketContext::new(
+            ctx.frame_time_ms,
+            ctx.get_char_size(),
+            ctx.mouse_pos(),
+            ctx.mouse_point(),
+            ctx.left_click,
+        ));
     }
 }
 
@@ -139,8 +144,6 @@ impl GameState for GameWorld {
 
         quit_system(ctx, &mut self.app.world);
         render_draw_buffer(ctx).expect("Render error");
-
-        println!("{:?}", self.app.world.get_resource::<CurrentState<GameCondition>>());
     }
 }
 
@@ -161,10 +164,10 @@ fn main() -> BError {
         .with_font("vga.png", 8, 16)
         // Entity Console #1
         .with_sparse_console(80, 60, "terminal8x8.png")
-        // Log Console #2
+        // TEXT Console #2
         .with_sparse_console(80, 30, "vga.png")
-        // UI Console #3
-        .with_sparse_console(80, 60, "terminal8x8.png")
+        // ToolTip Console #3
+        .with_sparse_console(80, 60, "vga.png")
         .with_vsync(false)
         .build()?;
 

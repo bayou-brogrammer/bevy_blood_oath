@@ -2,14 +2,14 @@ use super::*;
 
 pub fn render_tooltips(
     map: Res<Map>,
-    mouse: Res<MousePosition>,
+    ctx: Res<BracketContext>,
     camera: Res<GameCamera>,
     tooltip_q: Query<(&Position, &Naming, Option<&Description>, Option<&CombatStats>)>,
 ) {
     let (min_x, _max_x, min_y, _max_y) = camera.get_screen_bounds();
 
-    let (mouse_x, mouse_y) = mouse.pos;
-    let mut mouse_map_pos = Point::from(mouse.pos);
+    let mut mouse_map_pos = ctx.mouse_pt;
+    let (mouse_x, mouse_y) = (mouse_map_pos.x, mouse_map_pos.y);
     mouse_map_pos.x += min_x - 1;
     mouse_map_pos.y += min_y - 1;
 

@@ -1,6 +1,4 @@
 use super::*;
-use bevy_ecs::entity::Entity;
-use bracket_terminal::prelude::*;
 
 pub trait ActionMenu<T> {
     fn actions() -> Vec<T>;
@@ -87,15 +85,16 @@ pub fn item_result_menu<S: ToString>(
         y += 1;
     }
 
-    if let Some(key) = key {
-        match key {
-            VirtualKeyCode::Escape => ItemMenuResult::Cancel,
-            VirtualKeyCode::Up => ItemMenuResult::UpSelection,
-            VirtualKeyCode::Down => ItemMenuResult::DownSelection,
-            key => {
-                let selection = if *key == VirtualKeyCode::Return {
+    if let Some(control) = key.get_key() {
+        match control {
+            GameKey::Escape => ItemMenuResult::Cancel,
+            GameKey::Up => ItemMenuResult::UpSelection,
+            GameKey::Down => ItemMenuResult::DownSelection,
+            control => {
+                let selection = if control == GameKey::Select {
                     selection as i32
                 } else {
+                    let key = key.as_deref().unwrap();
                     letter_to_option(*key)
                 };
 

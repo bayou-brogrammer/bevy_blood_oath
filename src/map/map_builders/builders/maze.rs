@@ -117,9 +117,7 @@ impl Grid {
             if neighbors.len() == 1 {
                 return Some(neighbors[0]);
             } else {
-                return Some(
-                    neighbors[(bo_utils::rng::roll_dice(1, neighbors.len() as i32) - 1) as usize],
-                );
+                return Some(neighbors[(crate::rng::roll_dice(1, neighbors.len() as i32) - 1) as usize]);
             }
         }
         None

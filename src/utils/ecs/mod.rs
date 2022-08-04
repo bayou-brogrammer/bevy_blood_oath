@@ -1,4 +1,4 @@
-use bevy_ecs::prelude::*;
+use crate::prelude::*;
 
 pub fn cleanup_system<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
     for e in q.iter() {

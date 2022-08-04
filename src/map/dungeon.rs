@@ -117,12 +117,12 @@ impl MasterDungeonMap {
 
 impl MasterDungeonMap {
     fn _make_scroll_name(&self) -> String {
-        let length = 4 + bo_utils::rng::roll_dice(1, 4);
+        let length = 4 + crate::rng::roll_dice(1, 4);
         let mut name = "Scroll of ".to_string();
 
         for i in 0..length {
             if i % 2 == 0 {
-                name += match bo_utils::rng::roll_dice(1, 5) {
+                name += match crate::rng::roll_dice(1, 5) {
                     1 => "a",
                     2 => "e",
                     3 => "i",
@@ -130,7 +130,7 @@ impl MasterDungeonMap {
                     _ => "u",
                 }
             } else {
-                name += match bo_utils::rng::roll_dice(1, 21) {
+                name += match crate::rng::roll_dice(1, 21) {
                     1 => "b",
                     2 => "c",
                     3 => "d",
@@ -162,10 +162,10 @@ impl MasterDungeonMap {
     fn _make_potion_name(&self, used_names: &mut HashSet<String>) -> String {
         loop {
             let mut name: String = POTION_ADJECTIVES
-                [bo_utils::rng::roll_dice(1, POTION_ADJECTIVES.len() as i32) as usize - 1]
+                [crate::rng::roll_dice(1, POTION_ADJECTIVES.len() as i32) as usize - 1]
                 .to_string();
             name += " ";
-            name += POTION_COLORS[bo_utils::rng::roll_dice(1, POTION_COLORS.len() as i32) as usize - 1];
+            name += POTION_COLORS[crate::rng::roll_dice(1, POTION_COLORS.len() as i32) as usize - 1];
             name += " Potion";
 
             if !used_names.contains(&name) {
@@ -202,7 +202,9 @@ impl MasterDungeonMap {
             let mut position_components = world.write_storage::<Position>();
 
             *player_pt = player_start;
-            position_components.insert(*player_entity, Position::new(player_start)).expect("Insert fail");
+            position_components
+                .insert(*player_entity, Position::new(player_start))
+                .expect("Insert fail");
 
             // Mark the player's visibility as dirty
             let mut fov_components = world.write_storage::<FieldOfView>();

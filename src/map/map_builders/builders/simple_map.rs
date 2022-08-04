@@ -21,10 +21,10 @@ impl SimpleMapBuilder {
         let mut rooms: Vec<Rect> = Vec::new();
 
         for _i in 0..MAX_ROOMS {
-            let w = bo_utils::rng::range(MIN_SIZE, MAX_SIZE);
-            let h = bo_utils::rng::range(MIN_SIZE, MAX_SIZE);
-            let x = bo_utils::rng::roll_dice(1, build_data.map.width - w - 1) - 1;
-            let y = bo_utils::rng::roll_dice(1, build_data.map.height - h - 1) - 1;
+            let w = crate::rng::range(MIN_SIZE, MAX_SIZE);
+            let h = crate::rng::range(MIN_SIZE, MAX_SIZE);
+            let x = crate::rng::roll_dice(1, build_data.map.width - w - 1) - 1;
+            let y = crate::rng::roll_dice(1, build_data.map.height - h - 1) - 1;
             let new_room = Rect::with_size(x, y, w, h);
 
             let ok = rooms.iter().all(|room| !new_room.intersect(room));

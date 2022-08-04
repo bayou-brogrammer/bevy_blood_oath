@@ -236,7 +236,7 @@ impl PrefabBuilder {
         self.apply_previous_iteration(|_x, _y| true, build_data);
 
         // Do we want a vault at all?
-        let vault_roll = bo_utils::rng::roll_dice(1, 6) + build_data.map.depth;
+        let vault_roll = crate::rng::roll_dice(1, 6) + build_data.map.depth;
         if vault_roll < 4 {
             return;
         }
@@ -254,14 +254,14 @@ impl PrefabBuilder {
             return;
         } // Bail out if there's nothing to build
 
-        let n_vaults = i32::min(bo_utils::rng::roll_dice(1, 3), possible_vaults.len() as i32);
+        let n_vaults = i32::min(crate::rng::roll_dice(1, 3), possible_vaults.len() as i32);
         let mut used_tiles: HashSet<usize> = HashSet::new();
 
         for _i in 0..n_vaults {
             let vault_index = if possible_vaults.len() == 1 {
                 0
             } else {
-                (bo_utils::rng::roll_dice(1, possible_vaults.len() as i32) - 1) as usize
+                (crate::rng::roll_dice(1, possible_vaults.len() as i32) - 1) as usize
             };
             let vault = possible_vaults[vault_index];
 
@@ -308,7 +308,7 @@ impl PrefabBuilder {
                 let pos_idx = if vault_positions.len() == 1 {
                     0
                 } else {
-                    (bo_utils::rng::roll_dice(1, vault_positions.len() as i32) - 1) as usize
+                    (crate::rng::roll_dice(1, vault_positions.len() as i32) - 1) as usize
                 };
                 let pos = &vault_positions[pos_idx];
 

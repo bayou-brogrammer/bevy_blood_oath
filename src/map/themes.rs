@@ -182,7 +182,7 @@ fn get_tile_glyph_default(idx: usize, map: &Map) -> (FontCharType, ColorPair) {
 }
 
 fn wall_glyph(map: &Map, x: i32, y: i32) -> FontCharType {
-    if x < 1 || x > map.width - 2 || y < 1 || y > map.height - 2_i32 {
+    if x < 1 || x > map.width - 1 || y < 1 || y > map.height - 1 {
         return 35;
     }
     let mut mask: u8 = 0;
@@ -223,6 +223,10 @@ fn wall_glyph(map: &Map, x: i32, y: i32) -> FontCharType {
 
 fn is_revealed_and_wall(map: &Map, x: i32, y: i32) -> bool {
     let pt = Point::new(x, y);
-    let idx = map.point2d_to_index(pt);
-    map.tiles[idx].tile_type == TileType::Wall && map.revealed.get_bit(pt)
+    if map.in_bounds(pt) {
+        let idx = map.point2d_to_index(pt);
+        map.tiles[idx].tile_type == TileType::Wall && map.revealed.get_bit(pt)
+    } else {
+        false
+    }
 }

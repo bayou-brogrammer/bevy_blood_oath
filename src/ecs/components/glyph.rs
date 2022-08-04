@@ -1,7 +1,6 @@
 use crate::prelude::*;
-use bracket_terminal::prelude::{ColorPair, FontCharType};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Copy, Clone)]
 pub enum RenderOrder {
     Particle,
     Actor,
@@ -9,7 +8,7 @@ pub enum RenderOrder {
     Corpse,
 }
 
-#[derive(Debug, PartialEq, Component)]
+#[derive(Debug, PartialEq, Component, Copy, Clone)]
 pub struct Glyph {
     pub color: ColorPair,
     pub glyph: FontCharType,

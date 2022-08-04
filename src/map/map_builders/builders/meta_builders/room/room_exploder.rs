@@ -23,7 +23,7 @@ impl RoomExploder {
 
         for room in rooms.iter() {
             let start = room.center();
-            let n_diggers = bo_utils::rng::roll_dice(1, 20) - 5;
+            let n_diggers = crate::rng::roll_dice(1, 20) - 5;
             if n_diggers > 0 {
                 for _i in 0..n_diggers {
                     let mut drunk_x = start.x;
@@ -40,7 +40,7 @@ impl RoomExploder {
                         paint(&mut build_data.map, Symmetry::None, 1, drunk_x, drunk_y);
                         build_data.map.tiles[drunk_idx] = GameTile::stairs_down();
 
-                        let stagger_direction = bo_utils::rng::roll_dice(1, 4);
+                        let stagger_direction = crate::rng::roll_dice(1, 4);
                         match stagger_direction {
                             1 => {
                                 if drunk_x > 2 {
