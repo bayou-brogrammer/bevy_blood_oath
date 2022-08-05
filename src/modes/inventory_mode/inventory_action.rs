@@ -1,6 +1,6 @@
 use super::*;
 
-const CANCEL: &str = "[ Cancel ]";
+pub const ACTION_BASE_HEIGHT: i32 = 7;
 
 #[derive(Debug)]
 pub enum InventoryActionModeResult {
@@ -44,17 +44,17 @@ impl InventoryAction {
 
     pub fn name(&self) -> &'static str {
         match self {
-            InventoryAction::UseItem => "Apply",
-            InventoryAction::DropItem => "Drop",
-            InventoryAction::EquipItem => "Equip",
+            InventoryAction::UseItem => APPLY_TITLE,
+            InventoryAction::DropItem => DROP_TITLE,
+            InventoryAction::EquipItem => EQUIP_TITLE,
         }
     }
 
     fn label(&self) -> &'static str {
         match self {
-            InventoryAction::UseItem => "[ Apply ]",
-            InventoryAction::DropItem => "[ Drop ]",
-            InventoryAction::EquipItem => "[ Equip ]",
+            InventoryAction::UseItem => APPLY_BUTTON_LABEL,
+            InventoryAction::DropItem => DROP_BUTTON_LABEL,
+            InventoryAction::EquipItem => EQUIP_BUTTON_LABEL,
         }
     }
 }
@@ -82,8 +82,8 @@ impl InventoryActionMode {
         let subsection = if actions.is_empty() { SubSection::Cancel } else { SubSection::Actions };
 
         let item_width = world.get::<Naming>(item_id).unwrap().0.len();
-        let inner_width = 3 + item_width
-            .max(CANCEL.len())
+        let inner_width = 4 + item_width
+            .max(CANCEL_BUTTON_LABEL.len())
             .max(actions.iter().map(|a| a.label().len()).max().unwrap_or(0))
             as i32;
 
@@ -199,14 +199,19 @@ impl InventoryActionMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _app: &mut App, _active: bool) {
+    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(0);
+        draw_batch.target(LAYER_TEXT);
 
         let box_rect = center_box(
             &mut draw_batch,
             (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
-            BoxConfig::new((self.inner_width, 10), ColorPair::new(WHITE, BLACK), true, false),
+            BoxConfig::new(
+                (self.inner_width, ACTION_BASE_HEIGHT),
+                ColorPair::new(WHITE, BLACK),
+                true,
+                false,
+            ),
         );
 
         let x = box_rect.x1 + 1;
@@ -214,7 +219,7 @@ impl InventoryActionMode {
         let (_, item_glyph, item_name) = &self.item;
         let length = box_rect.width() / 2 - item_name.len() as i32 / 2;
 
-        draw_batch.set(Point::new(x + length - 1, y), item_glyph.color, item_glyph.glyph);
+        draw_batch.set(Point::new(x + length - 2, y), item_glyph.color, item_glyph.glyph);
         draw_batch.print(Point::new(x + length, y), item_name);
 
         y += 2;
@@ -234,7 +239,7 @@ impl InventoryActionMode {
 
         draw_batch.print_color_centered_at(
             Point::new(x + box_rect.width() / 2, y + 3),
-            CANCEL,
+            CANCEL_BUTTON_LABEL,
             ColorPair::new(
                 WHITE,
                 if matches!(self.subsection, SubSection::Cancel) { SELECTED_BG } else { BLACK },

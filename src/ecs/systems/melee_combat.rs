@@ -3,6 +3,7 @@ use super::*;
 pub fn combat(
     stats_query: Query<(&CombatStats, &Naming)>,
     mut attack_events: ResMut<Events<WantsToAttack>>,
+    hunger_q: Query<&HungerClock>,
     defense_bonus: Query<(Entity, &DefenseBonus, &Equipped)>,
     melee_bonus: Query<(Entity, &MeleePowerBonus, &Equipped)>,
 ) {
@@ -13,6 +14,13 @@ pub fn combat(
                 for (_item_entity, power_bonus, equipped_by) in &melee_bonus {
                     if equipped_by.owner == attacker {
                         offensive_bonus += power_bonus.power;
+                    }
+                }
+
+                // Hunger Bonus
+                if let Ok(clock) = hunger_q.get(attacker) {
+                    if clock.state == HungerState::WellFed {
+                        offensive_bonus += 1;
                     }
                 }
 
@@ -54,11 +62,7 @@ pub fn combat(
                             .append("hp.")
                             .log();
 
-                        add_effect(
-                            Some(attacker),
-                            EffectType::Damage { amount: damage },
-                            Targets::Single { target: victim },
-                        );
+                        add_effect(Some(attacker), EffectType::Damage(damage), Targets::Single(victim));
                     }
                 }
             }

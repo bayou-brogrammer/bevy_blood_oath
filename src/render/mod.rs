@@ -4,11 +4,3 @@ pub mod camera;
 pub mod gui;
 pub use camera::*;
 pub use gui::*;
-
-pub struct RenderPlugin;
-impl Plugin for RenderPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugin(gui::GUIPlugin);
-        app.add_plugin(camera::CameraPlugin);
-    }
-}

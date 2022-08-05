@@ -152,11 +152,6 @@ impl GameWorld {
         app.insert_resource(MenuMemory::new());
         app.add_loopless_state(GameCondition::MainMenu);
 
-        // Plugins
-        app.add_plugin(ecs::SystemsPlugin);
-        app.add_plugin(render::RenderPlugin);
-        app.add_plugin(spawner::SpawnerPlugin);
-
         add_debug_systems(&mut app);
 
         Self {
@@ -190,7 +185,6 @@ impl GameWorld {
 
 impl GameState for GameWorld {
     fn tick(&mut self, ctx: &mut BTerm) {
-        ctx.clear_consoles(&[LAYER_ZERO, LAYER_ENTITY, LAYER_TEXT]);
         self.inject_bracket_context(ctx);
 
         if !self.wait_for_event {

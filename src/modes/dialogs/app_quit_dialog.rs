@@ -36,7 +36,7 @@ impl AppQuitDialogMode {
         }
     }
 
-    pub fn draw(&self, ctx: &mut BTerm, app: &mut App, active: bool) {
-        self.dialog.draw(ctx, app, active);
+    pub fn draw(&self, ctx: &mut BTerm, world: &mut World, active: bool) {
+        self.dialog.draw(ctx, world, active);
     }
 }

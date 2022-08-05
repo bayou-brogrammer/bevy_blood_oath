@@ -50,6 +50,8 @@ fn random_shape_builder(builder: &mut BuilderChain) {
     // // Setup an exit and spawn mobs
     builder.with(VoronoiSpawning::new());
     builder.with(DistantExit::new());
+
+    println!("random_shape_builder veroni");
 }
 
 fn random_room_builder(builder: &mut BuilderChain) {
@@ -110,6 +112,8 @@ fn random_room_builder(builder: &mut BuilderChain) {
         1 => builder.with(RoomBasedSpawner::new()),
         _ => builder.with(VoronoiSpawning::new()),
     }
+
+    println!("Random Room spawning: {}", spawn_roll);
 }
 
 pub fn random_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {

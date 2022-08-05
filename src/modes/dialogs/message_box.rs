@@ -34,7 +34,7 @@ impl MessageBoxMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _app: &mut App, _active: bool) {
+    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(0);
 

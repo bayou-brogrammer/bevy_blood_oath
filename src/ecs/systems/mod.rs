@@ -3,6 +3,7 @@ use crate::prelude::*;
 
 pub mod end_turn;
 pub mod fov;
+pub mod hunger;
 pub mod inventory;
 pub mod map_indexing;
 pub mod melee_combat;
@@ -25,14 +26,6 @@ impl Plugin for TickingPlugin {
                 .with_system(map_indexing::map_indexing)
                 .into(),
         );
-
-        // app.add_system_set_to_stage(
-        //     GameStage::Cleanup,
-        //     ConditionSet::new()
-        //         .run_in_state(GameCondition::Playing)
-        //         .with_system(map_indexing::map_indexing)
-        //         .into(),
-        // );
     }
 }
 
@@ -65,6 +58,7 @@ impl Plugin for PlayerPlugin {
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
                 .with_system(inventory::item_use)
+                .with_system(hunger::hunger_clock)
                 .into(),
         );
 
@@ -97,6 +91,7 @@ impl Plugin for AIPlugin {
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(monster_ai::monster_ai)
+                .with_system(hunger::hunger_clock)
                 .into(),
         )
         .add_system_set_to_stage(

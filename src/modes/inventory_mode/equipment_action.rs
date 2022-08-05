@@ -1,7 +1,5 @@
 use super::*;
 
-const CANCEL: &str = "[ Cancel ]";
-
 #[derive(Debug)]
 pub enum EquipmentActionModeResult {
     Cancelled,
@@ -33,15 +31,15 @@ impl EquipmentAction {
 
     pub fn name(&self) -> &'static str {
         match self {
-            EquipmentAction::DropEquipment => "Drop",
-            EquipmentAction::RemoveEquipment => "Remove",
+            EquipmentAction::DropEquipment => DROP_TITLE,
+            EquipmentAction::RemoveEquipment => REMOVE_TITLE,
         }
     }
 
     fn label(&self) -> &'static str {
         match self {
-            EquipmentAction::DropEquipment => "[ Drop ]",
-            EquipmentAction::RemoveEquipment => "[ Remove ]",
+            EquipmentAction::DropEquipment => DROP_BUTTON_LABEL,
+            EquipmentAction::RemoveEquipment => REMOVE_BUTTON_LABEL,
         }
     }
 }
@@ -67,7 +65,7 @@ impl EquipmentActionMode {
 
         let item_width = world.get::<Naming>(item_id).unwrap().0.len();
         let inner_width = 2 + item_width
-            .max(CANCEL.len())
+            .max(CANCEL_BUTTON_LABEL.len())
             .max(actions.iter().map(|a| a.label().len()).max().unwrap_or(0));
 
         let item_glyph = *world.get::<Glyph>(item_id).unwrap();
@@ -163,14 +161,19 @@ impl EquipmentActionMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _app: &mut App, _active: bool) {
+    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(0);
+        draw_batch.target(LAYER_TEXT);
 
         let box_rect = center_box(
             &mut draw_batch,
             (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
-            BoxConfig::new((self.inner_width, 10), ColorPair::new(WHITE, BLACK), true, false),
+            BoxConfig::new(
+                (self.inner_width, ACTION_BASE_HEIGHT),
+                ColorPair::new(WHITE, BLACK),
+                true,
+                false,
+            ),
         );
 
         let x = box_rect.x1 + 1;
@@ -197,7 +200,7 @@ impl EquipmentActionMode {
 
         draw_batch.print_color_centered_at(
             Point::new(x + box_rect.width() / 2, y + 3),
-            CANCEL,
+            CANCEL_BUTTON_LABEL,
             ColorPair::new(
                 WHITE,
                 if matches!(self.subsection, SubSection::Cancel) { SELECTED_BG } else { BLACK },

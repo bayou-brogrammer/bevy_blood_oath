@@ -1,8 +1,8 @@
 use super::*;
 
-mod entity_renderer;
-mod map_renderer;
-mod tooltips;
+pub mod entity_renderer;
+pub mod map_renderer;
+pub mod tooltips;
 
 #[derive(Debug, Copy, Clone)]
 pub struct GameCamera {
@@ -38,29 +38,3 @@ impl GameCamera {
         Point::new(pt.x + min_x, pt.y + min_y) + Point::new(-1, -1)
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-pub struct CameraPlugin;
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_set(
-            ConditionSet::new()
-                .after(StateLabel::Fov)
-                .run_in_state(GameCondition::Playing)
-                .with_system(map_renderer::map_render)
-                .with_system(entity_renderer::entity_render)
-                .with_system(tooltips::render_tooltips)
-                .into(),
-        );
-
-        app.add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameCondition::MapGen(MapGenState::Generate))
-                .with_system(map_renderer::map_render_debug)
-                .into(),
-        );
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////

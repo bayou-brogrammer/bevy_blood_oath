@@ -95,6 +95,8 @@ impl TargetingMode {
             };
         }
 
+        self.active_mouse_pt = ctx.mouse_point();
+
         // Handle Escaping
         if ctx.key == Some(VirtualKeyCode::Escape) {
             return (ModeControl::Pop(TargetingModeResult::Cancelled.into()), ModeUpdate::Update);
@@ -125,7 +127,7 @@ impl TargetingMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&mut self, ctx: &mut BTerm, app: &mut App, active: bool) {
+    pub fn draw(&mut self, ctx: &mut BTerm, world: &mut World, active: bool) {
         match (active, ctx.screen_burn_color == REGULAR_SCREEN_BURN.into()) {
             (true, false) => ctx.screen_burn_color(REGULAR_SCREEN_BURN.into()),
             (false, true) => ctx.screen_burn_color(RGB::named(LIGHTGRAY)),
@@ -148,11 +150,10 @@ impl TargetingMode {
         });
 
         // Draw Blast Radius
-        self.active_mouse_pt = if active { ctx.mouse_point() } else { self.active_mouse_pt };
         let mouse_map_pos = self.camera.world_to_screen(self.active_mouse_pt);
 
         if self.radius > 0 {
-            let map = app.world.resource::<Map>();
+            let map = world.resource::<Map>();
             field_of_view_set(mouse_map_pos, self.radius, &*map)
                 .iter()
                 .filter(|pt| map.visible.get_bit(**pt))
@@ -170,6 +171,6 @@ impl TargetingMode {
             draw_batch.set_bg(self.active_mouse_pt, RED);
         }
 
-        draw_batch.submit(BATCH_UI).expect("Batch error");
+        draw_batch.submit(BATCH_DECOR).expect("Batch error");
     }
 }

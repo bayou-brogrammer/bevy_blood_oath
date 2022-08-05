@@ -14,14 +14,14 @@ pub fn item_use(
 
         add_effect(
             Some(entity),
-            EffectType::ItemUse { item },
+            EffectType::ItemUse(item),
             match target {
-                None => Targets::Single { target: player_entity },
+                None => Targets::Single(player_entity),
                 Some(target) => {
                     if let Ok(aoe) = aoe_item_q.get(item) {
-                        Targets::Tiles { tiles: aoe_tiles(&*map, target, aoe.radius) }
+                        Targets::Tiles(aoe_tiles(&*map, target, aoe.radius))
                     } else {
-                        Targets::Tile { tile_idx: map.point2d_to_index(target) }
+                        Targets::Tile(map.point2d_to_index(target))
                     }
                 }
             },

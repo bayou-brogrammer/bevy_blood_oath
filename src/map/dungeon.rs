@@ -169,7 +169,6 @@ impl MasterDungeonMap {
     fn transition_to_new_map(world: &mut World, new_depth: i32) -> Vec<Map> {
         let mut builder = map_builders::level_builder(1, 80, 50);
         builder.build_map();
-
         world.insert_resource(builder.build_data.clone());
 
         // Add Up Stairs

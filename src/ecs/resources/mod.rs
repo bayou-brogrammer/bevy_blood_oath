@@ -7,18 +7,10 @@ pub use bundle::*;
 pub use run_criteria::*;
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
-pub enum MapGenState {
-    NewGame,
-    NextLevel(usize),
-    Generate,
-}
-
-#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum GameCondition {
     MainMenu,
-    MapGen(MapGenState),
-    Playing,
     GameOver,
+    Playing,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
@@ -27,11 +19,6 @@ pub enum TurnState {
     AwaitingInput,
     PlayerTurn,
     AITurn,
-
-    Targeting,
-    Inventory,
-    ShowDropMenu,
-    ShowRemoveMenu,
     MagicMapReveal(i32),
 }
 

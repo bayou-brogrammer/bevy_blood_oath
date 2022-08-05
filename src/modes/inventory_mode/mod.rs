@@ -244,9 +244,9 @@ impl InventoryMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _app: &mut App, _active: bool) {
+    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(LAYER_ZERO);
+        draw_batch.target(LAYER_TEXT);
 
         let equipment_box = self.draw_equipment(&mut draw_batch);
         self.draw_inventory(&mut draw_batch, &equipment_box);
@@ -261,15 +261,15 @@ impl InventoryMode {
         // Equipment Subsection
         ////////////////////////////////////////////////////////////////////////
 
-        let (inv_width, inv_height) = self.dimensions;
         let weapon_bg_color =
             if matches!(self.subsection, SubSection::EquipWeapon) { SELECTED_BG } else { BLACK };
 
         let armor_bg_color =
             if matches!(self.subsection, SubSection::EquipArmor) { SELECTED_BG } else { BLACK };
 
+        let (inv_width, inv_height) = self.dimensions;
         let start_x = (MAP_PANEL_WIDTH / 2) - (inv_width / 2);
-        let start_y = (MAP_PANEL_HEIGHT / 2) - (inv_height / 2);
+        let start_y = (MAP_PANEL_HEIGHT / 2) - (inv_height);
         let equipment_box = box_with_title(
             draw_batch,
             Point::new(start_x, start_y),

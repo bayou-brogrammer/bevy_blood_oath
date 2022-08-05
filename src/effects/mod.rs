@@ -19,12 +19,14 @@ lazy_static! {
 
 #[derive(Debug)]
 pub enum EffectType {
-    Bloodstain(RGB),
+    WellFed,
     EntityDeath,
-    Damage { amount: i32 },
-    Healing { amount: i32 },
-    Confusion { turns: i32 },
-    ItemUse { item: Entity },
+    Bloodstain(RGB),
+    Damage(i32),
+    Healing(i32),
+    Confusion(i32),
+    ItemUse(Entity),
+    TriggerFire(Entity),
     Particle { glyph: FontCharType, color: ColorPair, lifespan: f32 },
 }
 
@@ -34,28 +36,42 @@ impl EffectType {
     }
 
     pub fn new_healing(amount: i32) -> Self {
-        EffectType::Healing { amount }
+        EffectType::Healing(amount)
     }
 }
 
 #[derive(Clone, Debug)]
 pub enum Targets {
-    Single { target: Entity },
-    TargetList { targets: Vec<Entity> },
-    Tile { tile_idx: usize },
-    Tiles { tiles: Vec<usize> },
+    Tile(usize),
+    Single(Entity),
+    Tiles(Vec<usize>),
+    TargetList(Vec<Entity>),
 }
 
 #[derive(Debug)]
 pub struct EffectSpawner {
+    pub targets: Targets,
     pub creator: Option<Entity>,
     pub effect_type: EffectType,
-    pub targets: Targets,
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Add Effects
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 pub fn add_effect(creator: Option<Entity>, effect_type: EffectType, targets: Targets) {
     EFFECT_QUEUE.lock().push_back(EffectSpawner { creator, effect_type, targets });
 }
+
+pub fn add_single_damage_effect(creator: Option<Entity>, target: Entity, amount: i32) {
+    add_effect(creator, EffectType::Damage(amount), Targets::Single(target));
+}
+
+pub fn add_single_healing_effect(creator: Option<Entity>, target: Entity, amount: i32) {
+    add_effect(creator, EffectType::Healing(amount), Targets::Single(target));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 pub fn run_effects_queue(ecs: &mut World) {
     loop {
@@ -69,16 +85,16 @@ pub fn run_effects_queue(ecs: &mut World) {
 }
 
 fn target_applicator(ecs: &mut World, effect: &EffectSpawner) {
-    if let EffectType::ItemUse { item } = effect.effect_type {
+    if let EffectType::ItemUse(item) = effect.effect_type {
         triggers::item_trigger(ecs, effect.creator, item, &effect.targets);
     } else {
         match &effect.targets {
-            Targets::Tile { tile_idx } => affect_tile(ecs, effect, *tile_idx),
-            Targets::Tiles { tiles } => {
+            Targets::Tile(tile_idx) => affect_tile(ecs, effect, *tile_idx),
+            Targets::Tiles(tiles) => {
                 tiles.iter().for_each(|tile_idx| affect_tile(ecs, effect, *tile_idx))
             }
-            Targets::Single { target } => affect_entity(ecs, effect, *target),
-            Targets::TargetList { targets } => {
+            Targets::Single(target) => affect_entity(ecs, effect, *target),
+            Targets::TargetList(targets) => {
                 targets.iter().for_each(|entity| affect_entity(ecs, effect, *entity))
             }
         }

@@ -101,11 +101,11 @@ impl MainMenuMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&self, ctx: &mut BTerm, app: &mut App, _active: bool) {
+    pub fn draw(&self, ctx: &mut BTerm, world: &mut World, _active: bool) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_ZERO);
 
-        let assets = app.world.resource::<RexAssets>();
+        let assets = world.resource::<RexAssets>();
         ctx.render_xp_sprite(&assets.menu, 0, 0);
 
         let box_rect = center_box_with_title(

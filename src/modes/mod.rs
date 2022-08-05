@@ -150,19 +150,19 @@ impl Mode {
         }
     }
 
-    fn draw(&mut self, ctx: &mut BTerm, app: &mut App, active: bool) {
+    fn draw(&mut self, ctx: &mut BTerm, world: &mut World, active: bool) {
         match self {
-            Mode::MapGenMode(x) => x.draw(ctx, app, active),
-            Mode::DungeonMode(x) => x.draw(ctx, app, active),
-            Mode::MainMenuMode(x) => x.draw(ctx, app, active),
-            Mode::GameOverMode(x) => x.draw(ctx, app, active),
-            Mode::InventoryMode(x) => x.draw(ctx, app, active),
-            Mode::TargetingMode(x) => x.draw(ctx, app, active),
-            Mode::MessageBoxMode(x) => x.draw(ctx, app, active),
-            Mode::YesNoDialogMode(x) => x.draw(ctx, app, active),
-            Mode::AppQuitDialogMode(x) => x.draw(ctx, app, active),
-            Mode::InventoryActionMode(x) => x.draw(ctx, app, active),
-            Mode::EquipmentActionMode(x) => x.draw(ctx, app, active),
+            Mode::MapGenMode(x) => x.draw(ctx, world, active),
+            Mode::DungeonMode(x) => x.draw(ctx, world, active),
+            Mode::MainMenuMode(x) => x.draw(ctx, world, active),
+            Mode::GameOverMode(x) => x.draw(ctx, world, active),
+            Mode::InventoryMode(x) => x.draw(ctx, world, active),
+            Mode::TargetingMode(x) => x.draw(ctx, world, active),
+            Mode::MessageBoxMode(x) => x.draw(ctx, world, active),
+            Mode::YesNoDialogMode(x) => x.draw(ctx, world, active),
+            Mode::AppQuitDialogMode(x) => x.draw(ctx, world, active),
+            Mode::InventoryActionMode(x) => x.draw(ctx, world, active),
+            Mode::EquipmentActionMode(x) => x.draw(ctx, world, active),
         }
     }
 
@@ -244,16 +244,16 @@ impl ModeStack {
 
                 // always draw dungeon
                 if top > 0 {
-                    self.stack[0].draw(ctx, app, false)
+                    self.stack[0].draw(ctx, &mut app.world, false)
                 }
 
                 // Draw non-top modes with `active` set to `false`.
                 for mode in self.stack.iter_mut().skip(usize::max(draw_from, 1)) {
-                    mode.draw(ctx, app, false);
+                    mode.draw(ctx, &mut app.world, false);
                 }
 
                 // Draw top mode with `active` set to `true`.
-                self.stack[top].draw(ctx, app, true);
+                self.stack[top].draw(ctx, &mut app.world, true);
             }
 
             match mode_update {

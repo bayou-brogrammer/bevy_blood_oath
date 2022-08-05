@@ -2,19 +2,19 @@ use super::*;
 
 pub fn inflict_damage(world: &mut World, effect: &EffectSpawner, target: Entity) {
     if let Some(mut stats) = world.get_mut::<CombatStats>(target) {
-        if let EffectType::Damage { amount } = effect.effect_type {
+        if let EffectType::Damage(amount) = effect.effect_type {
             stats.hp -= amount;
 
             add_damage_particle(target);
 
             if stats.hp < 1 {
-                add_effect(effect.creator, EffectType::EntityDeath, Targets::Single { target });
+                add_effect(effect.creator, EffectType::EntityDeath, Targets::Single(target));
             }
         }
     }
 
     if let Some(blood) = world.get::<Blood>(target) {
-        add_effect(None, EffectType::Bloodstain(blood.0), Targets::Single { target });
+        add_effect(None, EffectType::Bloodstain(blood.0), Targets::Single(target));
     }
 }
 
@@ -45,7 +45,7 @@ pub fn death(world: &mut World, _effect: &EffectSpawner, target: Entity) {
 
 pub fn heal_damage(world: &mut World, effect: &EffectSpawner, target: Entity) {
     if let Some(mut stats) = world.get_mut::<CombatStats>(target) {
-        if let EffectType::Healing { amount } = effect.effect_type {
+        if let EffectType::Healing(amount) = effect.effect_type {
             stats.hp = i32::min(stats.max_hp, stats.hp + amount);
 
             bo_logging::Logger::new()
@@ -60,7 +60,7 @@ pub fn heal_damage(world: &mut World, effect: &EffectSpawner, target: Entity) {
 }
 
 pub fn add_confusion(world: &mut World, effect: &EffectSpawner, target: Entity) {
-    if let EffectType::Confusion { turns } = &effect.effect_type {
+    if let EffectType::Confusion(turns) = &effect.effect_type {
         world.entity_mut(target).insert(Confusion { turns: *turns });
     }
 }

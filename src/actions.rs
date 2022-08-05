@@ -28,14 +28,14 @@ pub enum GameKey {
 fn key_mapping(key: VirtualKeyCode) -> Option<GameKey> {
     match key {
         // Movement
-        VirtualKeyCode::Up => Some(GameKey::Up),
-        VirtualKeyCode::Down => Some(GameKey::Down),
-        VirtualKeyCode::Left => Some(GameKey::Left),
-        VirtualKeyCode::Right => Some(GameKey::Right),
-        VirtualKeyCode::Y => Some(GameKey::LeftUp),
-        VirtualKeyCode::U => Some(GameKey::RightUp),
-        VirtualKeyCode::B => Some(GameKey::LeftDown),
-        VirtualKeyCode::N => Some(GameKey::RightDown),
+        VirtualKeyCode::Up | VirtualKeyCode::Numpad8 | VirtualKeyCode::K => Some(GameKey::Up),
+        VirtualKeyCode::Down | VirtualKeyCode::Numpad2 | VirtualKeyCode::J => Some(GameKey::Down),
+        VirtualKeyCode::Left | VirtualKeyCode::Numpad4 | VirtualKeyCode::H => Some(GameKey::Left),
+        VirtualKeyCode::Right | VirtualKeyCode::Numpad6 | VirtualKeyCode::L => Some(GameKey::Right),
+        VirtualKeyCode::Y | VirtualKeyCode::Numpad7 => Some(GameKey::LeftUp),
+        VirtualKeyCode::U | VirtualKeyCode::Numpad9 => Some(GameKey::RightUp),
+        VirtualKeyCode::B | VirtualKeyCode::Numpad1 => Some(GameKey::LeftDown),
+        VirtualKeyCode::N | VirtualKeyCode::Numpad3 => Some(GameKey::RightDown),
 
         // Actions
         VirtualKeyCode::Escape => Some(GameKey::Escape),

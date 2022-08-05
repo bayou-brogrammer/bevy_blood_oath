@@ -12,7 +12,10 @@ pub enum DungeonModeResult {
 ////////////////////////////////////////////////////////////////////////////////
 /// Mode
 ////////////////////////////////////////////////////////////////////////////////
-pub struct DungeonMode {}
+
+pub struct DungeonMode {
+    render_schedule: Schedule,
+}
 
 impl std::fmt::Debug for DungeonMode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -22,21 +25,44 @@ impl std::fmt::Debug for DungeonMode {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// The main gameplay mode.  The player can move around and explore the map, fight monsters and
-/// perform other actions while alive, directly or indirectly.
-///
-
 impl DungeonMode {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(app: &mut App) -> Self {
+        // Create a render schedule and a stage
+        let mut render_schedule = Schedule::default();
+        let mut update = SystemStage::parallel();
+
+        update.add_system_set(
+            ConditionSet::new()
+                .run_if_resource_exists::<camera::GameCamera>()
+                .with_system(camera::map_renderer::map_render)
+                .with_system(camera::entity_renderer::entity_render)
+                .with_system(camera::tooltips::render_tooltips)
+                .into(),
+        );
+
+        update.add_system_set(ConditionSet::new().with_system(system).into());
+
+        render_schedule.add_stage(CoreStage::Update, update);
+
+        // Setup State
+        app.insert_resource(NextState(GameCondition::Playing));
+
+        // Setup Plugins
+        app.add_plugin(SystemsPlugin);
+        app.add_plugin(spawner::SpawnerPlugin);
+
+        Self { render_schedule }
     }
 
     pub fn tick(
         &mut self,
-        ctx: &mut BTerm,
+        _ctx: &mut BTerm,
         app: &mut App,
         pop_result: &Option<ModeResult>,
     ) -> (ModeControl, ModeUpdate) {
+        // Update Systems
+        app.update();
+
         if let Some(result) = pop_result {
             match result {
                 // App Quit
@@ -70,7 +96,7 @@ impl DungeonMode {
                     _ => {
                         match result {
                             InventoryModeResult::EquipItem(item) => {
-                                self.use_item(&mut app.world, item, None)
+                                self.equip_item(&mut app.world, item)
                             }
                             InventoryModeResult::DropItem(item) => self.drop_item(&mut app.world, item),
                             InventoryModeResult::DropEquipment(item) => {
@@ -85,38 +111,61 @@ impl DungeonMode {
                             _ => {}
                         }
 
-                        let mut runwriter = app.world.resource_mut::<TurnState>();
-                        *runwriter = TurnState::PlayerTurn;
+                        self.end_turn(&mut app.world);
                     }
                 },
                 _ => unreachable!("Unknown popped dungeon result: [{:?}]", result),
             };
         }
 
-        if let Some(result) = app.world.remove_resource::<PlayerInputResult>() {
-            match result {
-                PlayerInputResult::NoResult => {}
-                PlayerInputResult::AppQuit => return self.app_quit_dialog(),
-                PlayerInputResult::TurnDone => self.end_turn(&mut app.world),
-                PlayerInputResult::ShowInventory => {
-                    return (
-                        ModeControl::Push(InventoryMode::new(&mut app.world).into()),
-                        ModeUpdate::Update,
-                    )
-                }
-                _ => {
-                    println!("DungeonMode::tick: Unknown player input result: {:?}", result);
+        let turn_state = *app.world.resource::<TurnState>();
+        match turn_state {
+            TurnState::AwaitingInput => {
+                if let Some(result) = app.world.remove_resource::<PlayerInputResult>() {
+                    match result {
+                        PlayerInputResult::NoResult => {}
+                        PlayerInputResult::AppQuit => return self.app_quit_dialog(),
+                        PlayerInputResult::TurnDone => self.end_turn(&mut app.world),
+                        PlayerInputResult::ShowInventory => {
+                            return (
+                                ModeControl::Push(InventoryMode::new(&mut app.world).into()),
+                                ModeUpdate::Update,
+                            )
+                        }
+                        _ => {}
+                    }
                 }
             }
+            TurnState::MagicMapReveal(row) => self.reveal_map(&mut app.world, row),
+            _ => {}
         }
 
-        // app.update();
+        // let turn_state = *app.world.resource::<TurnState>();
+        // match turn_state {
+        //     TurnState::MagicMapReveal(row) => self.reveal_map(&mut app.world, row),
+        //     TurnState::AwaitingInput => match player_input2(ctx, &mut app.world) {
+        //         PlayerInputResult::NoResult => {}
+        //         PlayerInputResult::AppQuit => return self.app_quit_dialog(),
+        //         PlayerInputResult::TurnDone => self.end_turn(&mut app.world),
+        //         PlayerInputResult::ShowInventory => {
+        //             return (
+        //                 ModeControl::Push(InventoryMode::new(&mut app.world).into()),
+        //                 ModeUpdate::Update,
+        //             )
+        //         }
+        //         _ => {
+        //             println!("DungeonMode::tick: Unknown player input result");
+        //         }
+        //     },
+        //     _ => {}
+        // }
 
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&mut self, _ctx: &mut BTerm, app: &mut App, _active: bool) {
-        app.update();
+    pub fn draw(&mut self, _ctx: &mut BTerm, world: &mut World, _active: bool) {
+        self.render_schedule.run(world);
+        gui::render_ui(world);
     }
 }
 
@@ -136,21 +185,24 @@ impl DungeonMode {
     }
 
     fn use_item(&self, world: &mut World, item: &Entity, pt: Option<Point>) {
+        println!("DungeonMode::use_item: {:?}", item);
         let p = *world.resource::<Entity>();
-        let mut evw = world.resource_mut::<EventWriter<WantsToUseItem>>();
-        evw.send(WantsToUseItem(p, *item, pt));
+        world.send_event(WantsToUseItem(p, *item, pt));
     }
 
     fn drop_item(&self, world: &mut World, item: &Entity) {
         let p = *world.resource::<Entity>();
-        let mut evw = world.resource_mut::<EventWriter<WantsToDropItem>>();
-        evw.send(WantsToDropItem(p, *item));
+        world.send_event(WantsToDropItem(p, *item));
+    }
+
+    fn equip_item(&self, world: &mut World, equipment: &Entity) {
+        let p = *world.resource::<Entity>();
+        world.send_event(WantsToEquipItem(p, *equipment));
     }
 
     fn remove_equipment(&self, world: &mut World, equipment: &Entity) {
         let p = *world.resource::<Entity>();
-        let mut evw = world.resource_mut::<EventWriter<WantsToRemoveItem>>();
-        evw.send(WantsToRemoveItem(p, *equipment));
+        world.send_event(WantsToRemoveItem(p, *equipment));
     }
 
     fn reveal_map(&self, world: &mut World, row: i32) {
@@ -167,7 +219,7 @@ impl DungeonMode {
 
         let mut runwriter = world.resource_mut::<TurnState>();
         if row == height - 1 {
-            *runwriter = TurnState::PlayerTurn
+            self.end_turn(world);
         } else {
             *runwriter = TurnState::MagicMapReveal(row + 1);
         }

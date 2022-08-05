@@ -13,7 +13,7 @@ mod tiletype;
 
 pub use bitgrid::*;
 pub use dungeon::*;
-pub use map_builders::{BuilderMap, MapGenTimer};
+pub use map_builders::BuilderMap;
 pub use themes::*;
 pub use tiletype::*;
 
@@ -81,6 +81,26 @@ impl Map {
         }
     }
 
+    pub fn tile_glyph(&self, idx: usize) -> (FontCharType, ColorPair) {
+        let tile = &self.tiles[idx];
+        let (glyph, mut color) = match self.depth {
+            3 => tile.get_limestone_glyph(),
+            2 => tile.get_forest_glyph(),
+            _ => tile.get_tile_glyph_default(self, idx),
+        };
+
+        if self.bloodstains.contains_key(&idx) {
+            color.bg = (*self.bloodstains.get(&idx).unwrap()).into();
+        }
+
+        if !self.visible.get_bit(self.index_to_point2d(idx)) {
+            color.fg = color.fg.to_greyscale();
+            color.bg = RGBA::from_f32(0., 0., 0., 0.); // Don't show stains out of visual range
+        }
+
+        (glyph, color)
+    }
+
     fn valid_exit(&self, loc: Point, delta: Point) -> Option<usize> {
         let destination = loc + delta;
         if self.in_bounds(destination) {
@@ -108,25 +128,31 @@ impl Algorithm2D for Map {
 
 #[rustfmt::skip]
 impl BaseMap for Map {
-    fn is_opaque(&self, idx: usize) -> bool {
-        self.tiles[idx].opaque || self.view_blocked.contains(&idx)
+    fn is_opaque(&self, idx:usize) -> bool {
+        if idx > 0 && idx < self.tiles.len() {
+            self.tiles[idx].opaque || self.view_blocked.contains(&idx)
+        } else {
+            true
+        }
     }
 
     fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
         let mut exits = SmallVec::new();
         let location = self.index_to_point2d(idx);
+        let tt = self.tiles[idx];
+
 
         // Cardinals
-        if let Some(idx) = self.valid_exit(location, Point::new(-1, 0)) { exits.push((idx, 1.0)) }
-        if let Some(idx) = self.valid_exit(location, Point::new(1, 0)) { exits.push((idx, 1.0)) }
-        if let Some(idx) = self.valid_exit(location, Point::new(0, -1)) { exits.push((idx, 1.0)) }
-        if let Some(idx) = self.valid_exit(location, Point::new(0, 1)) { exits.push((idx, 1.0)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(-1, 0)) { exits.push((idx, tt.cost)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(1, 0)) { exits.push((idx, tt.cost)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(0, -1)) { exits.push((idx, tt.cost)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(0, 1)) { exits.push((idx, tt.cost)) }
 
         // Diagonals
-        if let Some(idx) = self.valid_exit(location, Point::new(-1, -1)) { exits.push((idx, 1.45)) }
-        if let Some(idx) = self.valid_exit(location, Point::new(1, -1)) { exits.push((idx, 1.45)) }
-        if let Some(idx) = self.valid_exit(location, Point::new(-1, 1)) { exits.push((idx, 1.45)) }
-        if let Some(idx) = self.valid_exit(location, Point::new(1, 1)) { exits.push((idx, 1.45)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(-1, -1)) { exits.push((idx, tt.cost)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(1, -1)) { exits.push((idx, tt.cost)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(-1, 1)) { exits.push((idx, tt.cost)) }
+        if let Some(idx) = self.valid_exit(location, Point::new(1, 1)) { exits.push((idx, tt.cost)) }
 
         exits
     }

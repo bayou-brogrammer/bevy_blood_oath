@@ -44,12 +44,9 @@ impl MapGenMode {
         app: &mut App,
         _pop_result: &Option<ModeResult>,
     ) -> (ModeControl, ModeUpdate) {
-        app.update();
-
         if !SHOW_MAPGEN_VISUALIZER {
             app.insert_resource(self.mapgen_next_state.unwrap());
-            app.insert_resource(NextState(GameCondition::Playing));
-            return (ModeControl::Switch(DungeonMode::new().into()), ModeUpdate::Update);
+            return (ModeControl::Switch(DungeonMode::new(app).into()), ModeUpdate::Update);
         }
 
         self.mapgen_timer += ctx.frame_time_ms;
@@ -58,15 +55,14 @@ impl MapGenMode {
             self.mapgen_index += 1;
             if self.mapgen_index >= self.mapgen_history.len() {
                 app.insert_resource(self.mapgen_next_state.unwrap());
-                app.insert_resource(NextState(GameCondition::Playing));
-                return (ModeControl::Switch(DungeonMode::new().into()), ModeUpdate::Update);
+                return (ModeControl::Switch(DungeonMode::new(app).into()), ModeUpdate::Update);
             }
         }
 
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&self, ctx: &mut BTerm, _app: &mut App, _active: bool) {
+    pub fn draw(&self, ctx: &mut BTerm, _world: &mut World, _active: bool) {
         if let Some(map) = self.mapgen_history.get(self.mapgen_index) {
             let player_pos = Point::new(map.width / 2, map.height / 2);
             let (x_chars, y_chars) = ctx.get_char_size();
@@ -93,7 +89,7 @@ impl MapGenMode {
                         let idx = map.point2d_to_index(pt);
 
                         if map.revealed.get_bit(pt) {
-                            let (glyph, color) = tile_glyph(idx, &*map);
+                            let (glyph, color) = map.tile_glyph(idx);
                             draw_batch.set(Point::new(x, y), color, glyph);
                         }
                     } else if SHOW_BOUNDARIES {

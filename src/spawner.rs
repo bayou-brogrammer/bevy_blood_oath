@@ -22,6 +22,7 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
         .insert(Naming("SecBot".to_string()))
         .insert(Description::new("A bot that can attack and move."))
         .insert(Blood(DARK_RED.into()))
+        .insert(HungerClock::new(HungerState::WellFed, 20))
         .id();
 
     commands.insert_resource(player);
@@ -31,6 +32,7 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
     // spawner::confusion_scroll(&mut commands, start_pos);
     // spawner::magic_missile_scroll(&mut commands, start_pos);
     // spawner::fireball_scroll(&mut commands, start_pos);
+    spawner::longsword(&mut commands, start_pos);
 }
 
 pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {

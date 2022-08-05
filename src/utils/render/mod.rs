@@ -3,10 +3,12 @@ use crate::prelude::*;
 mod boxes;
 pub mod color;
 mod menus;
+mod string;
 
 pub use boxes::*;
 pub use color::*;
 pub use menus::*;
+pub use string::*;
 
 pub fn safe_print_color<T: ToString>(batch: &mut DrawBatch, pos: Point, text: T, color: ColorPair) {
     let len = text.to_string().len();

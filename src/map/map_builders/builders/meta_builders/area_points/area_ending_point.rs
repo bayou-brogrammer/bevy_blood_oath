@@ -46,7 +46,7 @@ impl AreaEndingPosition {
 
         let mut available_floors: Vec<(usize, f32)> = Vec::new();
         for (idx, tile) in build_data.map.tiles.iter().enumerate() {
-            if map::tile_walkable(tile.tile_type) {
+            if tile.walkable {
                 let pt = build_data.map.index_to_point2d(idx);
 
                 available_floors.push((
