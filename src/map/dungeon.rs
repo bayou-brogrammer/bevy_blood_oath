@@ -1,5 +1,7 @@
 #![allow(dead_code)] //TODO: remove this
 
+use bevy::ecs::system::CommandQueue;
+
 use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -49,69 +51,58 @@ impl MasterDungeonMap {
         }
     }
 
-    pub fn freeze_level_entities(ecs: &mut World) {
-        // Obtain ECS access
-        let entities = ecs.entities();
-        let map_depth = ecs.fetch::<Map>().depth;
-        let player_entity = ecs.fetch::<Entity>();
-
-        let mut positions = ecs.write_storage::<Position>();
-        let mut other_level_positions = ecs.write_storage::<OtherLevelPosition>();
-
-        // Find positions and make OtherLevelPosition
-        let mut pos_to_delete: Vec<Entity> = Vec::new();
-        for (entity, pos) in (&entities, &positions).join().filter(|(e, _)| *e != *player_entity) {
-            if entity != *player_entity {
-                other_level_positions
-                    .insert(entity, OtherLevelPosition::new(pos.0, map_depth))
-                    .expect("Insert fail");
-                pos_to_delete.push(entity);
-            }
-        }
-
-        // Remove positions
-        for p in pos_to_delete.iter() {
-            positions.remove(*p);
-        }
-    }
-
     pub fn level_transition(ecs: &mut World, new_depth: i32, offset: i32) -> Option<Vec<Map>> {
         // Obtain the master dungeon map
-        let dungeon_master = ecs.read_resource::<MasterDungeonMap>();
+        let dungeon_master = ecs.resource::<MasterDungeonMap>();
 
         // Do we already have a map?
         if dungeon_master.get_map(new_depth).is_some() {
-            std::mem::drop(dungeon_master);
             MasterDungeonMap::transition_to_existing_map(ecs, new_depth, offset);
             None
         } else {
-            std::mem::drop(dungeon_master);
             Some(MasterDungeonMap::transition_to_new_map(ecs, new_depth))
         }
     }
 
-    pub fn thaw_level_entities(ecs: &mut World) {
+    pub fn freeze_level_entities(world: &mut World) {
         // Obtain ECS access
-        let entities = ecs.entities();
-        let map_depth = ecs.fetch::<Map>().depth;
-        let player_entity = ecs.fetch::<Entity>();
-        let mut positions = ecs.write_storage::<Position>();
-        let mut other_level_positions = ecs.write_storage::<OtherLevelPosition>();
+        let mut positions = world.query::<(Entity, &Position)>();
+        let map_depth = world.resource::<Map>().depth;
+        let player_entity = world.resource::<Entity>();
+
+        let mut queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut queue, world);
+
+        // Find positions and make OtherLevelPosition
+        for (entity, pos) in positions.iter(world) {
+            if entity != *player_entity {
+                commands.entity(entity).remove::<Position>();
+                commands.entity(entity).insert(OtherLevelPosition::new(pos.0, map_depth));
+            }
+        }
+
+        queue.apply(world);
+    }
+
+    pub fn thaw_level_entities(world: &mut World) {
+        // Obtain ECS access
+        let mut other_positions = world.query::<(Entity, &OtherLevelPosition)>();
+        let map_depth = world.resource::<Map>().depth;
+        let player_entity = world.resource::<Entity>();
+
+        let mut queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut queue, world);
 
         // Find OtherLevelPosition
-        let mut pos_to_delete: Vec<Entity> = Vec::new();
-        for (entity, pos) in (&entities, &other_level_positions)
-            .join()
+        for (entity, pos) in other_positions
+            .iter(world)
             .filter(|(entity, pos)| *entity != *player_entity && pos.depth == map_depth)
         {
-            positions.insert(entity, Position::new(pos.pt)).expect("Insert fail");
-            pos_to_delete.push(entity);
+            commands.entity(entity).insert(Position::new(pos.pt));
+            commands.entity(entity).remove::<OtherLevelPosition>();
         }
 
-        // Remove positions
-        for p in pos_to_delete.iter() {
-            other_level_positions.remove(*p);
-        }
+        queue.apply(world);
     }
 }
 
@@ -176,85 +167,57 @@ impl MasterDungeonMap {
     }
 
     fn transition_to_new_map(world: &mut World, new_depth: i32) -> Vec<Map> {
-        let mut builder = map_builders::random_builder(1);
+        let mut builder = map_builders::level_builder(1, 80, 50);
         builder.build_map();
+
+        world.insert_resource(builder.build_data.clone());
 
         // Add Up Stairs
         if new_depth > 1 {
-            let mut map = builder.get_map();
-            let up_idx = map.point2d_to_index(builder.get_starting_position());
-            map.tiles[up_idx] = GameTile::stairs_up();
-        }
-
-        let player_start;
-        {
-            let mut worldmap_resource = world.write_resource::<Map>();
-            *worldmap_resource = builder.get_map();
-            player_start = builder.get_starting_position();
-        }
-
-        builder.spawn_entities(world);
-
-        // Setup Player Position / FOV
-        {
-            let player_entity = world.fetch::<Entity>();
-            let mut player_pt = world.write_resource::<Point>();
-            let mut position_components = world.write_storage::<Position>();
-
-            *player_pt = player_start;
-            position_components
-                .insert(*player_entity, Position::new(player_start))
-                .expect("Insert fail");
-
-            // Mark the player's visibility as dirty
-            let mut fov_components = world.write_storage::<FieldOfView>();
-            let fov = fov_components.get_mut(*player_entity);
-            if let Some(fov) = fov {
-                fov.is_dirty = true;
+            if let Some(pos) = &builder.build_data.starting_position {
+                let up_idx = builder.build_data.map.point2d_to_index(*pos);
+                builder.build_data.map.tiles[up_idx] = GameTile::stairs_up();
             }
         }
 
-        // Setup Camera
-        world.insert(GameCamera::new(player_start));
+        let mapgen_history = builder.build_data.history.clone();
+        {
+            let mut worldmap_resource = world.resource_mut::<Map>();
+            *worldmap_resource = builder.build_data.map.clone();
+        }
 
         // Store the newly minted map
-        let mut dungeon_master = world.write_resource::<MasterDungeonMap>();
-        dungeon_master.store_map(&builder.get_map());
+        let mut dungeon_master = world.resource_mut::<MasterDungeonMap>();
+        dungeon_master.store_map(&builder.build_data.map);
 
-        builder.get_snapshot_history()
+        mapgen_history
     }
 
     fn transition_to_existing_map(ecs: &mut World, new_depth: i32, offset: i32) {
-        let dungeon_master = ecs.read_resource::<MasterDungeonMap>();
+        let dungeon_master = ecs.resource::<MasterDungeonMap>();
         let map = dungeon_master.get_map(new_depth).unwrap();
-
-        let player_entity = ecs.fetch::<Entity>();
-        let mut worldmap_resource = ecs.write_resource::<Map>();
+        let player = *ecs.resource::<Entity>();
 
         // Find the down stairs and place the player
         let stair_type = if offset < 0 { TileType::DownStairs } else { TileType::UpStairs };
+        {
+            for (idx, _tile) in map.get_tile_type(stair_type).iter().enumerate() {
+                let mut player_position = ecs.resource_mut::<Point>();
+                *player_position = map.index_to_point2d(idx);
 
-        for (idx, _tile) in map.get_tile_type(stair_type).iter().enumerate() {
-            let mut player_position = ecs.write_resource::<Point>();
-            *player_position = map.index_to_point2d(idx);
-
-            let mut position_components = ecs.write_storage::<Position>();
-            let player_pos_comp = position_components.get_mut(*player_entity);
-
-            if let Some(player_pos_comp) = player_pos_comp {
-                player_pos_comp.0 = map.index_to_point2d(idx);
-                if new_depth == 1 {
-                    player_pos_comp.0.x -= 1;
+                if let Some(mut player_pos_comp) = ecs.get_mut::<Position>(player) {
+                    player_pos_comp.0 = map.index_to_point2d(idx);
+                    if new_depth == 1 {
+                        player_pos_comp.0.x -= 1;
+                    }
                 }
             }
         }
 
+        let mut worldmap_resource = ecs.resource_mut::<Map>();
         *worldmap_resource = map;
 
-        // Mark the player's visibility as dirty
-        let mut fov_storage = ecs.write_storage::<FieldOfView>();
-        let fov = fov_storage.get_mut(*player_entity);
-        if let Some(fov) = fov {
+        if let Some(mut fov) = ecs.get_mut::<FieldOfView>(player) {
             fov.is_dirty = true;
         }
     }

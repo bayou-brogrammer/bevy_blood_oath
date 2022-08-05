@@ -7,12 +7,12 @@ pub mod map_builders;
 pub mod spatial;
 
 mod bitgrid;
-// mod dungeon;
+mod dungeon;
 mod themes;
 mod tiletype;
 
 pub use bitgrid::*;
-// pub use dungeon::*;
+pub use dungeon::*;
 pub use map_builders::{BuilderMap, MapGenTimer};
 pub use themes::*;
 pub use tiletype::*;

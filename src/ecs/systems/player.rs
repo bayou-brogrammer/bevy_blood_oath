@@ -1,18 +1,16 @@
 use super::*;
-use bevy::app::AppExit;
 
 #[derive(Debug)]
 pub enum PlayerInputResult {
     AppQuit,
-    NoResult,
+    Descend,
     TurnDone,
-    // TryDescend,
+    NoResult,
+    // Inventory
+    ShowDrop,
+    ShowRemove,
     ShowInventory,
-    ShowDropMenu,
-    ShowRemoveMenu,
-    // ShowPickUpMenu,
-    // ShowInventoryShortcut(GameKey),
-    // ShowEquipmentShortcut(GameKey),
+    _ShowInventoryShortcut,
 }
 
 pub fn player_input(
@@ -31,6 +29,7 @@ pub fn player_input(
         let mut delta = Point::new(0, 0);
         let (player, pos, fov) = player_query.single_mut();
 
+        println!("{:?}", control);
         match control {
             GameKey::Escape => return PlayerInputResult::AppQuit,
 
@@ -53,8 +52,8 @@ pub fn player_input(
                 }
             },
             GameKey::Inventory => return PlayerInputResult::ShowInventory,
-            GameKey::Drop => return PlayerInputResult::ShowDropMenu,
-            GameKey::Remove => return PlayerInputResult::ShowRemoveMenu,
+            GameKey::Remove => return PlayerInputResult::ShowRemove,
+            GameKey::Drop => return PlayerInputResult::ShowDrop,
 
             // Skip Turn
             GameKey::SkipTurn => {
@@ -77,7 +76,7 @@ pub fn player_input(
 
                 return PlayerInputResult::TurnDone;
             }
-            _ => {}
+            _ => return PlayerInputResult::NoResult,
         }
 
         let destination = pos.0 + delta;
@@ -103,17 +102,6 @@ pub fn player_input(
     }
 
     PlayerInputResult::NoResult
-}
-
-pub fn player_turn_done(In(result): In<PlayerInputResult>, mut commands: Commands) {
-    match result {
-        PlayerInputResult::NoResult => {}
-        PlayerInputResult::AppQuit => commands.insert_resource(AppExit),
-        PlayerInputResult::TurnDone => commands.insert_resource(TurnState::PlayerTurn),
-        PlayerInputResult::ShowInventory => commands.insert_resource(TurnState::Inventory),
-        PlayerInputResult::ShowDropMenu => commands.insert_resource(TurnState::ShowDropMenu),
-        PlayerInputResult::ShowRemoveMenu => commands.insert_resource(TurnState::ShowRemoveMenu),
-    }
 }
 
 fn try_pickup_item(

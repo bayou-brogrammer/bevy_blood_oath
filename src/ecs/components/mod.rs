@@ -24,7 +24,7 @@ pub use hunger::{HungerClock, HungerState, ProvidesFood};
 pub use items::*;
 pub use name::Naming;
 pub use particle::*;
-pub use position::Position;
+pub use position::{OtherLevelPosition, Position};
 pub use ranged::*;
 pub use stats::CombatStats;
 pub use tags::*;

@@ -25,7 +25,7 @@ def serve():
     typer.echo("Make sure you run the build-all command first.")
 
     # Set Path to dir
-    os.chdir("./wasm_help")
+    os.chdir("./dist")
 
     server = HTTPServer(("", PORT), SimpleHTTPRequestHandler)
     typer.echo(

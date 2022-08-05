@@ -1,3 +1,4 @@
+use self::player::PlayerInputResult;
 use crate::prelude::*;
 
 pub mod end_turn;
@@ -43,7 +44,11 @@ impl Plugin for AwaitingInputPlugin {
             ConditionSet::new()
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AwaitingInput)
-                .with_system(player::player_input.chain(player::player_turn_done))
+                .with_system(player::player_input.chain(
+                    |In(result): In<PlayerInputResult>, mut commands: Commands| {
+                        commands.insert_resource(result)
+                    },
+                ))
                 .into(),
         );
     }

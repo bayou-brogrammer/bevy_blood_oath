@@ -15,7 +15,6 @@ pub enum MapGenState {
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum GameCondition {
-    Loading,
     MainMenu,
     MapGen(MapGenState),
     Playing,
@@ -33,6 +32,7 @@ pub enum TurnState {
     Inventory,
     ShowDropMenu,
     ShowRemoveMenu,
+    MagicMapReveal(i32),
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]

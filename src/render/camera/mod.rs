@@ -4,6 +4,7 @@ mod entity_renderer;
 mod map_renderer;
 mod tooltips;
 
+#[derive(Debug, Copy, Clone)]
 pub struct GameCamera {
     player_pos: Point,
 }

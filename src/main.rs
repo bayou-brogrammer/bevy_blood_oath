@@ -8,7 +8,7 @@ mod actions;
 mod ecs;
 mod effects;
 mod map;
-mod menu_memory;
+mod modes;
 mod random_table;
 mod render;
 mod rex_assets;
@@ -31,7 +31,6 @@ mod prelude {
 
     // Random Helper Crates
     pub use lazy_static::lazy_static;
-    pub use rayon::prelude::*;
     pub use serde::{Deserialize, Serialize};
 
     // Local Helper Libs
@@ -47,16 +46,18 @@ mod prelude {
     pub use crate::ecs::*;
     pub use crate::effects::*;
     pub use crate::map::*;
-    pub use crate::menu_memory::*;
+    pub use crate::modes::*;
     pub use crate::random_table::*;
     pub use crate::render::*;
     pub use crate::rex_assets::*;
     pub use crate::setup::*;
     pub use crate::utils::*;
 
+    pub type BoxedError = Box<dyn std::error::Error>;
+
+    pub const MAP_GEN_TIMER: f32 = 100.0;
     pub const SHOW_BOUNDARIES: bool = true;
     pub const SHOW_MAPGEN_VISUALIZER: bool = false;
-    pub const MAP_GEN_TIMER: f32 = 100.0;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 60;
@@ -78,16 +79,70 @@ mod prelude {
     pub const BATCH_TOOLTIPS: usize = 100_000; // Over everything
 }
 
+use bracket_terminal::{embedded_resource, link_resource};
 pub use prelude::*;
 
-#[derive(Default)]
 pub struct GameWorld {
     pub app: App,
+    pub wait_for_event: bool,
+    pub mode_stack: ModeStack,
+    pub active_mouse_pos: Point,
 }
 
 impl GameWorld {
     pub fn new() -> Self {
         let mut app = App::new();
+
+        // When building for WASM, print panics to the browser console
+        #[cfg(target_arch = "wasm32")]
+        console_error_panic_hook::set_once();
+
+        // Intent Events
+        app.add_event::<WantsToMove>();
+        app.add_event::<WantsToAttack>();
+        app.add_event::<WantsToUseItem>();
+        // Item Events
+        app.add_event::<WantsToDropItem>();
+        app.add_event::<WantsToEquipItem>();
+        app.add_event::<WantsToPickupItem>();
+        app.add_event::<WantsToRemoveItem>();
+
+        /*
+         * We need multiple stages to handle the following:
+         * 1. Handle input from player and generate actions
+         * 2. Generate Player Actions
+         * 3. Handle Player Actions
+         * 4. Generate AI Actions
+         * 5. Handle AI Actions
+         * 6. Effects
+         */
+        app.add_stage_after(
+            CoreStage::Update,
+            GameStage::GeneratePlayerActions,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(
+            GameStage::GeneratePlayerActions,
+            GameStage::HandlePlayerActions,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(
+            GameStage::HandlePlayerActions,
+            GameStage::GenerateAIActions,
+            SystemStage::parallel(),
+        )
+        // AI Stages
+        .add_stage_after(
+            GameStage::GenerateAIActions,
+            GameStage::HandleAIActions,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(GameStage::HandleAIActions, GameStage::AICleanup, SystemStage::parallel())
+        .add_stage_after(
+            GameStage::HandleAIActions,
+            GameStage::Cleanup,
+            SystemStage::parallel(),
+        );
 
         // Add Time Resource to the world
         app.init_resource::<Time>();
@@ -97,21 +152,19 @@ impl GameWorld {
         app.insert_resource(MenuMemory::new());
         app.add_loopless_state(GameCondition::MainMenu);
 
-        // Setup Scheduler
-        setup_events(&mut app);
-        setup_stages(&mut app);
-        setup_debug_systems(&mut app);
-
         // Plugins
-        app.add_plugin(SetupPlugin);
-        app.add_plugin(map_builders::MapGenPlugin);
-        app.add_plugin(RenderPlugin);
-        app.add_plugin(SystemsPlugin);
+        app.add_plugin(ecs::SystemsPlugin);
+        app.add_plugin(render::RenderPlugin);
+        app.add_plugin(spawner::SpawnerPlugin);
 
-        #[cfg(target_arch = "wasm32")]
-        app.add_plugin(bevy_webgl2::WebGL2Plugin);
+        add_debug_systems(&mut app);
 
-        Self { app }
+        Self {
+            app,
+            wait_for_event: false,
+            active_mouse_pos: Point::zero(),
+            mode_stack: ModeStack::new(vec![main_menu_mode::MainMenuMode::new().into()]),
+        }
     }
 
     fn inject_bracket_context(&mut self, ctx: &mut BTerm) {
@@ -138,29 +191,49 @@ impl GameWorld {
 impl GameState for GameWorld {
     fn tick(&mut self, ctx: &mut BTerm) {
         ctx.clear_consoles(&[LAYER_ZERO, LAYER_ENTITY, LAYER_TEXT]);
-
         self.inject_bracket_context(ctx);
-        self.app.update();
 
-        quit_system(ctx, &mut self.app.world);
+        if !self.wait_for_event {
+            self.active_mouse_pos = ctx.mouse_point();
+
+            match self.mode_stack.update(ctx, &mut self.app) {
+                RunControl::Update => {}
+                RunControl::Quit => ctx.quit(),
+                RunControl::WaitForEvent => self.wait_for_event = true,
+            }
+        } else {
+            let new_mouse = ctx.mouse_point();
+
+            // Handle Keys & Mouse Clicks
+            if ctx.key.is_some() || ctx.left_click {
+                self.wait_for_event = false;
+            }
+
+            // Handle Mouse Movement
+            if new_mouse != self.active_mouse_pos {
+                self.wait_for_event = false;
+                self.active_mouse_pos = new_mouse;
+            }
+        }
+
+        // quit_system(ctx, &mut self.app.world);
         render_draw_buffer(ctx).expect("Render error");
     }
 }
 
-fn quit_system(ctx: &mut BTerm, world: &mut World) {
-    if world.get_resource::<AppExit>().is_some() {
-        ctx.quit()
-    }
-}
+embedded_resource!(TERMINAL_FONT, "../resources/terminal8x8.png");
+embedded_resource!(VGA_FONT, "../resources/vga.png");
 
 fn main() -> BError {
+    link_resource!(TERMINAL_FONT, "resources/terminal8x8.png");
+    link_resource!(VGA_FONT, "resources/vga.png");
+
     let mut context = BTermBuilder::simple(80, 60)
         .unwrap()
         .with_fps_cap(60.0)
         .with_tile_dimensions(12, 12)
         .with_dimensions(80, 60)
         .with_title("Roguelike Tutorial")
-        .with_resource_path("assets/")
         .with_font("vga.png", 8, 16)
         // Entity Console #1
         .with_sparse_console(80, 60, "terminal8x8.png")

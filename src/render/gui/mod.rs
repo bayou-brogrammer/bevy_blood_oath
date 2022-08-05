@@ -1,10 +1,7 @@
 use super::*;
 
 mod game_menus;
-mod title_menus;
-
 pub use game_menus::*;
-pub use title_menus::*;
 
 use lazy_static::lazy_static;
 
@@ -86,22 +83,8 @@ fn render_ui(map: Res<Map>, stats_q: Query<&CombatStats, With<Player>>) {
 pub struct GUIPlugin;
 impl Plugin for GUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(TitleMenuPlugins);
-
-        // GUI Ticking Systems
         app.add_system_set(
             ConditionSet::new().run_in_state(GameCondition::Playing).with_system(render_ui).into(),
-        );
-
-        app.add_plugin(InventoryMenuPlugin);
-
-        // Targeting
-        app.add_system_set(
-            ConditionSet::new()
-                .run_if_resource_equals(TurnState::Targeting)
-                .with_system(game_menus::ranged_targeting)
-                .with_system(game_menus::ranged_input)
-                .into(),
         );
     }
 }
