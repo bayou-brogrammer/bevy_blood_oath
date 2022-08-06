@@ -1,7 +1,7 @@
 #![allow(clippy::module_inception)]
 
 use crate::prelude::*;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub mod map_builders;
 pub mod spatial;
@@ -26,7 +26,6 @@ pub struct Map {
     pub visible: BitGrid,
     pub revealed: BitGrid,
     pub tiles: Vec<GameTile>,
-    pub view_blocked: HashSet<usize>,
     pub bloodstains: HashMap<usize, RGB>,
 }
 
@@ -40,11 +39,9 @@ impl Map {
     }
 
     pub fn clear_content_index(&mut self) {
-        crate::spatial::clear();
-    }
-
-    pub fn populate_blocked(&mut self) {
-        crate::spatial::populate_blocked_from_map(self);
+        crate::spatial::clear_content_index();
+        crate::spatial::clear_blocked();
+        crate::spatial::clear_opaque();
     }
 
     pub fn clear_visible(&mut self) {
@@ -74,7 +71,6 @@ impl Map {
             depth: new_depth,
             name: name.to_string(),
             bloodstains: HashMap::new(),
-            view_blocked: HashSet::new(),
             visible: BitGrid::new(width, height),
             revealed: BitGrid::new(width, height),
             tiles: vec![GameTile::wall(); map_tile_count],
@@ -130,7 +126,7 @@ impl Algorithm2D for Map {
 impl BaseMap for Map {
     fn is_opaque(&self, idx:usize) -> bool {
         if idx > 0 && idx < self.tiles.len() {
-            self.tiles[idx].opaque || self.view_blocked.contains(&idx)
+            crate::spatial::is_opaque(idx)
         } else {
             true
         }

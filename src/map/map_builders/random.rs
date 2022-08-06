@@ -78,10 +78,17 @@ fn random_room_builder(builder: &mut BuilderChain) {
 
         builder.with(RoomDrawer::new());
 
-        let corridor_roll = crate::rng::roll_dice(1, 2);
+        let corridor_roll = crate::rng::roll_dice(1, 4);
         match corridor_roll {
             1 => builder.with(DoglegCorridors::new()),
+            2 => builder.with(NearestCorridors::new()),
+            3 => builder.with(StraightLineCorridors::new()),
             _ => builder.with(BspCorridors::new()),
+        }
+
+        let cspawn_roll = crate::rng::roll_dice(1, 2);
+        if cspawn_roll == 1 {
+            builder.with(CorridorSpawner::new());
         }
 
         let modifier_roll = crate::rng::roll_dice(1, 6);
@@ -121,11 +128,25 @@ pub fn random_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {
 
     let type_roll = crate::rng::roll_dice(1, 2);
     match type_roll {
-        1 => random_room_builder(&mut builder),
-        _ => random_shape_builder(&mut builder),
+        _ => random_room_builder(&mut builder),
+        // _ => random_shape_builder(&mut builder),
     }
 
+    if crate::rng::roll_dice(1, 3) == 1 {
+        builder.with(WaveformCollapseBuilder::new());
+
+        // Now set the start to a random starting area
+        let (start_x, start_y) = random_start_position();
+        builder.with(AreaStartingPosition::new(start_x, start_y));
+
+        // Setup an exit and spawn mobs
+        builder.with(VoronoiSpawning::new());
+        builder.with(DistantExit::new());
+    }
+
+    builder.with(DoorPlacement::new());
     builder.with(WallBoundaries::new());
+    builder.with(PrefabBuilder::vaults());
 
     builder
 }

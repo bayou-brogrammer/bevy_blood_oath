@@ -27,12 +27,9 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
 
     commands.insert_resource(player);
     commands.insert_resource(start_pos);
-    commands.insert_resource(camera::GameCamera::new(start_pos));
+    commands.insert_resource(GameCamera::new(start_pos));
 
-    // spawner::confusion_scroll(&mut commands, start_pos);
-    // spawner::magic_missile_scroll(&mut commands, start_pos);
-    // spawner::fireball_scroll(&mut commands, start_pos);
-    spawner::longsword(&mut commands, start_pos);
+    spawner::bear_trap(&mut commands, start_pos + Point::new(1, 0));
 }
 
 pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
@@ -45,19 +42,19 @@ pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
 
 fn room_table(map_depth: i32) -> RandomTable {
     RandomTable::new()
-        .add("Goblin", 10)
-        .add("Orc", 1 + map_depth)
-        .add("Health Potion", 7)
-        .add("Fireball Scroll", 2 + map_depth)
-        .add("Confusion Scroll", 2 + map_depth)
-        .add("Magic Missile Scroll", 4)
-        .add("Dagger", 3)
-        .add("Shield", 3)
-        .add("Longsword", map_depth - 1)
-        .add("Tower Shield", map_depth - 1)
-        .add("Rations", 10)
-        .add("Magic Mapping Scroll", 2)
-        .add("Bear Trap", 2)
+        .add(GOBLIN, 10)
+        .add(ORC, 1 + map_depth)
+        .add(HEALTH_POTION, 7)
+        .add(FIREBALL_SCROLL, 2 + map_depth)
+        .add(CONFUSION_SCROLL, 2 + map_depth)
+        .add(MAGIC_MISSLE_SCROLL, 4)
+        .add(DAGGER, 3)
+        .add(SHIELD, 3)
+        .add(LONGSWORD, map_depth - 1)
+        .add(TOWER_SHIELD, map_depth - 1)
+        .add(RATIONS, 10)
+        .add(MAGIC_MAPPING_SCROLL, 2)
+        .add(BEAR_TRAP, 2)
 }
 
 const MAX_MONSTERS: i32 = 10;
@@ -120,28 +117,29 @@ pub fn spawn_entity(commands: &mut Commands, map: &Map, spawn: &(&usize, &String
     let pt = map.index_to_point2d(*spawn.0);
 
     match spawn.1.as_ref() {
-        "Orc" => orc(commands, pt),
-        "Dagger" => dagger(commands, pt),
-        "Shield" => shield(commands, pt),
-        "Goblin" => goblin(commands, pt),
-        "Rations" => rations(commands, pt),
-        "Bear Trap" => bear_trap(commands, pt),
-        "Longsword" => longsword(commands, pt),
-        "Tower Shield" => tower_shield(commands, pt),
-        "Health Potion" => health_potion(commands, pt),
-        "Fireball Scroll" => fireball_scroll(commands, pt),
-        "Confusion Scroll" => confusion_scroll(commands, pt),
-        "Magic Missile Scroll" => magic_missile_scroll(commands, pt),
-        "Magic Mapping Scroll" => magic_mapping_scroll(commands, pt),
+        ORC => orc(commands, pt),
+        DOOR => door(commands, pt),
+        DAGGER => dagger(commands, pt),
+        SHIELD => shield(commands, pt),
+        GOBLIN => goblin(commands, pt),
+        RATIONS => rations(commands, pt),
+        BEAR_TRAP => bear_trap(commands, pt),
+        LONGSWORD => longsword(commands, pt),
+        TOWER_SHIELD => tower_shield(commands, pt),
+        HEALTH_POTION => health_potion(commands, pt),
+        FIREBALL_SCROLL => fireball_scroll(commands, pt),
+        CONFUSION_SCROLL => confusion_scroll(commands, pt),
+        MAGIC_MAPPING_SCROLL => magic_mapping_scroll(commands, pt),
+        MAGIC_MISSLE_SCROLL => magic_missile_scroll(commands, pt),
         _ => {}
     }
 }
 
 fn orc(commands: &mut Commands, pt: Point) {
-    monster(commands, pt, 157, "Orc", "An ugly powerful orc")
+    monster(commands, pt, 157, ORC, "An ugly powerful orc")
 }
 fn goblin(commands: &mut Commands, pt: Point) {
-    monster(commands, pt, to_cp437('g'), "Goblin", "An ugly goblin")
+    monster(commands, pt, to_cp437('g'), GOBLIN, "An ugly goblin")
 }
 
 pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, name: &str, desc: &str) {
@@ -160,6 +158,19 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
         .insert(Blood(LIGHT_GREEN.into()));
 }
 
+pub fn door(commands: &mut Commands, pt: Point) {
+    commands
+        .spawn()
+        .insert_bundle(RenderBundle {
+            position: pt,
+            glyph: Glyph::new(to_cp437('+'), ColorPair::new(CHOCOLATE, BLACK), RenderOrder::Item),
+        })
+        .insert(Naming("Door".to_string()))
+        .insert(BlocksTile)
+        .insert(BlocksVisibility {})
+        .insert(Door(false));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Items
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +179,7 @@ pub fn health_potion(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Health Potion"),
+            EntityBundle::new(Item, HEALTH_POTION),
             RenderBundle::new(to_cp437('¡'), ColorPair::new(MAGENTA, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)
@@ -179,7 +190,7 @@ pub fn magic_missile_scroll(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Magic Missile Scroll"),
+            EntityBundle::new(Item, MAGIC_MISSLE_SCROLL),
             RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)
@@ -191,7 +202,7 @@ pub fn fireball_scroll(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Fireball Scroll"),
+            EntityBundle::new(Item, FIREBALL_SCROLL),
             RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)
@@ -204,7 +215,7 @@ pub fn confusion_scroll(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Confusion Scroll"),
+            EntityBundle::new(Item, CONFUSION_SCROLL),
             RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)
@@ -216,7 +227,7 @@ fn dagger(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Dagger"),
+            EntityBundle::new(Item, DAGGER),
             RenderBundle::new(to_cp437('/'), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Equippable { slot: EquipmentSlot::Melee })
@@ -227,7 +238,7 @@ fn shield(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Shield"),
+            EntityBundle::new(Item, SHIELD),
             RenderBundle::new(to_cp437('('), ColorPair::new(CYAN, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Equippable { slot: EquipmentSlot::Shield })
@@ -238,7 +249,7 @@ fn longsword(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Longsword"),
+            EntityBundle::new(Item, LONGSWORD),
             RenderBundle::new(to_cp437('/'), ColorPair::new(YELLOW, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Equippable { slot: EquipmentSlot::Melee })
@@ -249,7 +260,7 @@ fn tower_shield(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Tower Shield"),
+            EntityBundle::new(Item, TOWER_SHIELD),
             RenderBundle::new(to_cp437('('), ColorPair::new(YELLOW, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Equippable { slot: EquipmentSlot::Shield })
@@ -260,7 +271,7 @@ fn rations(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Rations"),
+            EntityBundle::new(Item, RATIONS),
             RenderBundle::new(to_cp437('%'), ColorPair::new(GREEN, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable)
@@ -271,7 +282,7 @@ pub fn magic_mapping_scroll(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Scroll of Magic Mapping"),
+            EntityBundle::new(Item, MAGIC_MAPPING_SCROLL),
             RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN3, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Consumable {})
@@ -282,7 +293,7 @@ fn bear_trap(commands: &mut Commands, pt: Point) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Bear Trap"),
+            EntityBundle::new(Item, BEAR_TRAP),
             RenderBundle::new(to_cp437('^'), ColorPair::new(RED, BLACK), RenderOrder::Item, pt),
         ))
         .insert(Hidden {})
@@ -295,8 +306,8 @@ fn bear_trap(commands: &mut Commands, pt: Point) {
 pub struct SpawnerPlugin;
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameCondition::Playing,
+        app.add_exit_system_set(
+            GameCondition::Setup,
             SystemSet::new().with_system(spawn_player).with_system(spawn_entities.after(spawn_player)),
         );
 

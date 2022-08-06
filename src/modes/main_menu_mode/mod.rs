@@ -53,9 +53,7 @@ impl MainMenuMode {
         app: &mut App,
         _pop_result: &Option<ModeResult>,
     ) -> (ModeControl, ModeUpdate) {
-        ///////////////////////////////////////////////////////////////////////////////
-        // Main Input Handling
-        //////////////////////////////////////////////////////////////////////////////
+        app.update();
 
         if let Some(key) = ctx.key {
             match key {

@@ -9,33 +9,37 @@ pub struct MapGenMode {
     mapgen_timer: f32,
     mapgen_index: usize,
     mapgen_history: Vec<Map>,
-    mapgen_next_state: Option<TurnState>,
+}
+
+pub enum MapGenAction {
+    NewGame,
+    GoToLevel,
 }
 
 /// Show the title screen of the game with a menu that leads into the game proper.
 impl MapGenMode {
-    pub fn new_game(world: &mut World) -> Self {
-        let mut map_gen_mode = MapGenMode {
-            mapgen_index: 0,
-            mapgen_timer: 0.0,
-            mapgen_history: Vec::new(),
-            mapgen_next_state: Some(TurnState::AwaitingInput),
-        };
+    pub fn new(world: &mut World, action: MapGenAction) -> Self {
+        world.insert_resource(NextState(GameCondition::Setup));
 
-        map_gen_mode.setup_new_game(world).expect("Failed to setup new game");
+        let mut map_gen_mode =
+            MapGenMode { mapgen_index: 0, mapgen_timer: 0.0, mapgen_history: Vec::new() };
+
+        match action {
+            MapGenAction::NewGame => {
+                map_gen_mode.setup_new_game(world).expect("Failed to setup new game")
+            }
+            MapGenAction::GoToLevel => map_gen_mode.goto_level(world, 1),
+        }
+
         map_gen_mode
     }
 
-    pub fn next_level(world: &mut World) -> Self {
-        let mut map_gen_mode = MapGenMode {
-            mapgen_index: 0,
-            mapgen_timer: 0.0,
-            mapgen_history: Vec::new(),
-            mapgen_next_state: Some(TurnState::AwaitingInput),
-        };
+    pub fn new_game(world: &mut World) -> Self {
+        MapGenMode::new(world, MapGenAction::NewGame)
+    }
 
-        map_gen_mode.goto_level(world, 1);
-        map_gen_mode
+    pub fn next_level(world: &mut World) -> Self {
+        MapGenMode::new(world, MapGenAction::GoToLevel)
     }
 
     pub fn tick(
@@ -44,8 +48,9 @@ impl MapGenMode {
         app: &mut App,
         _pop_result: &Option<ModeResult>,
     ) -> (ModeControl, ModeUpdate) {
+        app.update();
+
         if !SHOW_MAPGEN_VISUALIZER {
-            app.insert_resource(self.mapgen_next_state.unwrap());
             return (ModeControl::Switch(DungeonMode::new(app).into()), ModeUpdate::Update);
         }
 
@@ -54,7 +59,6 @@ impl MapGenMode {
             self.mapgen_timer = 0.0;
             self.mapgen_index += 1;
             if self.mapgen_index >= self.mapgen_history.len() {
-                app.insert_resource(self.mapgen_next_state.unwrap());
                 return (ModeControl::Switch(DungeonMode::new(app).into()), ModeUpdate::Update);
             }
         }

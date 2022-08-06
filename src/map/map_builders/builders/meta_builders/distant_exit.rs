@@ -16,7 +16,7 @@ impl DistantExit {
     fn build(&mut self, build_data: &mut BuilderMap) {
         let starting_pos = build_data.starting_position.as_ref().unwrap().clone();
         let start_idx = build_data.map.xy_idx(starting_pos.x, starting_pos.y);
-        build_data.map.populate_blocked();
+        crate::spatial::populate_blocked_from_map(&build_data.map);
 
         let map_starts: Vec<usize> = vec![start_idx];
         let dijkstra_map = DijkstraMap::new(

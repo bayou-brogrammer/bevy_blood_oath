@@ -1,22 +1,25 @@
 use crate::prelude::*;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Serialize, Deserialize)]
 pub struct Player;
 
-#[derive(Component)]
+#[derive(Component, Debug, Serialize, Deserialize)]
 pub struct Monster;
 
-#[derive(Component)]
+#[derive(Component, Debug, Serialize, Deserialize)]
 pub struct BlocksTile;
 
-#[derive(Component)]
+#[derive(Component, Debug, Serialize, Deserialize)]
 pub struct Item;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Serialize, Deserialize)]
 pub struct Consumable;
 
-#[derive(Component)]
+#[derive(Component, Debug, Serialize, Deserialize)]
 pub struct Dead;
 
 #[derive(Component, Debug, Serialize, Deserialize)]
-pub struct Hidden {}
+pub struct Hidden;
+
+#[derive(Component, Debug, Serialize, Deserialize)]
+pub struct Door(pub bool);

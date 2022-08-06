@@ -15,3 +15,6 @@ impl FieldOfView {
         Self { radius, is_dirty: true, visible_tiles: HashSet::new() }
     }
 }
+
+#[derive(Component, Serialize, Deserialize, Debug)]
+pub struct BlocksVisibility {}

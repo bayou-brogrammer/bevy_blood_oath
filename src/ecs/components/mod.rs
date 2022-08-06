@@ -18,7 +18,7 @@ pub use backpack::InBackpack;
 pub use combat::*;
 pub use description::Description;
 pub use equipment::*;
-pub use fov::FieldOfView;
+pub use fov::{BlocksVisibility, FieldOfView};
 pub use glyph::{Glyph, RenderOrder};
 pub use hunger::{HungerClock, HungerState, ProvidesFood};
 pub use items::*;

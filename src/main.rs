@@ -12,7 +12,6 @@ mod modes;
 mod random_table;
 mod render;
 mod rex_assets;
-mod setup;
 mod utils;
 
 mod prelude {
@@ -46,10 +45,10 @@ mod prelude {
     pub use crate::random_table::*;
     pub use crate::render::*;
     pub use crate::rex_assets::*;
-    pub use crate::setup::*;
     pub use crate::utils::*;
 
     pub type BoxedError = Box<dyn std::error::Error>;
+    pub use crate::BracketContext;
 
     pub const MAP_GEN_TIMER: f32 = 100.0;
     pub const SHOW_BOUNDARIES: bool = true;
@@ -76,6 +75,23 @@ mod prelude {
 }
 
 pub use prelude::*;
+
+pub struct BracketContext {
+    pub mouse_pt: Point,
+    pub frame_time_ms: f32,
+    pub char_size: (u32, u32),
+    pub mouse_pos: (i32, i32),
+    pub mouse_left_click: bool,
+}
+
+impl_new!(
+    BracketContext,
+    frame_time_ms: f32,
+    char_size: (u32, u32),
+    mouse_pos: (i32, i32),
+    mouse_pt: Point,
+    mouse_left_click: bool
+);
 
 pub struct GameWorld {
     pub app: App,
@@ -147,7 +163,20 @@ impl GameWorld {
         app.insert_resource(MenuMemory::new());
         app.add_loopless_state(GameCondition::MainMenu);
 
-        add_debug_systems(&mut app);
+        // #[cfg(debug_assertions)]
+        // app.add_system_set_to_stage(
+        //     CoreStage::Update,
+        //     ConditionSet::new()
+        //         .with_system(|m_q: Query<&Point, Added<Monster>>, i_q: Query<&Point, Added<Item>>| {
+        //             for pos in m_q.iter() {
+        //                 eprintln!("Monster Spawned at {:?}", pos)
+        //             }
+        //             for pos in i_q.iter() {
+        //                 eprintln!("Item Spawned at {:?}", pos)
+        //             }
+        //         })
+        //         .into(),
+        // );
 
         Self {
             app,

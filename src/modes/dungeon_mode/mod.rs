@@ -33,10 +33,10 @@ impl DungeonMode {
 
         update.add_system_set(
             ConditionSet::new()
-                .run_if_resource_exists::<camera::GameCamera>()
-                .with_system(camera::map_renderer::map_render)
-                .with_system(camera::entity_renderer::entity_render)
-                .with_system(camera::tooltips::render_tooltips)
+                .run_if_resource_exists::<GameCamera>()
+                .with_system(render::map_renderer::map_render)
+                .with_system(render::entity_renderer::entity_render)
+                .with_system(render::tooltips::render_tooltips)
                 .into(),
         );
 
@@ -44,6 +44,7 @@ impl DungeonMode {
 
         // Setup State
         app.insert_resource(NextState(GameCondition::Playing));
+        app.insert_resource(TurnState::AwaitingInput);
 
         // Setup Plugins
         app.add_plugin(SystemsPlugin);

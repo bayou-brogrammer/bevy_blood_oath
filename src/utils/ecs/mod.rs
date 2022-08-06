@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-mod time;
-pub use time::*;
+mod spawn_list;
+pub use spawn_list::*;
 
 pub fn cleanup_system<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
     for e in q.iter() {

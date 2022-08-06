@@ -1,14 +1,22 @@
-use super::camera::GameCamera;
 use crate::prelude::*;
 
 pub fn movement(
     map: Res<Map>,
+    player: Res<Entity>,
     mut commands: Commands,
     positions: Query<&Point>,
+    mut fov_q: Query<&mut FieldOfView>,
+    mut door_q: Query<(Entity, &mut Glyph, &Point), With<Door>>,
     mut move_events: ResMut<Events<WantsToMove>>,
-    mut option_q: Query<(Option<&mut FieldOfView>, Option<&Player>)>,
 ) {
     for WantsToMove(entity, destination) in move_events.drain() {
+        door_q.iter_mut().filter(|(_, _, p)| **p == destination).for_each(|(door, mut glyph, _)| {
+            commands.entity(door).remove::<BlocksVisibility>().remove::<BlocksTile>().insert(Door(true));
+            glyph.glyph = to_cp437('/');
+
+            update_fov(entity, &mut fov_q);
+        });
+
         if map.in_bounds(destination) && map.can_enter_tile(destination) {
             commands.entity(entity).insert(destination);
 
@@ -18,16 +26,17 @@ pub fn movement(
 
             crate::spatial::move_entity(entity, start_idx, dest_idx);
 
-            if let Ok((fov, player)) = option_q.get_mut(entity) {
-                if let Some(mut fov) = fov {
-                    fov.is_dirty = true;
-                }
-
-                if player.is_some() {
-                    commands.insert_resource(destination);
-                    commands.insert_resource(GameCamera::new(destination));
-                }
+            update_fov(entity, &mut fov_q);
+            if entity == *player {
+                commands.insert_resource(destination);
+                commands.insert_resource(GameCamera::new(destination));
             }
         }
+    }
+}
+
+fn update_fov(entity: Entity, fov_q: &mut Query<&mut FieldOfView>) {
+    if let Ok(mut fov) = fov_q.get_mut(entity) {
+        fov.is_dirty = true;
     }
 }

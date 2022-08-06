@@ -32,6 +32,8 @@ impl GameOverMode {
         app: &mut App,
         _pop_result: &Option<ModeResult>,
     ) -> (ModeControl, ModeUpdate) {
+        app.update();
+
         if let Some(key) = ctx.key {
             match key {
                 VirtualKeyCode::Escape => {

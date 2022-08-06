@@ -82,52 +82,56 @@ fn draw_stats(draw_batch: &mut DrawBatch, world: &mut World) {
 
 fn equipped(draw_batch: &mut DrawBatch, world: &mut World) -> i32 {
     let mut equipped_q = world.query::<(&Equipped, &Naming, Option<&MeleePowerBonus>)>();
-    let player_entity = *world.resource::<Entity>();
+    if let Some(player_entity) = world.get_resource::<Entity>() {
+        let mut y = 13;
+        for (equipped_by, name, melee_bonus) in equipped_q.iter(world) {
+            if equipped_by.owner == *player_entity {
+                let item_name = name.0.clone();
 
-    let mut y = 13;
-    for (equipped_by, name, melee_bonus) in equipped_q.iter(world) {
-        if equipped_by.owner == player_entity {
-            let item_name = name.0.clone();
-
-            draw_batch.print_color(
-                Point::new(50, y),
-                &item_name,
-                ColorPair::new(RGB::from_f32(0.5, 1.0, 0.5), BLACK),
-            );
-            y += 1;
-
-            if let Some(melee_bonus) = melee_bonus {
-                let mut weapon_info = format!("┤ {} ({})", &item_name, melee_bonus.power);
-                weapon_info += " ├";
                 draw_batch.print_color(
-                    Point::new(3, LOG_PANEL.y1),
-                    &weapon_info,
-                    ColorPair::new(YELLOW, BLACK),
+                    Point::new(50, y),
+                    &item_name,
+                    ColorPair::new(RGB::from_f32(0.5, 1.0, 0.5), BLACK),
                 );
+                y += 1;
+
+                if let Some(melee_bonus) = melee_bonus {
+                    let mut weapon_info = format!("┤ {} ({})", &item_name, melee_bonus.power);
+                    weapon_info += " ├";
+                    draw_batch.print_color(
+                        Point::new(3, LOG_PANEL.y1),
+                        &weapon_info,
+                        ColorPair::new(YELLOW, BLACK),
+                    );
+                }
             }
         }
+
+        y
+    } else {
+        0
     }
-    y
 }
 
 fn status(draw_batch: &mut DrawBatch, world: &mut World) {
-    let player = world.resource::<Entity>();
-    let hc = world.get::<HungerClock>(*player).unwrap();
+    if let Some(player) = world.get_resource::<Entity>() {
+        let hc = world.get::<HungerClock>(*player).unwrap();
 
-    let y = EQUIPMENT_PANEL.y2 - 1;
-    match hc.state {
-        HungerState::Normal => {}
-        HungerState::WellFed => {
-            draw_batch.print_color(Point::new(50, y), "Well Fed", ColorPair::new(GREEN, BLACK));
-            // y -= 1;
-        }
-        HungerState::Hungry => {
-            draw_batch.print_color(Point::new(50, y), "Hungry", ColorPair::new(ORANGE, BLACK));
-            // y -= 1;
-        }
-        HungerState::Starving => {
-            draw_batch.print_color(Point::new(50, y), "Starving", ColorPair::new(RED, BLACK));
-            // y -= 1;
+        let y = EQUIPMENT_PANEL.y2 - 1;
+        match hc.state {
+            HungerState::Normal => {}
+            HungerState::WellFed => {
+                draw_batch.print_color(Point::new(50, y), "Well Fed", ColorPair::new(GREEN, BLACK));
+                // y -= 1;
+            }
+            HungerState::Hungry => {
+                draw_batch.print_color(Point::new(50, y), "Hungry", ColorPair::new(ORANGE, BLACK));
+                // y -= 1;
+            }
+            HungerState::Starving => {
+                draw_batch.print_color(Point::new(50, y), "Starving", ColorPair::new(RED, BLACK));
+                // y -= 1;
+            }
         }
     }
 }

@@ -9,7 +9,9 @@ mod room_draw;
 mod room_exploder;
 mod room_sorter;
 
-pub use corridors::{BspCorridors, DoglegCorridors, NearestCorridors, StraightLineCorridors};
+pub use corridors::{
+    BspCorridors, CorridorSpawner, DoglegCorridors, NearestCorridors, StraightLineCorridors,
+};
 pub use room_based_spawner::RoomBasedSpawner;
 pub use room_based_stairs::RoomBasedStairs;
 pub use room_based_starting_position::RoomBasedStartingPosition;

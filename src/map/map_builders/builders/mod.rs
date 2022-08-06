@@ -9,6 +9,7 @@ mod meta_builders;
 mod prefab_builder;
 mod simple_map;
 mod voronoi;
+mod waveform_collapse;
 
 pub use bsp::{BspDungeonBuilder, BspInteriorBuilder};
 pub use cellular_automata::CellularAutomataBuilder;
@@ -19,3 +20,4 @@ pub use meta_builders::*;
 pub use prefab_builder::*;
 pub use simple_map::SimpleMapBuilder;
 pub use voronoi::VoronoiCellBuilder;
+pub use waveform_collapse::*;

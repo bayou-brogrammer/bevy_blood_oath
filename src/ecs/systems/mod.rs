@@ -11,6 +11,8 @@ pub mod monster_ai;
 pub mod movement;
 pub mod particles;
 pub mod player;
+pub mod render;
+pub mod trigger;
 
 pub struct TickingPlugin;
 impl Plugin for TickingPlugin {
@@ -18,12 +20,29 @@ impl Plugin for TickingPlugin {
         app.add_plugin(particles::ParticlePlugin);
         app.add_plugin(inventory::InventoryPlugin);
 
+        // This is our pre-run systems
+        app.add_enter_system_set(
+            GameCondition::Playing,
+            SystemSet::new()
+                .with_system(map_indexing::map_indexing.label(StateLabel::Indexing))
+                .with_system(fov::fov_system.after(StateLabel::Indexing)),
+        );
+
+        // app.add_system_set(
+        //     ConditionSet::new()
+        //         .label(StateLabel::Indexing)
+        //         .before(StateLabel::Fov)
+        //         .run_in_state(GameCondition::Playing)
+        //         // .with_system(map_indexing::map_indexing)
+        //         .into(),
+        // );
+
         app.add_system_set(
             ConditionSet::new()
                 .label(StateLabel::Fov)
+                // .after(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
                 .with_system(fov::fov_system)
-                .with_system(map_indexing::map_indexing)
                 .into(),
         );
     }
@@ -50,6 +69,7 @@ impl Plugin for AwaitingInputPlugin {
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
+        // Generate Actions
         app.add_system_set_to_stage(
             GameStage::GeneratePlayerActions,
             ConditionSet::new()
@@ -60,20 +80,30 @@ impl Plugin for PlayerPlugin {
                 .with_system(inventory::item_use)
                 .with_system(hunger::hunger_clock)
                 .into(),
-        );
-
-        app.add_system_set_to_stage(
+        )
+        // Handle Actions
+        .add_system_set_to_stage(
             GameStage::HandlePlayerActions,
             ConditionSet::new()
+                .label(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(map_indexing::map_indexing)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            GameStage::HandlePlayerActions,
+            ConditionSet::new()
+                .after(StateLabel::Indexing)
+                .run_in_state(GameCondition::Playing)
+                .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(fov::fov_system)
+                .with_system(trigger::triggers)
                 .with_system(end_turn::end_turn)
                 .into(),
-        );
-
-        app.add_system_set_to_stage(
+        )
+        // CLeanup
+        .add_system_set_to_stage(
             GameStage::HandlePlayerActions,
             SystemSet::new()
                 .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
@@ -85,6 +115,7 @@ impl Plugin for PlayerPlugin {
 pub struct AIPlugin;
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
+        // Generate Actions
         app.add_system_set_to_stage(
             GameStage::GenerateAIActions,
             ConditionSet::new()
@@ -94,6 +125,7 @@ impl Plugin for AIPlugin {
                 .with_system(hunger::hunger_clock)
                 .into(),
         )
+        // Handle Actions
         .add_system_set_to_stage(
             GameStage::HandleAIActions,
             ConditionSet::new()
@@ -106,15 +138,24 @@ impl Plugin for AIPlugin {
         .add_system_set_to_stage(
             GameStage::AICleanup,
             ConditionSet::new()
+                .label(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(map_indexing::map_indexing)
+                .into(),
+        )
+        .add_system_set_to_stage(
+            GameStage::AICleanup,
+            ConditionSet::new()
+                .after(StateLabel::Indexing)
+                .run_in_state(GameCondition::Playing)
+                .run_if_resource_equals(TurnState::AITurn)
                 .with_system(fov::fov_system)
+                .with_system(trigger::triggers)
                 .with_system(end_turn::end_turn)
                 .into(),
-        );
-
-        app.add_system_set_to_stage(
+        )
+        .add_system_set_to_stage(
             GameStage::AICleanup,
             SystemSet::new()
                 .with_run_criteria(run_in_state_bevy(GameCondition::Playing))

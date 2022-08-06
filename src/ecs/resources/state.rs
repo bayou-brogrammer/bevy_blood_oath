@@ -32,4 +32,5 @@ pub enum GameStage {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
 pub enum StateLabel {
     Fov,
+    Indexing,
 }

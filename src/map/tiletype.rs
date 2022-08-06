@@ -5,6 +5,7 @@ pub enum TileType {
     Wall,
     Floor,
     Road,
+    Door,
     Grass,
     Bridge,
     Gravel,
@@ -17,7 +18,7 @@ pub enum TileType {
     ShallowWater,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub struct GameTile {
     pub cost: f32,
     pub opaque: bool,
@@ -51,6 +52,17 @@ impl Default for GameTile {
 }
 
 impl GameTile {
+    pub fn door() -> Self {
+        Self {
+            opaque: true,
+            walkable: false,
+            glyph: to_cp437('+'),
+            tile_type: TileType::Door,
+            color: ColorPair::new(CHOCOLATE, BLACK),
+            ..Default::default()
+        }
+    }
+
     pub fn floor() -> Self {
         Self {
             glyph: to_cp437('.'),
