@@ -24,6 +24,10 @@ pub fn bloodstain(world: &mut World, tile_idx: usize, blood_color: &RGB) {
 }
 
 pub fn death(world: &mut World, _effect: &EffectSpawner, target: Entity) {
+    if let Some(pos) = entity_position(world, target) {
+        crate::spatial::remove_entity(target, pos as usize);
+    }
+
     if world.get::<Player>(target).is_none() {
         let mut entity = world.entity_mut(target);
 

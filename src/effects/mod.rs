@@ -4,11 +4,13 @@ use parking_lot::Mutex;
 use std::collections::VecDeque;
 
 mod damage;
+mod hunger;
 mod particle;
 mod queries;
 mod triggers;
 
 pub use damage::*;
+pub use hunger::*;
 pub use particle::*;
 pub use queries::*;
 pub use triggers::*;
@@ -104,14 +106,16 @@ fn target_applicator(ecs: &mut World, effect: &EffectSpawner) {
 fn tile_effect_hits_entities(effect: &EffectType) -> bool {
     matches!(
         effect,
-        EffectType::Damage { .. } | EffectType::Healing { .. } | EffectType::Confusion { .. }
+        EffectType::Damage { .. }
+            | EffectType::Healing { .. }
+            | EffectType::Confusion { .. }
+            | EffectType::WellFed
     )
 }
 
 fn affect_tile(ecs: &mut World, effect: &EffectSpawner, tile_idx: usize) {
     if tile_effect_hits_entities(&effect.effect_type) {
-        let content = crate::spatial::get_tile_content_clone(tile_idx as usize);
-        content.iter().for_each(|entity| affect_entity(ecs, effect, *entity));
+        crate::spatial::for_each_tile_content(tile_idx, |entity| affect_entity(ecs, effect, entity));
     }
 
     match &effect.effect_type {
@@ -123,6 +127,7 @@ fn affect_tile(ecs: &mut World, effect: &EffectSpawner, tile_idx: usize) {
 
 fn affect_entity(ecs: &mut World, effect: &EffectSpawner, target: Entity) {
     match &effect.effect_type {
+        EffectType::WellFed => hunger::well_fed(ecs, effect, target),
         EffectType::Damage { .. } => damage::inflict_damage(ecs, effect, target),
         EffectType::EntityDeath => damage::death(ecs, effect, target),
         EffectType::Healing { .. } => damage::heal_damage(ecs, effect, target),

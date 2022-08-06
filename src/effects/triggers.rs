@@ -10,6 +10,19 @@ pub fn item_trigger(world: &mut World, creator: Option<Entity>, item: Entity, ta
     }
 }
 
+pub fn trigger(world: &mut World, creator: Option<Entity>, trigger: Entity, targets: &Targets) {
+    // The triggering item is no longer hidden
+    world.entity_mut(trigger).remove::<Hidden>();
+
+    // Use the item via the generic system
+    let did_something = event_trigger(world, creator, trigger, targets);
+
+    // If it was a single activation, then it gets deleted
+    if did_something && world.get::<SingleActivation>(trigger).is_some() {
+        world.despawn(trigger);
+    }
+}
+
 fn event_trigger(world: &mut World, creator: Option<Entity>, entity: Entity, targets: &Targets) -> bool {
     let mut did_something = false;
 
