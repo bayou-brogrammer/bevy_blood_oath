@@ -7,7 +7,7 @@ pub fn item_collection(
     names_q: Query<&Naming>,
 ) {
     for WantsToPickupItem(entity, item) in pickup_events.drain() {
-        commands.entity(item).remove::<Position>();
+        commands.entity(item).remove::<Point>();
         commands.entity(item).insert(InBackpack::new(entity));
 
         if entity == player_q.single() {

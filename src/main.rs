@@ -23,11 +23,7 @@ mod prelude {
     pub use iyes_loopless::prelude::*;
 
     // Bracket Lib
-    pub use bracket_color::prelude::*;
-    pub use bracket_geometry::prelude::*;
-    pub use bracket_noise::prelude::*;
-    pub use bracket_random::prelude::*;
-    pub use bracket_terminal::prelude::*;
+    pub use bracket_lib::prelude::*;
 
     // Random Helper Crates
     pub use lazy_static::lazy_static;
@@ -79,7 +75,6 @@ mod prelude {
     pub const BATCH_TOOLTIPS: usize = 100_000; // Over everything
 }
 
-use bracket_terminal::{embedded_resource, link_resource};
 pub use prelude::*;
 
 pub struct GameWorld {

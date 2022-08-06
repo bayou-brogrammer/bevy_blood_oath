@@ -4,7 +4,7 @@ pub fn render_tooltips(
     map: Res<Map>,
     ctx: Res<BracketContext>,
     camera: Res<GameCamera>,
-    tooltip_q: Query<(&Position, &Naming, Option<&Description>, Option<&CombatStats>)>,
+    tooltip_q: Query<(&Point, &Naming, Option<&Description>, Option<&CombatStats>)>,
 ) {
     let (min_x, _max_x, min_y, _max_y) = camera.get_screen_bounds();
 
@@ -18,9 +18,9 @@ pub fn render_tooltips(
     }
 
     let mut lines = Vec::new();
-    tooltip_q.iter().filter(|(pos, _, _, _)| pos.0 == mouse_map_pos).for_each(
+    tooltip_q.iter().filter(|(pos, _, _, _)| **pos == mouse_map_pos).for_each(
         |(pos, name, desc, stats)| {
-            if map.visible.get_bit(pos.0) {
+            if map.visible.get_bit(*pos) {
                 lines.push((CYAN, name.0.clone()));
 
                 if let Some(desc) = desc {

@@ -1,5 +1,4 @@
 use super::*;
-use bracket_terminal::prelude::*;
 
 #[derive(Default)]
 pub struct Logger {

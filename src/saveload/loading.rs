@@ -41,7 +41,7 @@ pub fn load_game(ecs: &mut World) -> Result<(), BoxedError> {
         deserialize_individually!(
             ecs, de, d,
             Player, Monster, Item, Consumable, BlocksTile, 
-            Position, Glyph, FieldOfView, Name, Description, CombatStats, OtherLevelPosition,
+            Point, Glyph, FieldOfView, Name, Description, CombatStats, OtherLevelPosition,
             WantsToMelee, WantsToPickupItem, WantsToUseItem, WantsToDropItem,
             InBackpack, Ranged, InflictsDamage, AreaOfEffect, Confusion, ProvidesHealing,
             Equippable, Equipped, DefenseBonus, MeleePowerBonus, Blood, HungerClock, MagicMapper,
@@ -60,7 +60,7 @@ pub fn load_game(ecs: &mut World) -> Result<(), BoxedError> {
     {
         let entities = ecs.entities();
         let player = ecs.read_storage::<Player>();
-        let position = ecs.read_storage::<Position>();
+        let position = ecs.read_storage::<Point>();
 
         let helper = ecs.read_storage::<SerializationHelper>();
         let helper2 = ecs.read_storage::<DMSerializationHelper>();
@@ -85,7 +85,7 @@ pub fn load_game(ecs: &mut World) -> Result<(), BoxedError> {
         // Load player + position
         for (e, _p, pos) in (&entities, &player, &position).join() {
             loaded_player = Some(e);
-            loaded_point = Some(pos.0);
+            loaded_point = Some(*pos);
         }
 
     }

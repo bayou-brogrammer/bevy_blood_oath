@@ -21,9 +21,9 @@ pub fn player_input(
     mut attack_events: EventWriter<WantsToAttack>,
     mut pickup_event: EventWriter<WantsToPickupItem>,
     // Queries
-    items_query: Query<(Entity, &Position), With<Item>>,
-    enemies_query: Query<(Entity, &Position), (With<Monster>, Without<Player>)>,
-    mut player_query: Query<(Entity, &Position, &FieldOfView), (With<Player>, Without<Monster>)>,
+    items_query: Query<(Entity, &Point), With<Item>>,
+    enemies_query: Query<(Entity, &Point), (With<Monster>, Without<Player>)>,
+    mut player_query: Query<(Entity, &Point, &FieldOfView), (With<Player>, Without<Monster>)>,
 ) -> PlayerInputResult {
     if let Some(control) = key.as_deref().get_key() {
         let mut delta = Point::new(0, 0);
@@ -44,7 +44,7 @@ pub fn player_input(
             GameKey::RightDown => delta += Point::new(1, 1),
 
             // Inventory
-            GameKey::Pickup => match try_pickup_item(pos.0, items_query) {
+            GameKey::Pickup => match try_pickup_item(*pos, items_query) {
                 None => {}
                 Some(item) => {
                     pickup_event.send(WantsToPickupItem(player, item));
@@ -56,11 +56,11 @@ pub fn player_input(
 
             // Skip Turn
             GameKey::SkipTurn => {
-                let enemies = enemies_query.iter().map(|q| q.1 .0).collect::<Vec<_>>();
+                let enemies = enemies_query.iter().map(|q| q.1).collect::<Vec<_>>();
 
                 let mut can_heal = true;
                 fov.visible_tiles.iter().for_each(|pt| {
-                    if enemies.contains(pt) {
+                    if enemies.contains(&pt) {
                         can_heal = true
                     }
                 });
@@ -74,14 +74,14 @@ pub fn player_input(
             _ => return PlayerInputResult::NoResult,
         }
 
-        let destination = pos.0 + delta;
+        let destination = *pos + delta;
         if delta.x != 0 || delta.y != 0 {
             let mut hit_something = false;
 
             // The Iterator#any API could also be conveniently used, although it's often assumed not
             // to have side effects, which is not the case here.
             for (entity, pos) in enemies_query.iter() {
-                if pos.0 == destination {
+                if *pos == destination {
                     hit_something = true;
                     attack_events.send(WantsToAttack(player, entity));
                 }
@@ -101,10 +101,10 @@ pub fn player_input(
 
 fn try_pickup_item(
     player_pos: Point,
-    items_query: Query<(Entity, &Position), With<Item>>,
+    items_query: Query<(Entity, &Point), With<Item>>,
 ) -> Option<Entity> {
     for (entity, item_pos) in items_query.iter() {
-        if item_pos.0 == player_pos {
+        if *item_pos == player_pos {
             return Some(entity);
         }
     }
@@ -140,11 +140,11 @@ fn try_pickup_item(
 // }
 
 // pub fn try_move_player(delta_pt: Point, world: &mut World) {
-//     let mut player_q = world.query_filtered::<(Entity, &Position), (With<Player>, Without<Monster>)>();
+//     let mut player_q = world.query_filtered::<(Entity, &Point), (With<Player>, Without<Monster>)>();
 
 //     world.resource_scope(|world, map: Mut<Map>| {
 //         let (player, pos) = player_q.single_mut(world);
-//         let destination = pos.0 + delta_pt;
+//         let destination = *pos + delta_pt;
 //         let destination_idx = map.point2d_to_index(destination);
 
 //         let mut hit_something = false;

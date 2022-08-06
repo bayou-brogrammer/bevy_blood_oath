@@ -1,4 +1,4 @@
-use bracket_algorithm_traits::prelude::BaseMap;
+use bracket_lib::prelude::BaseMap;
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::convert::TryInto;

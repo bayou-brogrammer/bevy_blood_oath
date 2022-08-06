@@ -16,7 +16,7 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
             CombatStats::new(30, 30, 2, 5),
         )))
         .insert_bundle(RenderBundle {
-            position: Position::new(start_pos),
+            position: start_pos,
             glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Actor),
         })
         .insert(Naming("SecBot".to_string()))
@@ -152,7 +152,7 @@ pub fn monster(commands: &mut Commands, start_pos: Point, glyph: FontCharType, n
             CombatStats::new(16, 16, 1, 4),
         )))
         .insert_bundle(RenderBundle {
-            position: Position::new(start_pos),
+            position: start_pos,
             glyph: Glyph::new(glyph, ColorPair::new(RED, BLACK), RenderOrder::Actor),
         })
         .insert(Naming(name.to_string()))

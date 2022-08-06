@@ -3,12 +3,12 @@ use crate::prelude::*;
 #[derive(Bundle, Component)]
 pub struct RenderBundle {
     pub glyph: Glyph,
-    pub position: Position,
+    pub position: Point,
 }
 
 impl RenderBundle {
-    pub fn new(glyph: FontCharType, color: ColorPair, order: RenderOrder, pt: Point) -> Self {
-        Self { glyph: Glyph::new(glyph, color, order), position: Position::new(pt) }
+    pub fn new(glyph: FontCharType, color: ColorPair, order: RenderOrder, position: Point) -> Self {
+        Self { glyph: Glyph::new(glyph, color, order), position }
     }
 }
 
@@ -76,8 +76,8 @@ impl_new!(ItemBundle, entity: EntityBundle<Item>, render: RenderBundle);
 #[derive(Bundle, Component)]
 pub struct ParticleBundle {
     glyph: Glyph,
-    position: Position,
+    position: Point,
     lifetime: ParticleLifetime,
 }
 
-impl_new!(ParticleBundle, position: Position, glyph: Glyph, lifetime: ParticleLifetime);
+impl_new!(ParticleBundle, position: Point, glyph: Glyph, lifetime: ParticleLifetime);

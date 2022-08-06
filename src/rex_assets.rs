@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bracket_terminal::{embedded_resource, link_resource};
 
 embedded_resource!(DEAD_SKULL, "../resources/xp/skull.xp");
 embedded_resource!(WFC_DEMO_IMAGE1, "../resources/xp/wfc-demo1.xp");

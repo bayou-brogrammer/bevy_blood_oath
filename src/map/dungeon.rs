@@ -66,7 +66,7 @@ impl MasterDungeonMap {
 
     pub fn freeze_level_entities(world: &mut World) {
         // Obtain ECS access
-        let mut positions = world.query::<(Entity, &Position)>();
+        let mut positions = world.query::<(Entity, &Point)>();
         let map_depth = world.resource::<Map>().depth;
         let player_entity = world.resource::<Entity>();
 
@@ -76,8 +76,8 @@ impl MasterDungeonMap {
         // Find positions and make OtherLevelPosition
         for (entity, pos) in positions.iter(world) {
             if entity != *player_entity {
-                commands.entity(entity).remove::<Position>();
-                commands.entity(entity).insert(OtherLevelPosition::new(pos.0, map_depth));
+                commands.entity(entity).remove::<Point>();
+                commands.entity(entity).insert(OtherLevelPosition::new(*pos, map_depth));
             }
         }
 
@@ -98,7 +98,7 @@ impl MasterDungeonMap {
             .iter(world)
             .filter(|(entity, pos)| *entity != *player_entity && pos.depth == map_depth)
         {
-            commands.entity(entity).insert(Position::new(pos.pt));
+            commands.entity(entity).insert(pos.pt);
             commands.entity(entity).remove::<OtherLevelPosition>();
         }
 
@@ -204,10 +204,10 @@ impl MasterDungeonMap {
                 let mut player_position = ecs.resource_mut::<Point>();
                 *player_position = map.index_to_point2d(idx);
 
-                if let Some(mut player_pos_comp) = ecs.get_mut::<Position>(player) {
-                    player_pos_comp.0 = map.index_to_point2d(idx);
+                if let Some(mut player_pos_comp) = ecs.get_mut::<Point>(player) {
+                    *player_pos_comp = map.index_to_point2d(idx);
                     if new_depth == 1 {
-                        player_pos_comp.0.x -= 1;
+                        player_pos_comp.x -= 1;
                     }
                 }
             }

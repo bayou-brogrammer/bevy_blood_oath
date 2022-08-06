@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use bracket_geometry::prelude::Point;
 use parking_lot::Mutex;
 
 struct SpatialMap {
@@ -70,46 +69,6 @@ pub fn is_blocked(idx: usize) -> bool {
     lock.blocked[idx].0 || lock.blocked[idx].1
 }
 
-pub fn for_each_tile_content<F>(idx: usize, mut f: F)
-where
-    F: FnMut(Entity),
-{
-    let lock = SPATIAL_MAP.lock();
-    for entity in lock.tile_content[idx].iter() {
-        f(entity.0);
-    }
-}
-
-pub fn for_each_tile_content_pt<F>(pt: Point, mut f: F)
-where
-    F: FnMut(Entity),
-{
-    let lock = SPATIAL_MAP.lock();
-    let idx = lock.point2d_to_index(pt);
-    for entity in lock.tile_content[idx].iter() {
-        f(entity.0);
-    }
-}
-
-pub fn for_each_tile_content_with_gamemode<F, S>(idx: usize, default: S, mut f: F) -> S
-where
-    F: FnMut(Entity) -> Option<S>,
-{
-    let lock = SPATIAL_MAP.lock();
-    for entity in lock.tile_content[idx].iter() {
-        if let Some(rs) = f(entity.0) {
-            return rs;
-        }
-    }
-
-    default
-}
-
-pub fn get_tile_content_clone(idx: usize) -> Vec<Entity> {
-    let lock = SPATIAL_MAP.lock();
-    lock.tile_content[idx].iter().map(|(e, _)| *e).collect()
-}
-
 pub fn move_entity(entity: Entity, moving_from: usize, moving_to: usize) {
     let mut lock = SPATIAL_MAP.lock();
     let mut entity_blocks = false;
@@ -152,4 +111,48 @@ pub fn remove_entity(entity: Entity, idx: usize) {
     });
 
     lock.blocked[idx].1 = from_blocked;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// Tile Content
+///////////////////////////////////////////////////////////////////////////////
+
+pub fn for_each_tile_content<F>(idx: usize, mut f: F)
+where
+    F: FnMut(Entity),
+{
+    let lock = SPATIAL_MAP.lock();
+    for entity in lock.tile_content[idx].iter() {
+        f(entity.0);
+    }
+}
+
+pub fn for_each_tile_content_pt<F>(pt: Point, mut f: F)
+where
+    F: FnMut(Entity),
+{
+    let lock = SPATIAL_MAP.lock();
+    let idx = lock.point2d_to_index(pt);
+    for entity in lock.tile_content[idx].iter() {
+        f(entity.0);
+    }
+}
+
+pub fn for_each_tile_content_with_gamemode<F, S>(idx: usize, default: S, mut f: F) -> S
+where
+    F: FnMut(Entity) -> Option<S>,
+{
+    let lock = SPATIAL_MAP.lock();
+    for entity in lock.tile_content[idx].iter() {
+        if let Some(rs) = f(entity.0) {
+            return rs;
+        }
+    }
+
+    default
+}
+
+pub fn get_tile_content_clone(idx: usize) -> Vec<Entity> {
+    let lock = SPATIAL_MAP.lock();
+    lock.tile_content[idx].iter().map(|(e, _)| *e).collect()
 }

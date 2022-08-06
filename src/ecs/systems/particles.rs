@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub fn particle_spawn_system(mut commands: Commands, mut particle_builder: ResMut<ParticleBuilder>) {
     for ParticleRequest { pt, color, glyph, lifetime } in particle_builder.requests.iter() {
         commands.spawn().insert_bundle(ParticleBundle::new(
-            Position::new(*pt),
+            *pt,
             Glyph::new(*glyph, *color, RenderOrder::Particle),
             ParticleLifetime::new(*lifetime, None),
         ));

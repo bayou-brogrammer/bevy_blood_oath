@@ -1,10 +1,9 @@
 use crate::prelude::*;
-use bracket_geometry::prelude::Point;
 
 pub fn entity_position(world: &mut World, entity: Entity) -> Option<usize> {
-    if let Some(pos) = world.get::<Position>(entity) {
+    if let Some(pos) = world.get::<Point>(entity) {
         let map = world.get_resource::<Map>().unwrap();
-        Some(map.point2d_to_index(pos.0))
+        Some(map.point2d_to_index(*pos))
     } else {
         None
     }

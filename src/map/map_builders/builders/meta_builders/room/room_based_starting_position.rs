@@ -18,7 +18,7 @@ impl RoomBasedStartingPosition {
             let start_pos = rooms[0].center();
             build_data.starting_position = Some(start_pos);
         } else {
-            panic!("Room Based Staring Position only works after rooms have been created");
+            panic!("Room Based Staring Point only works after rooms have been created");
         }
     }
 }

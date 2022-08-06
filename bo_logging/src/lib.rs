@@ -1,4 +1,4 @@
-use bracket_terminal::prelude::RGB;
+use bracket_terminal::prelude::*;
 
 mod builder;
 mod events;

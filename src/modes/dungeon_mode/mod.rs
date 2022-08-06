@@ -40,8 +40,6 @@ impl DungeonMode {
                 .into(),
         );
 
-        update.add_system_set(ConditionSet::new().with_system(system).into());
-
         render_schedule.add_stage(CoreStage::Update, update);
 
         // Setup State
