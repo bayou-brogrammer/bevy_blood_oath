@@ -28,19 +28,9 @@ impl Plugin for TickingPlugin {
                 .with_system(fov::fov_system.after(StateLabel::Indexing)),
         );
 
-        // app.add_system_set(
-        //     ConditionSet::new()
-        //         .label(StateLabel::Indexing)
-        //         .before(StateLabel::Fov)
-        //         .run_in_state(GameCondition::Playing)
-        //         // .with_system(map_indexing::map_indexing)
-        //         .into(),
-        // );
-
         app.add_system_set(
             ConditionSet::new()
                 .label(StateLabel::Fov)
-                // .after(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
                 .with_system(fov::fov_system)
                 .into(),
@@ -89,20 +79,21 @@ impl Plugin for PlayerPlugin {
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(map_indexing::map_indexing)
-                .into(),
-        )
-        .add_system_set_to_stage(
-            GameStage::HandlePlayerActions,
-            ConditionSet::new()
-                .after(StateLabel::Indexing)
-                .run_in_state(GameCondition::Playing)
-                .run_if_resource_equals(TurnState::PlayerTurn)
-                .with_system(fov::fov_system)
                 .with_system(trigger::triggers)
                 .with_system(end_turn::end_turn)
                 .into(),
         )
         // CLeanup
+        .add_system_set_to_stage(
+            GameStage::HandlePlayerActions,
+            ConditionSet::new()
+                .label(StateLabel::Fov)
+                .after(StateLabel::Indexing)
+                .run_in_state(GameCondition::Playing)
+                .run_if_resource_equals(TurnState::PlayerTurn)
+                .with_system(fov::fov_system)
+                .into(),
+        )
         .add_system_set_to_stage(
             GameStage::HandlePlayerActions,
             SystemSet::new()
@@ -135,6 +126,7 @@ impl Plugin for AIPlugin {
                 .with_system(melee_combat::combat)
                 .into(),
         )
+        // Cleanup
         .add_system_set_to_stage(
             GameStage::AICleanup,
             ConditionSet::new()
@@ -142,17 +134,18 @@ impl Plugin for AIPlugin {
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(map_indexing::map_indexing)
+                .with_system(trigger::triggers)
+                .with_system(end_turn::end_turn)
                 .into(),
         )
         .add_system_set_to_stage(
             GameStage::AICleanup,
             ConditionSet::new()
+                .label(StateLabel::Fov)
                 .after(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(fov::fov_system)
-                .with_system(trigger::triggers)
-                .with_system(end_turn::end_turn)
                 .into(),
         )
         .add_system_set_to_stage(
