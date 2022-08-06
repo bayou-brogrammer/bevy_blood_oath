@@ -61,7 +61,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         // Generate Actions
         app.add_system_set_to_stage(
-            GameStage::GeneratePlayerActions,
+            PlayerStage::GenerateActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::PlayerTurn)
@@ -73,7 +73,7 @@ impl Plugin for PlayerPlugin {
         )
         // Handle Actions
         .add_system_set_to_stage(
-            GameStage::HandlePlayerActions,
+            PlayerStage::HandleActions,
             ConditionSet::new()
                 .label(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
@@ -85,7 +85,7 @@ impl Plugin for PlayerPlugin {
         )
         // CLeanup
         .add_system_set_to_stage(
-            GameStage::HandlePlayerActions,
+            PlayerStage::Cleanup,
             ConditionSet::new()
                 .label(StateLabel::Fov)
                 .after(StateLabel::Indexing)
@@ -95,7 +95,7 @@ impl Plugin for PlayerPlugin {
                 .into(),
         )
         .add_system_set_to_stage(
-            GameStage::HandlePlayerActions,
+            PlayerStage::Cleanup,
             SystemSet::new()
                 .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
                 .with_system(run_effects_queue.exclusive_system()),
@@ -108,7 +108,7 @@ impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
         // Generate Actions
         app.add_system_set_to_stage(
-            GameStage::GenerateAIActions,
+            AIStage::GenerateActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
@@ -118,7 +118,7 @@ impl Plugin for AIPlugin {
         )
         // Handle Actions
         .add_system_set_to_stage(
-            GameStage::HandleAIActions,
+            AIStage::HandleActions,
             ConditionSet::new()
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
@@ -128,7 +128,7 @@ impl Plugin for AIPlugin {
         )
         // Cleanup
         .add_system_set_to_stage(
-            GameStage::AICleanup,
+            AIStage::Cleanup,
             ConditionSet::new()
                 .label(StateLabel::Indexing)
                 .run_in_state(GameCondition::Playing)
@@ -139,7 +139,7 @@ impl Plugin for AIPlugin {
                 .into(),
         )
         .add_system_set_to_stage(
-            GameStage::AICleanup,
+            AIStage::Cleanup,
             ConditionSet::new()
                 .label(StateLabel::Fov)
                 .after(StateLabel::Indexing)
@@ -149,7 +149,7 @@ impl Plugin for AIPlugin {
                 .into(),
         )
         .add_system_set_to_stage(
-            GameStage::AICleanup,
+            AIStage::Cleanup,
             SystemSet::new()
                 .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
                 .with_system(run_effects_queue.exclusive_system()),

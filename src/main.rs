@@ -125,35 +125,19 @@ impl GameWorld {
          * 3. Handle Player Actions
          * 4. Generate AI Actions
          * 5. Handle AI Actions
-         * 6. Effects
+         * 6. Effects + Cleanup
          */
-        app.add_stage_after(
-            CoreStage::Update,
-            GameStage::GeneratePlayerActions,
-            SystemStage::parallel(),
-        )
-        .add_stage_after(
-            GameStage::GeneratePlayerActions,
-            GameStage::HandlePlayerActions,
-            SystemStage::parallel(),
-        )
-        .add_stage_after(
-            GameStage::HandlePlayerActions,
-            GameStage::GenerateAIActions,
-            SystemStage::parallel(),
-        )
-        // AI Stages
-        .add_stage_after(
-            GameStage::GenerateAIActions,
-            GameStage::HandleAIActions,
-            SystemStage::parallel(),
-        )
-        .add_stage_after(GameStage::HandleAIActions, GameStage::AICleanup, SystemStage::parallel())
-        .add_stage_after(
-            GameStage::HandleAIActions,
-            GameStage::Cleanup,
-            SystemStage::parallel(),
-        );
+        app.add_stage_after(CoreStage::Update, PlayerStage::GenerateActions, SystemStage::parallel())
+            .add_stage_after(
+                PlayerStage::GenerateActions,
+                PlayerStage::HandleActions,
+                SystemStage::parallel(),
+            )
+            .add_stage_after(PlayerStage::HandleActions, PlayerStage::Cleanup, SystemStage::parallel())
+            // AI Stages
+            .add_stage_after(PlayerStage::Cleanup, AIStage::GenerateActions, SystemStage::parallel())
+            .add_stage_after(AIStage::GenerateActions, AIStage::HandleActions, SystemStage::parallel())
+            .add_stage_after(AIStage::HandleActions, AIStage::Cleanup, SystemStage::parallel());
 
         // Add Time Resource to the world
         app.init_resource::<Time>();
@@ -234,7 +218,6 @@ impl GameState for GameWorld {
             }
         }
 
-        // quit_system(ctx, &mut self.app.world);
         render_draw_buffer(ctx).expect("Render error");
     }
 }
@@ -258,7 +241,7 @@ fn main() -> BError {
         // TEXT Console #2
         .with_sparse_console(80, 30, "vga.png")
         // ToolTip Console #3
-        .with_sparse_console(80, 60, "vga.png")
+        .with_sparse_console(80, 30, "vga.png")
         .with_vsync(false)
         .build()?;
 

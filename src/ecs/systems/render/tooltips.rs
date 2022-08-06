@@ -46,8 +46,8 @@ pub fn render_tooltips(
         } else {
             i32::max(0, (mouse_x) - (width as i32 + 1))
         };
-        let tip_y =
-            if mouse_map_pos.y > map.height as i32 / 2 { mouse_y - height as i32 } else { mouse_y };
+        let tip_y = mouse_y / 2;
+        // if mouse_map_pos.y > map.height as i32 / 2 { mouse_y - height as i32 } else { mouse_y };
 
         batch.draw_box(
             Rect::with_size(tip_x, tip_y - (lines.len() / 2) as i32, width as i32, height as i32),

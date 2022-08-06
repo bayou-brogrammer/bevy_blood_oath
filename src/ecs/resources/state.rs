@@ -15,17 +15,20 @@ pub enum TurnState {
     PlayerTurn,
     AITurn,
     MagicMapReveal(i32),
+    Dead,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]
-pub enum GameStage {
-    // Player Stages
-    GeneratePlayerActions,
-    HandlePlayerActions,
-    // AI Stages
-    GenerateAIActions,
-    HandleAIActions,
-    AICleanup,
+pub enum PlayerStage {
+    GenerateActions,
+    HandleActions,
+    Cleanup,
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]
+pub enum AIStage {
+    GenerateActions,
+    HandleActions,
     Cleanup,
 }
 

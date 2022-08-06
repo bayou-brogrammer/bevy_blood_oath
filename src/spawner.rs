@@ -29,7 +29,17 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
     commands.insert_resource(start_pos);
     commands.insert_resource(GameCamera::new(start_pos));
 
-    spawner::bear_trap(&mut commands, start_pos + Point::new(1, 0));
+    // spawner::bear_trap(&mut commands, start_pos + Point::new(1, 0));
+    commands
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, MAGIC_MAPPING_SCROLL),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN3, BLACK), RenderOrder::Item, start_pos),
+        ))
+        .insert(Consumable {})
+        .insert(MagicMapper {})
+        .remove::<Point>()
+        .insert(InBackpack { owner: player });
 }
 
 pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
