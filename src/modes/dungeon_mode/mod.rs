@@ -27,6 +27,8 @@ impl std::fmt::Debug for DungeonMode {
 
 impl DungeonMode {
     pub fn new(app: &mut App) -> Self {
+        raws::load_raws();
+
         // Create a render schedule and a stage
         let mut render_schedule = Schedule::default();
         let mut update = SystemStage::parallel();

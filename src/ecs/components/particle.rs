@@ -23,6 +23,22 @@ pub struct ParticleRequest {
     pub lifetime: f32,
 }
 
+#[derive(Component, Serialize, Deserialize, Clone)]
+pub struct SpawnParticleLine {
+    pub glyph: FontCharType,
+    pub color: RGB,
+    pub lifetime_ms: f32,
+}
+
+#[derive(Component, Serialize, Deserialize, Clone)]
+pub struct SpawnParticleBurst {
+    pub glyph: FontCharType,
+    pub color: RGB,
+    pub lifetime_ms: f32,
+}
+
+impl_new!(SpawnParticleLine, glyph: FontCharType, color: RGB, lifetime_ms: f32);
+impl_new!(SpawnParticleBurst, glyph: FontCharType, color: RGB, lifetime_ms: f32);
 impl_new!(ParticleRequest, pt: Point, color: ColorPair, glyph: FontCharType, lifetime: f32);
 
 #[derive(Default)]

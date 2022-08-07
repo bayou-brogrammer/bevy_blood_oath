@@ -1,6 +1,7 @@
 #![allow(clippy::all)]
 #![deny(clippy::correctness)]
 
+pub mod raws;
 pub mod rng;
 pub mod spawner;
 
@@ -34,6 +35,7 @@ mod prelude {
 
     // Local Crates
     pub use crate::impl_new;
+    pub use crate::raws;
     pub use crate::rng;
     pub use crate::spawner;
 
@@ -43,6 +45,7 @@ mod prelude {
     pub use crate::map::*;
     pub use crate::modes::*;
     pub use crate::random_table::*;
+    pub use crate::raws::*;
     pub use crate::render::*;
     pub use crate::rex_assets::*;
     pub use crate::utils::*;

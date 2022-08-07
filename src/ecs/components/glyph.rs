@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Deserialize, Serialize)]
 pub enum RenderOrder {
     Particle,
     Actor,
@@ -8,7 +8,7 @@ pub enum RenderOrder {
     Corpse,
 }
 
-#[derive(Debug, PartialEq, Component, Copy, Clone)]
+#[derive(Debug, PartialEq, Component, Copy, Clone, Serialize, Deserialize)]
 pub struct Glyph {
     pub color: ColorPair,
     pub glyph: FontCharType,

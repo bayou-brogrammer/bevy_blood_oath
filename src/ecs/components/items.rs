@@ -4,9 +4,7 @@ use crate::prelude::*;
 pub struct ProvidesHealing(pub i32);
 
 #[derive(Component, Debug)]
-pub struct InflictsDamage {
-    pub damage: i32,
-}
+pub struct InflictsDamage(pub i32);
 
 #[derive(Component, Debug)]
 pub struct Confusion {
@@ -17,4 +15,3 @@ pub struct Confusion {
 pub struct MagicMapper {}
 
 impl_new!(Confusion, turns: i32);
-impl_new!(InflictsDamage, damage: i32);

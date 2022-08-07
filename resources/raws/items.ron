@@ -1,0 +1,150 @@
+[
+  ////////////////////////////////////////////////////////////////////////////////
+  /// Generics
+  ////////////////////////////////////////////////////////////////////////////////
+  RawItem(
+    name: "Health Potion",
+    glyph: Some(RawGlyph(
+      glyph: "!",
+      fg: "#FF00FF",
+      bg: "#000000",
+      order: Item,
+    )),
+    consumable: Some(RawConsumable(
+      effects: {
+        "provides_healing": Some("8")
+      }
+    )),
+  ),
+  RawItem(
+    name: "Rations",
+    glyph: Some(RawGlyph(
+      glyph: "%",
+      fg: "#00FF00",
+      bg: "#000000",
+      order: Item,
+    )),
+    consumable: Some(RawConsumable(
+      effects: {
+        "food" : None
+      }
+    )),
+  ),
+  ////////////////////////////////////////////////////////////////////////////////
+  /// Scrolls
+  ////////////////////////////////////////////////////////////////////////////////
+  RawItem(
+    name: "Magic Missile Scroll",
+    glyph: Some(RawGlyph(
+      glyph: ")",
+      fg: "#00FFFF",
+      bg: "#000000",
+      order: Item,
+    )),
+    consumable: Some(RawConsumable(
+      effects: {
+        "ranged" : Some("6"),
+        "damage" : Some("20")
+      }
+    )),
+  ),
+  RawItem(
+    name: "Fireball Scroll",
+    glyph: Some(RawGlyph(
+      glyph: ")",
+      fg: "#FFA500",
+      bg: "#000000",
+      order: Item,
+    )),
+    consumable: Some(RawConsumable(
+      effects: {
+        "ranged" : Some("6"),
+        "damage" : Some("20"),
+        "area_of_effect" : Some("3")
+      }
+    )),
+  ),
+  RawItem(
+    name: "Confusion Scroll",
+    glyph: Some(RawGlyph(
+      glyph: ")",
+      fg: "#FFAAAA",
+      bg: "#000000",
+      order: Item,
+    )),
+    consumable: Some(RawConsumable(
+      effects: {
+        "ranged" : Some("6"),
+        "damage" : Some("20"),
+        "confusion" : Some("4")
+      }
+    )),
+  ),
+  RawItem(
+    name: "Magic Mapping Scroll",
+    glyph: Some(RawGlyph(
+      glyph: ")",
+      fg: "#AAAAFF",
+      bg: "#000000",
+      order: Item,
+    )),
+    consumable: Some(RawConsumable(
+      effects: {
+        "magic_mapping" : None
+      }
+    )),
+  ),
+  ////////////////////////////////////////////////////////////////////////////////
+  /// Weapons
+  ////////////////////////////////////////////////////////////////////////////////
+  RawItem(
+    name: "Dagger",
+    glyph: Some(RawGlyph(
+      glyph: "/",
+      fg: "#FFAAAA",
+      bg: "#000000",
+      order: Item,
+    )),
+    weapon: Some(RawWeapon(
+      range: None,
+      power_bonus: 2,
+    )),
+  ),
+  RawItem(
+    name: "Longsword",
+    glyph: Some(RawGlyph(
+      glyph: "/",
+      fg: "#FFAAFF",
+      bg: "#000000",
+      order: Item,
+    )),
+    weapon: Some(RawWeapon(
+      range: None,
+      power_bonus: 4,
+    )),
+  ),
+  RawItem(
+    name: "Shield",
+    glyph: Some(RawGlyph(
+      glyph: "[",
+      fg: "#00AAFF",
+      bg: "#000000",
+      order: Item,
+    )),
+    shield: Some(RawShield(
+      defense_bonus: 1,
+    )),
+  ),
+  RawItem(
+    name: "Tower Shield",
+    glyph: Some(RawGlyph(
+      glyph: "[",
+      fg: "#00FFFF",
+      bg: "#000000",
+      order: Item,
+    )),
+    shield: Some(RawShield(
+      defense_bonus: 3,
+    )),
+  ),
+]

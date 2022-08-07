@@ -100,7 +100,7 @@ impl InventoryActionMode {
                 InventoryAction::DropItem => InventoryActionModeResult::DropItem(self.item.0),
                 InventoryAction::EquipItem => InventoryActionModeResult::EquipItem(self.item.0),
                 InventoryAction::UseItem => {
-                    if let Some(Ranged { range }) = world.get::<Ranged>(self.item.0) {
+                    if let Some(Ranged(range)) = world.get::<Ranged>(self.item.0) {
                         return (
                             ModeControl::Push(
                                 TargetingMode::new(ctx, world, self.item.0, *range, true).into(),

@@ -42,7 +42,7 @@ fn event_trigger(world: &mut World, creator: Option<Entity>, entity: Entity, tar
 
     // Damage
     if let Some(damage) = world.get::<InflictsDamage>(entity) {
-        add_effect(creator, EffectType::Damage(damage.damage), targets.clone());
+        add_effect(creator, EffectType::Damage(damage.0), targets.clone());
         did_something = true;
     }
 

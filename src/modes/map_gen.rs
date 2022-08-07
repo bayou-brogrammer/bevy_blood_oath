@@ -113,7 +113,7 @@ impl MapGenMode {
 
         world.insert_resource(ParticleBuilder::new());
         world.insert_resource(MasterDungeonMap::new());
-        world.insert_resource(Map::new(0, 80, 50, "Dummy Map"));
+        world.insert_resource(Map::new(0, 64, 64, "Dummy Map"));
 
         self.generate_world_map(world, 1, 0);
 
