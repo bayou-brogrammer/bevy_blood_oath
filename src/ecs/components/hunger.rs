@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum HungerState {
     WellFed,
     Normal,

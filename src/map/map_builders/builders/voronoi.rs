@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 #[allow(dead_code)]
 pub enum DistanceAlgorithm {
     Pythagoras,
@@ -15,9 +15,7 @@ pub struct VoronoiCellBuilder {
 
 impl InitialMapBuilder for VoronoiCellBuilder {
     #[allow(dead_code)]
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl VoronoiCellBuilder {

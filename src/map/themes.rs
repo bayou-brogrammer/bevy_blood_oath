@@ -5,7 +5,7 @@ impl GameTile {
         let (glyph, fg) = match self.tile_type {
             TileType::Wall => {
                 let pt = map.index_to_point2d(idx);
-                (wall_glyph(&*map, pt.x, pt.y), RGB::named(GREEN))
+                (wall_glyph(map, pt.x, pt.y), RGB::named(GREEN))
             }
             _ => (self.glyph, self.color.fg.into()),
         };

@@ -19,7 +19,7 @@ pub fn triggers(
                     Some(entity),
                     EffectType::TriggerFire(entity_id),
                     if let Ok(aoe) = area_of_effect.get(entity_id) {
-                        Targets::Tiles(aoe_tiles(&*map, *position, aoe.radius))
+                        Targets::Tiles(aoe_tiles(&map, *position, aoe.radius))
                     } else {
                         Targets::Tile(map.point2d_to_index(*position))
                     },

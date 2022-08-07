@@ -77,9 +77,7 @@ impl BuilderChain {
         };
     }
 
-    pub fn with(&mut self, metabuilder: Box<dyn MetaMapBuilder>) {
-        self.builders.push(metabuilder);
-    }
+    pub fn with(&mut self, metabuilder: Box<dyn MetaMapBuilder>) { self.builders.push(metabuilder); }
 
     pub fn build_map(&mut self) {
         match &mut self.starter {
@@ -103,6 +101,7 @@ impl BuilderChain {
     // }
 }
 
+#[allow(clippy::match_single_binding)]
 pub fn level_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {
     console::log(format!("Depth: {}", new_depth));
     match new_depth {

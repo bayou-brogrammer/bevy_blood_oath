@@ -8,7 +8,7 @@ pub mod prefab_rooms;
 #[rustfmt::skip]
 pub mod prefab_sections;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum PrefabMode {
     RexLevel { template: &'static str },
     Constant { level: prefab_levels::PrefabLevel },
@@ -21,21 +21,15 @@ pub struct PrefabBuilder {
 }
 
 impl MetaMapBuilder for PrefabBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl InitialMapBuilder for PrefabBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl PrefabBuilder {
-    pub fn new() -> Box<PrefabBuilder> {
-        Box::new(PrefabBuilder { mode: PrefabMode::RoomVaults })
-    }
+    pub fn new() -> Box<PrefabBuilder> { Box::new(PrefabBuilder { mode: PrefabMode::RoomVaults }) }
 
     pub fn rex_level(template: &'static str) -> Box<PrefabBuilder> {
         Box::new(PrefabBuilder { mode: PrefabMode::RexLevel { template } })
@@ -49,9 +43,7 @@ impl PrefabBuilder {
         Box::new(PrefabBuilder { mode: PrefabMode::Sectional { section } })
     }
 
-    pub fn vaults() -> Box<PrefabBuilder> {
-        Box::new(PrefabBuilder { mode: PrefabMode::RoomVaults })
-    }
+    pub fn vaults() -> Box<PrefabBuilder> { Box::new(PrefabBuilder { mode: PrefabMode::RoomVaults }) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         match self.mode {

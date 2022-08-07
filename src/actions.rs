@@ -4,7 +4,7 @@ pub trait VirtualGameKey {
     fn get_key(&self) -> Option<GameKey>;
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug)]
 pub enum GameKey {
     // Movement
     Up,
@@ -50,9 +50,7 @@ fn key_mapping(key: VirtualKeyCode) -> Option<GameKey> {
 }
 
 impl VirtualGameKey for VirtualKeyCode {
-    fn get_key(&self) -> Option<GameKey> {
-        key_mapping(*self)
-    }
+    fn get_key(&self) -> Option<GameKey> { key_mapping(*self) }
 }
 
 impl VirtualGameKey for Option<&VirtualKeyCode> {

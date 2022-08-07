@@ -1,18 +1,18 @@
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum HorizontalPlacement {
     Left,
     Center,
     Right,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum VerticalPlacement {
     Top,
     Center,
     Bottom,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub struct PrefabSection {
     pub template: &'static str,
     pub width: usize,

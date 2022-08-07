@@ -19,7 +19,7 @@ pub fn item_use(
                 None => Targets::Single(player_entity),
                 Some(target) => {
                     if let Ok(aoe) = aoe_item_q.get(item) {
-                        Targets::Tiles(aoe_tiles(&*map, target, aoe.radius))
+                        Targets::Tiles(aoe_tiles(&map, target, aoe.radius))
                     } else {
                         Targets::Tile(map.point2d_to_index(target))
                     }

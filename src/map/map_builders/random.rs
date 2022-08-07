@@ -128,8 +128,8 @@ pub fn random_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {
 
     let type_roll = crate::rng::roll_dice(1, 2);
     match type_roll {
-        _ => random_room_builder(&mut builder),
-        // _ => random_shape_builder(&mut builder),
+        1 => random_room_builder(&mut builder),
+        _ => random_shape_builder(&mut builder),
     }
 
     if crate::rng::roll_dice(1, 3) == 1 {

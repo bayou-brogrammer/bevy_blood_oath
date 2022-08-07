@@ -5,7 +5,7 @@ pub trait ActionMenu<T> {
     fn label(&self) -> &'static str;
 }
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum ItemMenuResult<T> {
     Cancel,
     NoResponse,

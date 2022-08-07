@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum EquipmentSlot {
     Melee,
     Shield,

@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 
 pub enum DrunkSpawnMode {
     StartingPoint,

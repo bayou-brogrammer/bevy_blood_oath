@@ -1,7 +1,7 @@
 use super::*;
 use std::cmp::{max, min};
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum Symmetry {
     None,
     Both,

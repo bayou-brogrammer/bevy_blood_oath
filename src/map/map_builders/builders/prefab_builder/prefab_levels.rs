@@ -1,4 +1,4 @@
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub struct PrefabLevel {
     pub template: &'static str,
     pub width: usize,
