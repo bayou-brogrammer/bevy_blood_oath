@@ -18,7 +18,7 @@ pub enum TileType {
     ShallowWater,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub struct GameTile {
     pub cost: f32,
     pub opaque: bool,
@@ -26,6 +26,27 @@ pub struct GameTile {
     pub color: ColorPair,
     pub tile_type: TileType,
     pub glyph: FontCharType,
+}
+
+impl PartialEq for GameTile {
+    fn eq(&self, other: &Self) -> bool {
+        self.cost == other.cost
+            && self.opaque == other.opaque
+            && self.walkable == other.walkable
+            && self.color == other.color
+            && self.tile_type == other.tile_type
+            && self.glyph == other.glyph
+    }
+}
+impl Eq for GameTile {}
+
+impl std::hash::Hash for GameTile {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.opaque.hash(state);
+        self.walkable.hash(state);
+        self.tile_type.hash(state);
+        self.glyph.hash(state);
+    }
 }
 
 impl_new!(

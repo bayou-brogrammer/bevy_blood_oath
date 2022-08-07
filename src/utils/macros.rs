@@ -13,3 +13,14 @@ macro_rules! impl_new
         }
     };
 }
+
+#[macro_export]
+macro_rules! impl_default {
+    ($to:ty) => {
+        impl Default for $to {
+            fn default() -> Self {
+                Self::new()
+            }
+        }
+    };
+}

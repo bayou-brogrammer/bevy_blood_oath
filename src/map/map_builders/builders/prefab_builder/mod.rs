@@ -55,7 +55,7 @@ impl PrefabBuilder {
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         match self.mode {
-            PrefabMode::RexLevel { template } => self.load_rex_map(&template, build_data),
+            PrefabMode::RexLevel { template } => self.load_rex_map(template, build_data),
             PrefabMode::Constant { level } => self.load_ascii_map(&level, build_data),
             PrefabMode::Sectional { section } => self.apply_sectional(&section, build_data),
             PrefabMode::RoomVaults => self.apply_room_vaults(build_data),
@@ -181,23 +181,17 @@ impl PrefabBuilder {
         let string_vec = PrefabBuilder::read_ascii_to_vec(section.template);
 
         // Place the new section
-        let chunk_x;
-        match section.placement.0 {
-            HorizontalPlacement::Left => chunk_x = 0,
-            HorizontalPlacement::Center => {
-                chunk_x = (build_data.map.width / 2) - (section.width as i32 / 2)
-            }
-            HorizontalPlacement::Right => chunk_x = (build_data.map.width - 1) - section.width as i32,
-        }
+        let chunk_x = match section.placement.0 {
+            HorizontalPlacement::Left => 0,
+            HorizontalPlacement::Center => (build_data.map.width / 2) - (section.width as i32 / 2),
+            HorizontalPlacement::Right => (build_data.map.width - 1) - section.width as i32,
+        };
 
-        let chunk_y;
-        match section.placement.1 {
-            VerticalPlacement::Top => chunk_y = 0,
-            VerticalPlacement::Center => {
-                chunk_y = (build_data.map.height / 2) - (section.height as i32 / 2)
-            }
-            VerticalPlacement::Bottom => chunk_y = (build_data.map.height - 1) - section.height as i32,
-        }
+        let chunk_y = match section.placement.1 {
+            VerticalPlacement::Top => 0,
+            VerticalPlacement::Center => (build_data.map.height / 2) - (section.height as i32 / 2),
+            VerticalPlacement::Bottom => (build_data.map.height - 1) - section.height as i32,
+        };
 
         // Build the map
         self.apply_previous_iteration(

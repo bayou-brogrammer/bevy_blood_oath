@@ -125,7 +125,7 @@ pub fn spawn_region(area: &[usize], map_depth: i32, spawn_list: &mut Vec<(usize,
 /// Spawns a named entity (name in tuple.1) at the location in (tuple.0)
 pub fn spawn_entity(commands: &mut Commands, map: &Map, spawn: &(&usize, &String)) {
     let pt = map.index_to_point2d(*spawn.0);
-    let spawn_result = spawn_named_entity(commands, &spawn.1, SpawnType::AtPosition(pt));
+    let spawn_result = spawn_named_entity(commands, spawn.1, SpawnType::AtPosition(pt));
     if spawn_result.is_some() {
         return;
     }

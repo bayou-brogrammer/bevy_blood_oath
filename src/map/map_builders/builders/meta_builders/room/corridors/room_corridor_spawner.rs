@@ -17,7 +17,7 @@ impl CorridorSpawner {
         if let Some(corridors) = &build_data.corridors {
             for c in corridors.iter() {
                 let depth = build_data.map.depth;
-                spawner::spawn_region(&c, depth, &mut build_data.spawn_list);
+                spawner::spawn_region(c, depth, &mut build_data.spawn_list);
             }
         } else {
             panic!("Corridor Based Spawning only works after corridors have been created");

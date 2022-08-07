@@ -6,6 +6,8 @@ pub struct MenuMemory {
     pub pick_up_pos: Point,
 }
 
+impl_default!(MenuMemory);
+
 impl MenuMemory {
     pub const INVENTORY: usize = 0;
     pub const INVENTORY_SHORTCUT_EQUIP: usize = 1;

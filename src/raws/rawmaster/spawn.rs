@@ -15,7 +15,7 @@ pub enum SpawnType {
     AtPosition(Point),
 }
 
-pub fn spawn_position<'a>(pos: SpawnType, eb: &mut EntityCommands, tag: &str, raws: &RawMaster) {
+pub fn spawn_position(pos: SpawnType, eb: &mut EntityCommands, tag: &str, raws: &RawMaster) {
     // Spawn in the specified location
     match pos {
         SpawnType::Equipped(by) => {}
@@ -94,7 +94,7 @@ pub fn spawn_named_item(
     pos: SpawnType,
 ) -> Option<Entity> {
     let mut eb = commands.spawn();
-    let item_template = spawn_base_entity(&raws, &mut eb, &raws.raws.items, &raws.item_index, key, pos);
+    let item_template = spawn_base_entity(raws, &mut eb, &raws.raws.items, &raws.item_index, key, pos);
 
     eb.insert(Item {});
 
@@ -115,7 +115,7 @@ pub fn spawn_named_item(
         eb.insert(DefenseBonus::new(shield.defense_bonus));
     }
 
-    return Some(eb.id());
+    Some(eb.id())
 }
 
 pub fn spawn_named_mob(
@@ -125,7 +125,7 @@ pub fn spawn_named_mob(
     pos: SpawnType,
 ) -> Option<Entity> {
     let mut eb = commands.spawn();
-    let mob_template = spawn_base_entity(&raws, &mut eb, &raws.raws.mobs, &raws.item_index, key, pos);
+    let mob_template = spawn_base_entity(raws, &mut eb, &raws.raws.mobs, &raws.mob_index, key, pos);
 
     eb.insert(Monster {});
     if mob_template.blocks_tile {
@@ -139,7 +139,7 @@ pub fn spawn_named_mob(
     });
     eb.insert(FieldOfView::new(mob_template.vision_range));
 
-    return Some(eb.id());
+    Some(eb.id())
 }
 
 pub fn spawn_named_prop(

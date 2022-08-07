@@ -29,30 +29,25 @@ impl AreaEndingPosition {
     }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
-        let seed_x;
-        let seed_y;
+        let seed_x = match self.x {
+            XEnd::LEFT => 1,
+            XEnd::CENTER => build_data.map.width / 2,
+            XEnd::RIGHT => build_data.map.width - 2,
+        };
 
-        match self.x {
-            XEnd::LEFT => seed_x = 1,
-            XEnd::CENTER => seed_x = build_data.map.width / 2,
-            XEnd::RIGHT => seed_x = build_data.map.width - 2,
-        }
-
-        match self.y {
-            YEnd::TOP => seed_y = 1,
-            YEnd::CENTER => seed_y = build_data.map.height / 2,
-            YEnd::BOTTOM => seed_y = build_data.map.height - 2,
-        }
+        let seed_y = match self.y {
+            YEnd::TOP => 1,
+            YEnd::CENTER => build_data.map.height / 2,
+            YEnd::BOTTOM => build_data.map.height - 2,
+        };
 
         let mut available_floors: Vec<(usize, f32)> = Vec::new();
         for (idx, tile) in build_data.map.tiles.iter().enumerate() {
             if tile.walkable {
                 let pt = build_data.map.index_to_point2d(idx);
 
-                available_floors.push((
-                    idx,
-                    DistanceAlg::PythagorasSquared.distance2d(pt, Point::new(seed_x, seed_y)),
-                ));
+                available_floors
+                    .push((idx, DistanceAlg::PythagorasSquared.distance2d(pt, Point::new(seed_x, seed_y))));
             }
         }
         if available_floors.is_empty() {

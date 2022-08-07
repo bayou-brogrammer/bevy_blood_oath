@@ -14,7 +14,7 @@ impl DistantExit {
     }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
-        let starting_pos = build_data.starting_position.as_ref().unwrap().clone();
+        let starting_pos = *build_data.starting_position.as_ref().unwrap();
         let start_idx = build_data.map.xy_idx(starting_pos.x, starting_pos.y);
         crate::spatial::populate_blocked_from_map(&build_data.map);
 

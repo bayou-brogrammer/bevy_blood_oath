@@ -1,5 +1,5 @@
-#![allow(clippy::all)]
-#![deny(clippy::correctness)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::too_many_arguments)]
 
 pub mod raws;
 pub mod rng;
@@ -34,6 +34,7 @@ mod prelude {
     pub use bo_pathfinding::prelude::*;
 
     // Local Crates
+    pub use crate::impl_default;
     pub use crate::impl_new;
     pub use crate::raws;
     pub use crate::rng;
@@ -102,6 +103,8 @@ pub struct GameWorld {
     pub mode_stack: ModeStack,
     pub active_mouse_pos: Point,
 }
+
+impl_default!(GameWorld);
 
 impl GameWorld {
     pub fn new() -> Self {

@@ -20,20 +20,21 @@ pub enum InventoryModeResult {
     UseItem(Entity, Option<Point>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 enum SubSection {
+    #[default]
     Inventory,
     EquipArmor,
     EquipWeapon,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Equipment {
     armor: Option<(Entity, String, Glyph)>,
     weapon: Option<(Entity, String, Glyph)>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct InventoryMode {
     equipment: Equipment,
     inv_selection: usize,

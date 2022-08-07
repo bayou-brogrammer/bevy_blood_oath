@@ -58,18 +58,13 @@ impl VoronoiCellBuilder {
             let pt = build_data.map.index_to_point2d(i);
 
             for (seed, pos) in voronoi_seeds.iter().enumerate() {
-                let distance;
-                match self.distance_algorithm {
+                let distance = match self.distance_algorithm {
+                    DistanceAlgorithm::Manhattan => DistanceAlg::Manhattan.distance2d(pt, pos.1),
+                    DistanceAlgorithm::Chebyshev => DistanceAlg::Chebyshev.distance2d(pt, pos.1),
                     DistanceAlgorithm::Pythagoras => {
-                        distance = DistanceAlg::PythagorasSquared.distance2d(pt, pos.1);
+                        DistanceAlg::PythagorasSquared.distance2d(pt, pos.1)
                     }
-                    DistanceAlgorithm::Manhattan => {
-                        distance = DistanceAlg::Manhattan.distance2d(pt, pos.1);
-                    }
-                    DistanceAlgorithm::Chebyshev => {
-                        distance = DistanceAlg::Chebyshev.distance2d(pt, pos.1);
-                    }
-                }
+                };
                 voronoi_distance[seed] = (seed, distance);
             }
 

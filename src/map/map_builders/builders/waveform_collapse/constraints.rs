@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::*;
 
 pub fn build_patterns(
@@ -64,7 +66,7 @@ pub fn build_patterns(
     // Dedupe
     if dedupe {
         println!("Pre de-duplication, there are {} patterns", patterns.len());
-        let set: Vec<Vec<GameTile>> = patterns.drain(..).collect(); // dedup
+        let set: HashSet<Vec<GameTile>> = patterns.drain(..).collect();
         patterns.extend(set.into_iter());
         println!("There are {} patterns", patterns.len());
     }
@@ -72,13 +74,7 @@ pub fn build_patterns(
     patterns
 }
 
-pub fn render_pattern_to_map(
-    map: &mut Map,
-    chunk: &MapChunk,
-    chunk_size: i32,
-    start_x: i32,
-    start_y: i32,
-) {
+pub fn render_pattern_to_map(map: &mut Map, chunk: &MapChunk, chunk_size: i32, start_x: i32, start_y: i32) {
     let mut i = 0usize;
     for tile_y in 0..chunk_size {
         for tile_x in 0..chunk_size {
@@ -204,8 +200,7 @@ pub fn patterns_to_constraints(patterns: Vec<Vec<GameTile>>, chunk_size: i32) ->
                     if !has_any {
                         // There's no exits on this side, let's match only if
                         // the other edge also has no exits
-                        let matching_exit_count =
-                            potential.exits[opposite].iter().filter(|a| !**a).count();
+                        let matching_exit_count = potential.exits[opposite].iter().filter(|a| !**a).count();
                         if matching_exit_count == 0 {
                             c.compatible_with[direction].push(j);
                         }

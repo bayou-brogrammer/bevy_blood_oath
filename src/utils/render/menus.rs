@@ -94,7 +94,7 @@ pub fn item_result_menu<S: ToString>(
                 let selection = if control == GameKey::Select {
                     selection as i32
                 } else {
-                    let key = key.as_deref().unwrap();
+                    let key = key.unwrap();
                     letter_to_option(*key)
                 };
 

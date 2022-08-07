@@ -15,26 +15,3 @@ impl CombatStats {
         CombatStats { max_hp, hp, defense, power }
     }
 }
-
-// #[derive(Component, Debug)]
-// pub struct SufferDamage {
-//     pub amount: Vec<i32>,
-// }
-
-// impl SufferDamage {
-//     pub fn new_damage(
-//         commands: &mut Commands,
-//         store: &mut Query<&mut SufferDamage>,
-//         victim: Entity,
-//         amount: i32,
-//     ) {
-//         if let Ok(mut suffering) = store.get_mut(victim) {
-//             suffering.amount.push(amount);
-//         } else {
-//             let dmg = SufferDamage {
-//                 amount: vec![amount],
-//             };
-//             commands.entity(victim).insert(dmg);
-//         }
-//     }
-// }
