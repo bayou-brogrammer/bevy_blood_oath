@@ -21,16 +21,11 @@ pub const EQUIPMENT_PANEL_HEIGHT: i32 = UI_HEIGHT - LOG_PANEL_HEIGHT - STATS_PAN
 
 lazy_static! {
     pub static ref MAP_PANEL: Rect = Rect::with_size(0, 0, MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT);
-    pub static ref LOG_PANEL: Rect =
-        Rect::with_size(0, MAP_PANEL_HEIGHT, LOG_PANEL_WIDTH, LOG_PANEL_HEIGHT);
+    pub static ref LOG_PANEL: Rect = Rect::with_size(0, MAP_PANEL_HEIGHT, LOG_PANEL_WIDTH, LOG_PANEL_HEIGHT);
     pub static ref STATS_PANEL: Rect =
         Rect::with_size(MAP_PANEL_WIDTH, 0, STATS_PANEL_WIDTH, STATS_PANEL_HEIGHT);
-    pub static ref EQUIPMENT_PANEL: Rect = Rect::with_size(
-        MAP_PANEL_WIDTH,
-        STATS_PANEL_HEIGHT,
-        EQUIPMENT_PANEL_WIDTH,
-        EQUIPMENT_PANEL_HEIGHT
-    );
+    pub static ref EQUIPMENT_PANEL: Rect =
+        Rect::with_size(MAP_PANEL_WIDTH, STATS_PANEL_HEIGHT, EQUIPMENT_PANEL_WIDTH, EQUIPMENT_PANEL_HEIGHT);
     pub static ref OVERALL_PANEL: Rect = Rect::with_size(0, 0, UI_WIDTH - 1, UI_HEIGHT - 1);
 }
 
@@ -70,13 +65,7 @@ fn draw_stats(draw_batch: &mut DrawBatch, world: &mut World) {
     for stats in stats_q.iter(world) {
         let health = format!(" HP: {} / {} ", stats.hp, stats.max_hp);
         draw_batch.print_color(Point::new(50, 1), &health, *WHITE_BLACK);
-        draw_batch.bar_horizontal(
-            Point::new(64, 1),
-            14,
-            stats.hp,
-            stats.max_hp,
-            ColorPair::new(RED, BLACK),
-        );
+        draw_batch.bar_horizontal(Point::new(64, 1), 14, stats.hp, stats.max_hp, ColorPair::new(RED, BLACK));
     }
 }
 

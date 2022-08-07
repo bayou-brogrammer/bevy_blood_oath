@@ -3,15 +3,11 @@ use super::*;
 pub struct WallBoundaries {}
 
 impl MetaMapBuilder for WallBoundaries {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl WallBoundaries {
-    pub fn new() -> Box<WallBoundaries> {
-        Box::new(WallBoundaries {})
-    }
+    pub fn new() -> Box<WallBoundaries> { Box::new(WallBoundaries {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         // Make the boundaries walls

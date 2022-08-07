@@ -3,15 +3,11 @@ use super::*;
 pub struct RoomCornerRounder {}
 
 impl MetaMapBuilder for RoomCornerRounder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl RoomCornerRounder {
-    pub fn new() -> Box<RoomCornerRounder> {
-        Box::new(RoomCornerRounder {})
-    }
+    pub fn new() -> Box<RoomCornerRounder> { Box::new(RoomCornerRounder {}) }
 
     fn fill_if_corner(&mut self, x: i32, y: i32, build_data: &mut BuilderMap) {
         let w = build_data.map.width;

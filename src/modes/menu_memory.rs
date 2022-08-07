@@ -17,9 +17,7 @@ impl MenuMemory {
     pub const EQUIPMENT_SHORTCUT_DROP: usize = 5;
     pub const PICK_UP: usize = 6;
 
-    pub fn new() -> Self {
-        Self { menu: [0; 7], pick_up_pos: Point::zero() }
-    }
+    pub fn new() -> Self { Self { menu: [0; 7], pick_up_pos: Point::zero() } }
 
     pub fn reset(&mut self) {
         for m in self.menu.iter_mut() {
@@ -33,13 +31,9 @@ impl MenuMemory {
 impl Index<usize> for MenuMemory {
     type Output = usize;
 
-    fn index(&self, index: usize) -> &Self::Output {
-        &self.menu[index]
-    }
+    fn index(&self, index: usize) -> &Self::Output { &self.menu[index] }
 }
 
 impl IndexMut<usize> for MenuMemory {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self.menu[index]
-    }
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output { &mut self.menu[index] }
 }

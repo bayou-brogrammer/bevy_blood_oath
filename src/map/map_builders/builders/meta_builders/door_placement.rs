@@ -3,15 +3,11 @@ use super::*;
 pub struct DoorPlacement {}
 
 impl MetaMapBuilder for DoorPlacement {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.doors(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.doors(build_data); }
 }
 
 impl DoorPlacement {
-    pub fn new() -> Box<DoorPlacement> {
-        Box::new(DoorPlacement {})
-    }
+    pub fn new() -> Box<DoorPlacement> { Box::new(DoorPlacement {}) }
 
     fn door_possible(&self, build_data: &mut BuilderMap, idx: usize) -> bool {
         let mut blocked = false;
@@ -30,8 +26,7 @@ impl DoorPlacement {
         // Check for east-west door possibility
         if build_data.map.tiles[idx].tile_type == TileType::Floor
             && (x > 1 && build_data.map.tiles[idx - 1].tile_type == TileType::Floor)
-            && (x < build_data.map.width - 2
-                && build_data.map.tiles[idx + 1].tile_type == TileType::Floor)
+            && (x < build_data.map.width - 2 && build_data.map.tiles[idx + 1].tile_type == TileType::Floor)
             && (y > 1
                 && build_data.map.tiles[idx - build_data.map.width as usize].tile_type == TileType::Wall)
             && (y < build_data.map.height - 2
@@ -43,14 +38,11 @@ impl DoorPlacement {
         // Check for north-south door possibility
         if build_data.map.tiles[idx].tile_type == TileType::Floor
             && (x > 1 && build_data.map.tiles[idx - 1].tile_type == TileType::Wall)
-            && (x < build_data.map.width - 2
-                && build_data.map.tiles[idx + 1].tile_type == TileType::Wall)
+            && (x < build_data.map.width - 2 && build_data.map.tiles[idx + 1].tile_type == TileType::Wall)
             && (y > 1
-                && build_data.map.tiles[idx - build_data.map.width as usize].tile_type
-                    == TileType::Floor)
+                && build_data.map.tiles[idx - build_data.map.width as usize].tile_type == TileType::Floor)
             && (y < build_data.map.height - 2
-                && build_data.map.tiles[idx + build_data.map.width as usize].tile_type
-                    == TileType::Floor)
+                && build_data.map.tiles[idx + build_data.map.width as usize].tile_type == TileType::Floor)
         {
             return true;
         }

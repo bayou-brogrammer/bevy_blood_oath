@@ -2,15 +2,11 @@ use super::*;
 pub struct RoomBasedStairs {}
 
 impl MetaMapBuilder for RoomBasedStairs {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl RoomBasedStairs {
-    pub fn new() -> Box<RoomBasedStairs> {
-        Box::new(RoomBasedStairs {})
-    }
+    pub fn new() -> Box<RoomBasedStairs> { Box::new(RoomBasedStairs {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         if let Some(rooms) = &build_data.rooms {

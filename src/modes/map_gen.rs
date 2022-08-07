@@ -21,26 +21,19 @@ impl MapGenMode {
     pub fn new(world: &mut World, action: MapGenAction) -> Self {
         world.insert_resource(NextState(GameCondition::Setup));
 
-        let mut map_gen_mode =
-            MapGenMode { mapgen_index: 0, mapgen_timer: 0.0, mapgen_history: Vec::new() };
+        let mut map_gen_mode = MapGenMode { mapgen_index: 0, mapgen_timer: 0.0, mapgen_history: Vec::new() };
 
         match action {
-            MapGenAction::NewGame => {
-                map_gen_mode.setup_new_game(world).expect("Failed to setup new game")
-            }
+            MapGenAction::NewGame => map_gen_mode.setup_new_game(world).expect("Failed to setup new game"),
             MapGenAction::GoToLevel => map_gen_mode.goto_level(world, 1),
         }
 
         map_gen_mode
     }
 
-    pub fn new_game(world: &mut World) -> Self {
-        MapGenMode::new(world, MapGenAction::NewGame)
-    }
+    pub fn new_game(world: &mut World) -> Self { MapGenMode::new(world, MapGenAction::NewGame) }
 
-    pub fn next_level(world: &mut World) -> Self {
-        MapGenMode::new(world, MapGenAction::GoToLevel)
-    }
+    pub fn next_level(world: &mut World) -> Self { MapGenMode::new(world, MapGenAction::GoToLevel) }
 
     pub fn tick(
         &mut self,

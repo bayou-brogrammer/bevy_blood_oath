@@ -85,9 +85,7 @@ impl EquipmentActionMode {
         let result = match self.subsection {
             SubSection::Cancel => EquipmentActionModeResult::Cancelled,
             SubSection::Actions => match self.actions[self.selection as usize] {
-                EquipmentAction::RemoveEquipment => {
-                    EquipmentActionModeResult::RemoveEquipment(self.item_id)
-                }
+                EquipmentAction::RemoveEquipment => EquipmentActionModeResult::RemoveEquipment(self.item_id),
                 EquipmentAction::DropEquipment => EquipmentActionModeResult::DropEquipment(self.item_id),
             },
         };
@@ -143,8 +141,7 @@ impl EquipmentActionMode {
                 key @ VirtualKeyCode::R | key @ VirtualKeyCode::D => {
                     if let Some(equip_action) = EquipmentAction::from_key(key) {
                         if let Some(action_pos) = self.actions.iter().position(|a| *a == equip_action) {
-                            if matches!(self.subsection, SubSection::Actions)
-                                && self.selection == action_pos
+                            if matches!(self.subsection, SubSection::Actions) && self.selection == action_pos
                             {
                                 return self.confirm_action();
                             } else {
@@ -168,12 +165,7 @@ impl EquipmentActionMode {
         let box_rect = center_box(
             &mut draw_batch,
             (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
-            BoxConfig::new(
-                (self.inner_width, ACTION_BASE_HEIGHT),
-                ColorPair::new(WHITE, BLACK),
-                true,
-                false,
-            ),
+            BoxConfig::new((self.inner_width, ACTION_BASE_HEIGHT), ColorPair::new(WHITE, BLACK), true, false),
         );
 
         let x = box_rect.x1 + 1;

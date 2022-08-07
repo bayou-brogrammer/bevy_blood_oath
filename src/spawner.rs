@@ -95,10 +95,8 @@ pub fn spawn_region(area: &[usize], map_depth: i32, spawn_list: &mut Vec<(usize,
 
     // Scope to keep the borrow checker happy
     {
-        let num_spawns = i32::min(
-            areas.len() as i32,
-            crate::rng::roll_dice(1, MAX_MONSTERS + 3) + (map_depth - 1) - 3,
-        );
+        let num_spawns =
+            i32::min(areas.len() as i32, crate::rng::roll_dice(1, MAX_MONSTERS + 3) + (map_depth - 1) - 3);
         if num_spawns == 0 {
             return;
         }

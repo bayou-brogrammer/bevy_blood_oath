@@ -163,11 +163,7 @@ impl PrefabBuilder {
         build_data.take_snapshot();
     }
 
-    fn apply_sectional(
-        &mut self,
-        section: &prefab_sections::PrefabSection,
-        build_data: &mut BuilderMap,
-    ) {
+    fn apply_sectional(&mut self, section: &prefab_sections::PrefabSection, build_data: &mut BuilderMap) {
         use prefab_sections::*;
 
         let string_vec = PrefabBuilder::read_ascii_to_vec(section.template);

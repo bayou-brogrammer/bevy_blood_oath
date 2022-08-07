@@ -3,15 +3,11 @@ use super::*;
 pub struct RoomExploder {}
 
 impl MetaMapBuilder for RoomExploder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl RoomExploder {
-    pub fn new() -> Box<RoomExploder> {
-        Box::new(RoomExploder {})
-    }
+    pub fn new() -> Box<RoomExploder> { Box::new(RoomExploder {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let rooms: Vec<Rect>;

@@ -27,9 +27,7 @@ impl From<bool> for YesNoDialogModeResult {
 
 /// A yes-or-no dialog box with a prompt that shows up in the center of the screen.
 impl YesNoDialogMode {
-    pub fn new(prompt: String, yes_default: bool) -> Self {
-        Self { prompt, yes_selected: yes_default }
-    }
+    pub fn new(prompt: String, yes_default: bool) -> Self { Self { prompt, yes_selected: yes_default } }
 
     pub fn tick(
         &mut self,

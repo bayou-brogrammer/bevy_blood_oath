@@ -28,10 +28,7 @@ pub fn hunger_clock(
                     clock.state = HungerState::Normal;
                     clock.duration = 200;
                     if entity == *player_entity {
-                        bo_logging::Logger::new()
-                            .color(ORANGE)
-                            .append("You are no longer well fed")
-                            .log();
+                        bo_logging::Logger::new().color(ORANGE).append("You are no longer well fed").log();
                     }
                 }
                 HungerState::Normal => {

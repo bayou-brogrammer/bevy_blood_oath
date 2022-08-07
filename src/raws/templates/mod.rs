@@ -20,15 +20,9 @@ pub trait BaseRawComponent: Debug + Clone {
 macro_rules! impl_raw {
     ($to:ty) => {
         impl BaseRawComponent for $to {
-            fn name(&self) -> String {
-                self.name.clone()
-            }
-            fn glyph(&self) -> Option<&RawGlyph> {
-                self.glyph.as_ref()
-            }
-            fn as_any(&self) -> &dyn std::any::Any {
-                self
-            }
+            fn name(&self) -> String { self.name.clone() }
+            fn glyph(&self) -> Option<&RawGlyph> { self.glyph.as_ref() }
+            fn as_any(&self) -> &dyn std::any::Any { self }
         }
     };
 }

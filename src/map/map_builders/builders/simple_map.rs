@@ -3,15 +3,11 @@ use super::*;
 pub struct SimpleMapBuilder {}
 
 impl InitialMapBuilder for SimpleMapBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build_rooms(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build_rooms(build_data); }
 }
 
 impl SimpleMapBuilder {
-    pub fn new() -> Box<SimpleMapBuilder> {
-        Box::new(SimpleMapBuilder {})
-    }
+    pub fn new() -> Box<SimpleMapBuilder> { Box::new(SimpleMapBuilder {}) }
 
     fn build_rooms(&mut self, build_data: &mut BuilderMap) {
         const MAX_ROOMS: i32 = 25;

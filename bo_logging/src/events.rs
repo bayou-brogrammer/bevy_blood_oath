@@ -10,9 +10,7 @@ lazy_static! {
     static ref EVENTS: Mutex<HashMap<String, i32>> = Mutex::new(HashMap::new());
 }
 
-pub fn clear_events() {
-    EVENTS.lock().clear();
-}
+pub fn clear_events() { EVENTS.lock().clear(); }
 
 pub fn record_event<T: ToString>(event: T, n: i32) {
     let event_name = event.to_string();
@@ -34,9 +32,7 @@ pub fn get_event_count<T: ToString>(event: T) -> i32 {
     }
 }
 
-pub fn clone_events() -> HashMap<String, i32> {
-    EVENTS.lock().clone()
-}
+pub fn clone_events() -> HashMap<String, i32> { EVENTS.lock().clone() }
 
 pub fn load_events(events: HashMap<String, i32>) {
     EVENTS.lock().clear();

@@ -13,15 +13,11 @@ pub struct RoomSorter {
 }
 
 impl MetaMapBuilder for RoomSorter {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.sorter(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.sorter(build_data); }
 }
 
 impl RoomSorter {
-    pub fn new(sort_by: RoomSort) -> Box<RoomSorter> {
-        Box::new(RoomSorter { sort_by })
-    }
+    pub fn new(sort_by: RoomSort) -> Box<RoomSorter> { Box::new(RoomSorter { sort_by }) }
 
     fn sorter(&mut self, build_data: &mut BuilderMap) {
         match self.sort_by {

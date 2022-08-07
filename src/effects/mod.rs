@@ -37,9 +37,7 @@ impl EffectType {
         EffectType::Particle { glyph, color, lifespan }
     }
 
-    pub fn new_healing(amount: i32) -> Self {
-        EffectType::Healing(amount)
-    }
+    pub fn new_healing(amount: i32) -> Self { EffectType::Healing(amount) }
 }
 
 #[derive(Clone, Debug)]
@@ -95,9 +93,7 @@ fn target_applicator(world: &mut World, effect: &EffectSpawner) {
         match &effect.targets {
             Targets::Single(target) => affect_entity(world, effect, *target),
             Targets::Tile(tile_idx) => affect_tile(world, effect, *tile_idx),
-            Targets::Tiles(tiles) => {
-                tiles.iter().for_each(|tile_idx| affect_tile(world, effect, *tile_idx))
-            }
+            Targets::Tiles(tiles) => tiles.iter().for_each(|tile_idx| affect_tile(world, effect, *tile_idx)),
             Targets::TargetList(targets) => {
                 targets.iter().for_each(|entity| affect_entity(world, effect, *entity))
             }

@@ -78,10 +78,7 @@ impl InventoryMode {
             world.resource::<MenuMemory>()[MenuMemory::INVENTORY].min(inventory.len().saturating_sub(1));
 
         let inv_width = if !inventory.is_empty() {
-            i32::max(
-                INVENTORY_BASE_WIDTH,
-                (inventory.iter().map(|s| s.1.len()).max().unwrap() + 8) as i32,
-            )
+            i32::max(INVENTORY_BASE_WIDTH, (inventory.iter().map(|s| s.1.len()).max().unwrap() + 8) as i32)
         } else {
             INVENTORY_BASE_WIDTH // Base width for empty menu
         };
@@ -155,8 +152,7 @@ impl InventoryMode {
                 ////////////////////////////////////////////////////
                 (SubSection::EquipWeapon, VirtualKeyCode::Up) => {
                     self.subsection = SubSection::Inventory;
-                    self.inv_selection =
-                        if self.inventory.is_empty() { 0 } else { self.inventory.len() - 1 }
+                    self.inv_selection = if self.inventory.is_empty() { 0 } else { self.inventory.len() - 1 }
                 }
                 (SubSection::EquipWeapon, VirtualKeyCode::Down) => {
                     self.subsection = SubSection::EquipArmor;
@@ -164,9 +160,7 @@ impl InventoryMode {
                 (SubSection::EquipWeapon, VirtualKeyCode::Return) => {
                     if let Some(weapon) = &self.equipment.weapon {
                         return (
-                            ModeControl::Push(
-                                EquipmentActionMode::new(&app.world, weapon.0, None).into(),
-                            ),
+                            ModeControl::Push(EquipmentActionMode::new(&app.world, weapon.0, None).into()),
                             ModeUpdate::Update,
                         );
                     }
@@ -184,9 +178,7 @@ impl InventoryMode {
                 (SubSection::EquipArmor, VirtualKeyCode::Return) => {
                     if let Some(armor) = &self.equipment.armor {
                         return (
-                            ModeControl::Push(
-                                EquipmentActionMode::new(&app.world, armor.0, None).into(),
-                            ),
+                            ModeControl::Push(EquipmentActionMode::new(&app.world, armor.0, None).into()),
                             ModeUpdate::Update,
                         );
                     }
@@ -225,12 +217,8 @@ impl InventoryMode {
                             if InventoryAction::item_supports_action(&app.world, item_id.0, inv_action) {
                                 return (
                                     ModeControl::Push(
-                                        InventoryActionMode::new(
-                                            &app.world,
-                                            item_id.0,
-                                            Some(inv_action),
-                                        )
-                                        .into(),
+                                        InventoryActionMode::new(&app.world, item_id.0, Some(inv_action))
+                                            .into(),
                                     ),
                                     ModeUpdate::Update,
                                 );
@@ -335,8 +323,7 @@ impl InventoryMode {
         ////////////////////////////////////////////////////////////////////////
 
         let (inv_width, inv_height) = self.dimensions;
-        let bg_color =
-            if matches!(self.subsection, SubSection::Inventory) { SELECTED_BG } else { BLACK };
+        let bg_color = if matches!(self.subsection, SubSection::Inventory) { SELECTED_BG } else { BLACK };
 
         let inv_box = box_with_title(
             draw_batch,
@@ -364,8 +351,7 @@ impl InventoryMode {
             );
         } else {
             for (j, item) in self.inventory.iter().enumerate() {
-                let selected =
-                    matches!(self.subsection, SubSection::Inventory) && self.inv_selection == j;
+                let selected = matches!(self.subsection, SubSection::Inventory) && self.inv_selection == j;
                 menu_option(draw_batch, x + 1, y + 2, 97 + j as FontCharType, &item.1, selected);
                 y += 1;
             }

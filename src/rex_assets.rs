@@ -12,9 +12,7 @@ pub struct RexAssets {
 }
 
 impl Default for RexAssets {
-    fn default() -> Self {
-        Self::new()
-    }
+    fn default() -> Self { Self::new() }
 }
 
 impl RexAssets {

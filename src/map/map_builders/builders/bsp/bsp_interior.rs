@@ -7,15 +7,11 @@ pub struct BspInteriorBuilder {
 }
 
 impl InitialMapBuilder for BspInteriorBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl BspInteriorBuilder {
-    pub fn new() -> Box<BspInteriorBuilder> {
-        Box::new(BspInteriorBuilder { rects: Vec::new() })
-    }
+    pub fn new() -> Box<BspInteriorBuilder> { Box::new(BspInteriorBuilder { rects: Vec::new() }) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let mut rooms: Vec<Rect> = Vec::new();
@@ -46,10 +42,8 @@ impl BspInteriorBuilder {
             let next_room = rooms[i + 1];
             let start_x = room.x1 + (crate::rng::roll_dice(1, i32::abs(room.x1 - room.x2)) - 1);
             let start_y = room.y1 + (crate::rng::roll_dice(1, i32::abs(room.y1 - room.y2)) - 1);
-            let end_x =
-                next_room.x1 + (crate::rng::roll_dice(1, i32::abs(next_room.x1 - next_room.x2)) - 1);
-            let end_y =
-                next_room.y1 + (crate::rng::roll_dice(1, i32::abs(next_room.y1 - next_room.y2)) - 1);
+            let end_x = next_room.x1 + (crate::rng::roll_dice(1, i32::abs(next_room.x1 - next_room.x2)) - 1);
+            let end_y = next_room.y1 + (crate::rng::roll_dice(1, i32::abs(next_room.y1 - next_room.y2)) - 1);
             draw_corridor(&mut build_data.map, start_x, start_y, end_x, end_y);
             build_data.take_snapshot();
         }

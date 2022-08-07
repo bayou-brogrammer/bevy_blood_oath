@@ -37,9 +37,7 @@ pub enum RunControl {
 macro_rules! impl_from {
     ($to:ty, $from:ident) => {
         impl From<$from> for $to {
-            fn from(f: $from) -> Self {
-                Self::$from(f)
-            }
+            fn from(f: $from) -> Self { Self::$from(f) }
         }
     };
 }
@@ -197,9 +195,7 @@ pub struct ModeStack {
 
 impl ModeStack {
     /// Create a new mode stack.
-    pub fn new(stack: Vec<Mode>) -> Self {
-        Self { stack, pop_result: None }
-    }
+    pub fn new(stack: Vec<Mode>) -> Self { Self { stack, pop_result: None } }
 
     /// Perform update logic for the top mode of the stack, and then drawing logic for all  modes.
     ///

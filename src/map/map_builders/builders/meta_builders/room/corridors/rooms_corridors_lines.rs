@@ -4,15 +4,11 @@ use std::collections::HashSet;
 pub struct StraightLineCorridors {}
 
 impl MetaMapBuilder for StraightLineCorridors {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.corridors(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.corridors(build_data); }
 }
 
 impl StraightLineCorridors {
-    pub fn new() -> Box<StraightLineCorridors> {
-        Box::new(StraightLineCorridors {})
-    }
+    pub fn new() -> Box<StraightLineCorridors> { Box::new(StraightLineCorridors {}) }
 
     fn corridors(&mut self, build_data: &mut BuilderMap) {
         let rooms: Vec<Rect>;

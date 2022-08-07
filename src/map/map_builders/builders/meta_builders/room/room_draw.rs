@@ -3,15 +3,11 @@ use super::*;
 pub struct RoomDrawer {}
 
 impl MetaMapBuilder for RoomDrawer {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl RoomDrawer {
-    pub fn new() -> Box<RoomDrawer> {
-        Box::new(RoomDrawer {})
-    }
+    pub fn new() -> Box<RoomDrawer> { Box::new(RoomDrawer {}) }
 
     fn rectangle(&mut self, build_data: &mut BuilderMap, room: &Rect) {
         for y in room.y1 + 1..=room.y2 {

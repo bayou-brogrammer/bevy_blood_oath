@@ -5,15 +5,11 @@ use std::collections::HashMap;
 pub struct VoronoiSpawning {}
 
 impl MetaMapBuilder for VoronoiSpawning {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl VoronoiSpawning {
-    pub fn new() -> Box<VoronoiSpawning> {
-        Box::new(VoronoiSpawning {})
-    }
+    pub fn new() -> Box<VoronoiSpawning> { Box::new(VoronoiSpawning {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let mut noise_areas: HashMap<i32, Vec<usize>> = HashMap::new();

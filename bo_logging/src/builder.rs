@@ -7,13 +7,9 @@ pub struct Logger {
 }
 
 impl Logger {
-    pub fn new() -> Self {
-        Logger { current_color: RGB::named(WHITE), fragments: Vec::new() }
-    }
+    pub fn new() -> Self { Logger { current_color: RGB::named(WHITE), fragments: Vec::new() } }
 
-    pub fn log(self) {
-        append_entry(self.fragments)
-    }
+    pub fn log(self) { append_entry(self.fragments) }
 
     pub fn color(mut self, color: (u8, u8, u8)) -> Self {
         self.current_color = RGB::named(color);

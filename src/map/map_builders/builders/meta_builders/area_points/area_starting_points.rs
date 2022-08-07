@@ -18,15 +18,11 @@ pub struct AreaStartingPosition {
 }
 
 impl MetaMapBuilder for AreaStartingPosition {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl AreaStartingPosition {
-    pub fn new(x: XStart, y: YStart) -> Box<AreaStartingPosition> {
-        Box::new(AreaStartingPosition { x, y })
-    }
+    pub fn new(x: XStart, y: YStart) -> Box<AreaStartingPosition> { Box::new(AreaStartingPosition { x, y }) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let seed_x = match self.x {

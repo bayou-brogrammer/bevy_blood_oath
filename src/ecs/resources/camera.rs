@@ -6,9 +6,7 @@ pub struct GameCamera {
 }
 
 impl GameCamera {
-    pub fn new(player_pos: Point) -> Self {
-        GameCamera { player_pos }
-    }
+    pub fn new(player_pos: Point) -> Self { GameCamera { player_pos } }
 
     pub fn get_screen_bounds(&self) -> (i32, i32, i32, i32) {
         let (x_chars, y_chars) = (48, 44);

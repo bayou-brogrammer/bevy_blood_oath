@@ -59,9 +59,7 @@ impl VoronoiCellBuilder {
                 let distance = match self.distance_algorithm {
                     DistanceAlgorithm::Manhattan => DistanceAlg::Manhattan.distance2d(pt, pos.1),
                     DistanceAlgorithm::Chebyshev => DistanceAlg::Chebyshev.distance2d(pt, pos.1),
-                    DistanceAlgorithm::Pythagoras => {
-                        DistanceAlg::PythagorasSquared.distance2d(pt, pos.1)
-                    }
+                    DistanceAlgorithm::Pythagoras => DistanceAlg::PythagorasSquared.distance2d(pt, pos.1),
                 };
                 voronoi_distance[seed] = (seed, distance);
             }

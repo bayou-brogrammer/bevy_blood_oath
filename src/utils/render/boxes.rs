@@ -24,9 +24,7 @@ pub struct BoxConfigWithTitle {
 }
 
 impl BoxConfigWithTitle {
-    pub fn new(box_config: BoxConfig, text_config: TextConfig) -> Self {
-        Self { box_config, text_config }
-    }
+    pub fn new(box_config: BoxConfig, text_config: TextConfig) -> Self { Self { box_config, text_config } }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,13 +70,7 @@ impl TextConfig {
 /// Box Implementations
 ///////////////////////////////////////////////////////////////////////////////
 
-fn draw_box(
-    batch: &mut DrawBatch,
-    box_rect: Rect,
-    double: bool,
-    hollow: bool,
-    color: ColorPair,
-) -> Rect {
+fn draw_box(batch: &mut DrawBatch, box_rect: Rect, double: bool, hollow: bool, color: ColorPair) -> Rect {
     match (double, hollow) {
         (true, true) => batch.draw_hollow_double_box(box_rect, color),
         (true, false) => batch.draw_double_box(box_rect, color),

@@ -53,12 +53,7 @@ pub fn item_result_menu<S: ToString>(
         draw_batch,
         (screen_w, screen_h),
         BoxConfigWithTitle {
-            box_config: BoxConfig::new(
-                (max_width, max_height),
-                ColorPair::new(WHITE, BLACK),
-                true,
-                false,
-            ),
+            box_config: BoxConfig::new((max_width, max_height), ColorPair::new(WHITE, BLACK), true, false),
             text_config: TextConfig::with_footer(
                 title,
                 "[Esc] to cancel",

@@ -3,15 +3,11 @@ use super::{spawner, BuilderMap, MetaMapBuilder};
 pub struct CorridorSpawner {}
 
 impl MetaMapBuilder for CorridorSpawner {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl CorridorSpawner {
-    pub fn new() -> Box<CorridorSpawner> {
-        Box::new(CorridorSpawner {})
-    }
+    pub fn new() -> Box<CorridorSpawner> { Box::new(CorridorSpawner {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         if let Some(corridors) = &build_data.corridors {

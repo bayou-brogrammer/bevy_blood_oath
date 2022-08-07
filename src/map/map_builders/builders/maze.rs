@@ -3,15 +3,11 @@ use super::*;
 pub struct MazeBuilder {}
 
 impl InitialMapBuilder for MazeBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl MazeBuilder {
-    pub fn new() -> Box<MazeBuilder> {
-        Box::new(MazeBuilder {})
-    }
+    pub fn new() -> Box<MazeBuilder> { Box::new(MazeBuilder {}) }
 
     #[allow(clippy::map_entry)]
     fn build(&mut self, build_data: &mut BuilderMap) {

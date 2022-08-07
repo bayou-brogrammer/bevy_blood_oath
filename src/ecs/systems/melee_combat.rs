@@ -35,8 +35,7 @@ pub fn combat(
 
                     let damage = i32::max(
                         0,
-                        (attacker_stats.power + offensive_bonus)
-                            - (target_stats.defense + defensive_bonus),
+                        (attacker_stats.power + offensive_bonus) - (target_stats.defense + defensive_bonus),
                     );
 
                     if damage == 0 {

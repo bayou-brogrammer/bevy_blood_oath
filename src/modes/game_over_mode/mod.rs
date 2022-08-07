@@ -81,18 +81,12 @@ impl GameOverMode {
         );
         draw_batch.print_color_centered(
             20,
-            &format!(
-                "You suffered {} points of damage.",
-                bo_logging::get_event_count(DAMAGE_TAKE_EVENT)
-            ),
+            &format!("You suffered {} points of damage.", bo_logging::get_event_count(DAMAGE_TAKE_EVENT)),
             ColorPair::new(RED, BLACK),
         );
         draw_batch.print_color_centered(
             21,
-            &format!(
-                "You inflicted {} points of damage.",
-                bo_logging::get_event_count(DAMAGE_INFLICT_EVENT)
-            ),
+            &format!("You inflicted {} points of damage.", bo_logging::get_event_count(DAMAGE_INFLICT_EVENT)),
             ColorPair::new(RED, BLACK),
         );
 

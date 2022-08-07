@@ -16,9 +16,7 @@ pub struct RandomTable {
 }
 
 impl RandomTable {
-    pub fn new() -> RandomTable {
-        RandomTable { entries: Vec::new(), total_weight: 0 }
-    }
+    pub fn new() -> RandomTable { RandomTable { entries: Vec::new(), total_weight: 0 } }
 
     pub fn add<S: ToString>(mut self, name: S, weight: i32) -> RandomTable {
         if weight > 0 {

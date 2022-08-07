@@ -99,10 +99,7 @@ pub fn player_input(
     PlayerInputResult::NoResult
 }
 
-fn try_pickup_item(
-    player_pos: Point,
-    items_query: Query<(Entity, &Point), With<Item>>,
-) -> Option<Entity> {
+fn try_pickup_item(player_pos: Point, items_query: Query<(Entity, &Point), With<Item>>) -> Option<Entity> {
     for (entity, item_pos) in items_query.iter() {
         if *item_pos == player_pos {
             return Some(entity);

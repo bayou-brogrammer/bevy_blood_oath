@@ -18,9 +18,7 @@ macro_rules! impl_new
 macro_rules! impl_default {
     ($to:ty) => {
         impl Default for $to {
-            fn default() -> Self {
-                Self::new()
-            }
+            fn default() -> Self { Self::new() }
         }
     };
 }

@@ -3,15 +3,11 @@ use super::*;
 pub struct DoglegCorridors {}
 
 impl MetaMapBuilder for DoglegCorridors {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.corridors(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.corridors(build_data); }
 }
 
 impl DoglegCorridors {
-    pub fn new() -> Box<DoglegCorridors> {
-        Box::new(DoglegCorridors {})
-    }
+    pub fn new() -> Box<DoglegCorridors> { Box::new(DoglegCorridors {}) }
 
     fn corridors(&mut self, build_data: &mut BuilderMap) {
         let rooms: Vec<Rect>;

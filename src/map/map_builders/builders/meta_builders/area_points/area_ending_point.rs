@@ -18,15 +18,11 @@ pub struct AreaEndingPosition {
 }
 
 impl MetaMapBuilder for AreaEndingPosition {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl AreaEndingPosition {
-    pub fn new(x: XEnd, y: YEnd) -> Box<AreaEndingPosition> {
-        Box::new(AreaEndingPosition { x, y })
-    }
+    pub fn new(x: XEnd, y: YEnd) -> Box<AreaEndingPosition> { Box::new(AreaEndingPosition { x, y }) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let seed_x = match self.x {

@@ -4,15 +4,11 @@ use std::collections::HashSet;
 pub struct NearestCorridors {}
 
 impl MetaMapBuilder for NearestCorridors {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.corridors(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.corridors(build_data); }
 }
 
 impl NearestCorridors {
-    pub fn new() -> Box<NearestCorridors> {
-        Box::new(NearestCorridors {})
-    }
+    pub fn new() -> Box<NearestCorridors> { Box::new(NearestCorridors {}) }
 
     fn corridors(&mut self, build_data: &mut BuilderMap) {
         let rooms: Vec<Rect>;

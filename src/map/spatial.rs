@@ -14,9 +14,7 @@ impl SpatialMap {
         Self { width: 0, height: 0, blocked: Vec::new(), tile_content: Vec::new(), opaque: Vec::new() }
     }
 
-    fn _xy_idx(&self, x: i32, y: i32) -> usize {
-        (y as usize * self.width as usize) + x as usize
-    }
+    fn _xy_idx(&self, x: i32, y: i32) -> usize { (y as usize * self.width as usize) + x as usize }
 
     fn point2d_to_index(&self, pt: Point) -> usize {
         let bounds = Point::new(self.width, self.height);

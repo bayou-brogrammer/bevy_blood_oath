@@ -18,9 +18,7 @@ pub struct DungeonMode {
 }
 
 impl std::fmt::Debug for DungeonMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("DungeonMode").finish()
-    }
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { f.debug_struct("DungeonMode").finish() }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,10 +71,7 @@ impl DungeonMode {
                         // if let Err(e) = saveload::save_game(world) {
                         //     eprintln!("Warning: bo_saveload::save_game: {}", e);
                         // }
-                        return (
-                            ModeControl::Pop(DungeonModeResult::Done.into()),
-                            ModeUpdate::Immediate,
-                        );
+                        return (ModeControl::Pop(DungeonModeResult::Done.into()), ModeUpdate::Immediate);
                     }
                 },
 
@@ -96,13 +91,9 @@ impl DungeonMode {
                     InventoryModeResult::DoNothing => {}
                     _ => {
                         match result {
-                            InventoryModeResult::EquipItem(item) => {
-                                self.equip_item(&mut app.world, item)
-                            }
+                            InventoryModeResult::EquipItem(item) => self.equip_item(&mut app.world, item),
                             InventoryModeResult::DropItem(item) => self.drop_item(&mut app.world, item),
-                            InventoryModeResult::DropEquipment(item) => {
-                                self.drop_item(&mut app.world, item)
-                            }
+                            InventoryModeResult::DropEquipment(item) => self.drop_item(&mut app.world, item),
                             InventoryModeResult::UseItem(item, target) => {
                                 self.use_item(&mut app.world, item, *target)
                             }

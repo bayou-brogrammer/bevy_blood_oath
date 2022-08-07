@@ -31,9 +31,7 @@ impl Solver {
         }
     }
 
-    fn chunk_idx(&self, x: usize, y: usize) -> usize {
-        ((y * self.chunks_x) + x) as usize
-    }
+    fn chunk_idx(&self, x: usize, y: usize) -> usize { ((y * self.chunks_x) + x) as usize }
 
     fn count_neighbors(&self, chunk_x: usize, chunk_y: usize) -> i32 {
         let mut neighbors = 0;

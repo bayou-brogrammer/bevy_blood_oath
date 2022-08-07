@@ -12,16 +12,12 @@ use solver::*;
 pub struct WaveformCollapseBuilder {}
 
 impl MetaMapBuilder for WaveformCollapseBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl WaveformCollapseBuilder {
     /// Constructor for waveform collapse.
-    pub fn new() -> Box<WaveformCollapseBuilder> {
-        Box::new(WaveformCollapseBuilder {})
-    }
+    pub fn new() -> Box<WaveformCollapseBuilder> { Box::new(WaveformCollapseBuilder {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         const CHUNK_SIZE: i32 = 8;

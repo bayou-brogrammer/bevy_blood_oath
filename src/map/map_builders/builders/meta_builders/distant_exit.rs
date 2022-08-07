@@ -3,15 +3,11 @@ use super::*;
 pub struct DistantExit {}
 
 impl MetaMapBuilder for DistantExit {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl DistantExit {
-    pub fn new() -> Box<DistantExit> {
-        Box::new(DistantExit {})
-    }
+    pub fn new() -> Box<DistantExit> { Box::new(DistantExit {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let starting_pos = *build_data.starting_position.as_ref().unwrap();

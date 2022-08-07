@@ -60,9 +60,7 @@ impl TargetingMode {
         if self.warn_self {
             let map_mouse_pos = self.camera.world_to_screen(self.active_mouse_pt);
             let distance = DistanceAlg::Pythagoras.distance2d(self.player_positon, map_mouse_pos);
-            if self.player_positon == map_mouse_pos
-                || (self.radius > 0 && distance <= self.radius as f32)
-            {
+            if self.player_positon == map_mouse_pos || (self.radius > 0 && distance <= self.radius as f32) {
                 return true;
             }
         }

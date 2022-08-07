@@ -21,30 +21,18 @@ impl BitGrid {
         Self { width, height, bv: bitvec![0; (width * height) as usize] }
     }
 
-    pub fn iter(&self) -> Iter<'_, usize, Lsb0> {
-        self.bv.iter()
-    }
+    pub fn iter(&self) -> Iter<'_, usize, Lsb0> { self.bv.iter() }
 
-    pub fn iter_mut(&mut self) -> IterMut<'_, usize, Lsb0> {
-        self.bv.iter_mut()
-    }
+    pub fn iter_mut(&mut self) -> IterMut<'_, usize, Lsb0> { self.bv.iter_mut() }
 
-    pub fn as_bitslice(&mut self) -> &BitSlice {
-        self.bv.as_bitslice()
-    }
+    pub fn as_bitslice(&mut self) -> &BitSlice { self.bv.as_bitslice() }
 
-    pub fn as_mut_bitslice(&mut self) -> &mut BitSlice {
-        self.bv.as_mut_bitslice()
-    }
+    pub fn as_mut_bitslice(&mut self) -> &mut BitSlice { self.bv.as_mut_bitslice() }
 
     /// Reset all elements to false.
-    pub fn zero_out_bits(&mut self) {
-        self.bv.set_elements(0);
-    }
+    pub fn zero_out_bits(&mut self) { self.bv.set_elements(0); }
 
-    pub fn apply_all_bits(&mut self) {
-        self.bv.as_mut_bitslice().iter_mut().for_each(|mut b| b.set(true));
-    }
+    pub fn apply_all_bits(&mut self) { self.bv.as_mut_bitslice().iter_mut().for_each(|mut b| b.set(true)); }
 
     /// Get the bool at the given x and y.
     ///
@@ -69,9 +57,7 @@ impl BitGrid {
 }
 
 impl Algorithm2D for BitGrid {
-    fn dimensions(&self) -> Point {
-        Point::new(self.width, self.height)
-    }
+    fn dimensions(&self) -> Point { Point::new(self.width, self.height) }
 
     fn in_bounds(&self, pos: Point) -> bool {
         pos.x >= 0 && pos.x < self.width as i32 && pos.y > 0 && pos.y < self.height as i32

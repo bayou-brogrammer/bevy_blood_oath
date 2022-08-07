@@ -181,8 +181,7 @@ impl InventoryActionMode {
                 key @ VirtualKeyCode::D | key @ VirtualKeyCode::A => {
                     if let Some(inv_action) = InventoryAction::from_key(key) {
                         if let Some(action_pos) = self.actions.iter().position(|a| *a == inv_action) {
-                            if matches!(self.subsection, SubSection::Actions)
-                                && self.selection == action_pos
+                            if matches!(self.subsection, SubSection::Actions) && self.selection == action_pos
                             {
                                 return self.confirm_action(ctx, &app.world);
                             } else {
@@ -206,12 +205,7 @@ impl InventoryActionMode {
         let box_rect = center_box(
             &mut draw_batch,
             (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
-            BoxConfig::new(
-                (self.inner_width, ACTION_BASE_HEIGHT),
-                ColorPair::new(WHITE, BLACK),
-                true,
-                false,
-            ),
+            BoxConfig::new((self.inner_width, ACTION_BASE_HEIGHT), ColorPair::new(WHITE, BLACK), true, false),
         );
 
         let x = box_rect.x1 + 1;

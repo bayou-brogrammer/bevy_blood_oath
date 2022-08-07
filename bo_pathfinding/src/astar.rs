@@ -52,9 +52,7 @@ impl PartialOrd for Node {
 
 impl NavigationPath {
     /// Makes a new (empty) NavigationPath
-    pub fn new() -> NavigationPath {
-        NavigationPath { destination: 0, success: false, steps: Vec::new() }
-    }
+    pub fn new() -> NavigationPath { NavigationPath { destination: 0, success: false, steps: Vec::new() } }
 }
 
 /// Private structure for calculating an A-Star navigation path.
@@ -73,14 +71,7 @@ impl AStar {
         let mut open_list: BinaryHeap<Node> = BinaryHeap::new();
         open_list.push(Node { idx: start, f: 0.0, g: 0.0 });
 
-        AStar {
-            start,
-            end,
-            open_list,
-            parents: HashMap::new(),
-            closed_list: HashMap::new(),
-            step_counter: 0,
-        }
+        AStar { start, end, open_list, parents: HashMap::new(), closed_list: HashMap::new(), step_counter: 0 }
     }
 
     /// Wrapper to the BaseMap's distance function.

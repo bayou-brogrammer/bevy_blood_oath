@@ -30,9 +30,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn xy_idx(&self, x: i32, y: i32) -> usize {
-        (y * self.width + x) as usize
-    }
+    pub fn xy_idx(&self, x: i32, y: i32) -> usize { (y * self.width + x) as usize }
 
     pub fn get_tile_type(&self, tt: TileType) -> Vec<GameTile> {
         self.tiles.iter().filter(|t| t.tile_type == tt).cloned().collect::<Vec<_>>()
@@ -44,9 +42,7 @@ impl Map {
         crate::spatial::clear_opaque();
     }
 
-    pub fn clear_visible(&mut self) {
-        self.visible.zero_out_bits();
-    }
+    pub fn clear_visible(&mut self) { self.visible.zero_out_bits(); }
 
     pub fn set_revealed_and_visible(&mut self, pt: Point) {
         if self.in_bounds(pt) {
@@ -113,9 +109,7 @@ impl Map {
 }
 
 impl Algorithm2D for Map {
-    fn dimensions(&self) -> Point {
-        Point::new(self.width, self.height)
-    }
+    fn dimensions(&self) -> Point { Point::new(self.width, self.height) }
 
     fn in_bounds(&self, pos: Point) -> bool {
         pos.x >= 0 && pos.x < self.width as i32 && pos.y > 0 && pos.y < self.height as i32

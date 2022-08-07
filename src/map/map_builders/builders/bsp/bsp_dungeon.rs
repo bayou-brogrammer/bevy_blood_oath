@@ -5,15 +5,11 @@ pub struct BspDungeonBuilder {
 }
 
 impl InitialMapBuilder for BspDungeonBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl BspDungeonBuilder {
-    pub fn new() -> Box<BspDungeonBuilder> {
-        Box::new(BspDungeonBuilder { rects: Vec::new() })
-    }
+    pub fn new() -> Box<BspDungeonBuilder> { Box::new(BspDungeonBuilder { rects: Vec::new() }) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let mut rooms: Vec<Rect> = Vec::new();

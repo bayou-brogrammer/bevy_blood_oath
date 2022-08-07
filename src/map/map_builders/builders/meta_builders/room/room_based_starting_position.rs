@@ -3,15 +3,11 @@ use super::*;
 pub struct RoomBasedStartingPosition {}
 
 impl MetaMapBuilder for RoomBasedStartingPosition {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl RoomBasedStartingPosition {
-    pub fn new() -> Box<RoomBasedStartingPosition> {
-        Box::new(RoomBasedStartingPosition {})
-    }
+    pub fn new() -> Box<RoomBasedStartingPosition> { Box::new(RoomBasedStartingPosition {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         if let Some(rooms) = &build_data.rooms {

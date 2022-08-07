@@ -20,21 +20,15 @@ pub struct DrunkardsWalkBuilder {
 }
 
 impl InitialMapBuilder for DrunkardsWalkBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl MetaMapBuilder for DrunkardsWalkBuilder {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl DrunkardsWalkBuilder {
-    pub fn new(settings: DrunkardSettings) -> DrunkardsWalkBuilder {
-        DrunkardsWalkBuilder { settings }
-    }
+    pub fn new(settings: DrunkardSettings) -> DrunkardsWalkBuilder { DrunkardsWalkBuilder { settings } }
 
     pub fn open_area() -> Box<DrunkardsWalkBuilder> {
         Box::new(DrunkardsWalkBuilder {
@@ -181,8 +175,7 @@ impl DrunkardsWalkBuilder {
                     *t = GameTile::floor();
                 }
             }
-            floor_tile_count =
-                build_data.map.tiles.iter().filter(|a| a.tile_type == TileType::Floor).count();
+            floor_tile_count = build_data.map.tiles.iter().filter(|a| a.tile_type == TileType::Floor).count();
         }
     }
 }

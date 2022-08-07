@@ -187,9 +187,7 @@ impl DLABuilder {
                         Point::new(starting_position.x, starting_position.y),
                     );
 
-                    while build_data.map.tiles[digger_idx].tile_type == TileType::Wall
-                        && !path.is_empty()
-                    {
+                    while build_data.map.tiles[digger_idx].tile_type == TileType::Wall && !path.is_empty() {
                         prev_x = digger_x;
                         prev_y = digger_y;
                         digger_x = path[0].x;
@@ -203,8 +201,7 @@ impl DLABuilder {
 
             build_data.take_snapshot();
 
-            floor_tile_count =
-                build_data.map.tiles.iter().filter(|a| a.tile_type == TileType::Floor).count();
+            floor_tile_count = build_data.map.tiles.iter().filter(|a| a.tile_type == TileType::Floor).count();
         }
     }
 }

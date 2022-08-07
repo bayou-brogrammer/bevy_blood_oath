@@ -3,15 +3,11 @@ use super::*;
 pub struct CullUnreachable {}
 
 impl MetaMapBuilder for CullUnreachable {
-    fn build_map(&mut self, build_data: &mut BuilderMap) {
-        self.build(build_data);
-    }
+    fn build_map(&mut self, build_data: &mut BuilderMap) { self.build(build_data); }
 }
 
 impl CullUnreachable {
-    pub fn new() -> Box<CullUnreachable> {
-        Box::new(CullUnreachable {})
-    }
+    pub fn new() -> Box<CullUnreachable> { Box::new(CullUnreachable {}) }
 
     fn build(&mut self, build_data: &mut BuilderMap) {
         let starting_pos = *build_data.starting_position.as_ref().unwrap();

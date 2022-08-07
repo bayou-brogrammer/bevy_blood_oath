@@ -7,9 +7,7 @@ pub trait BTermClear {
 }
 
 impl BTermClear for BTerm {
-    fn reset_consoles() {
-        BACKEND_INTERNAL.lock().consoles.clear();
-    }
+    fn reset_consoles() { BACKEND_INTERNAL.lock().consoles.clear(); }
 
     fn clear_all_internal_consoles() {
         BACKEND_INTERNAL.lock().consoles.iter_mut().for_each(|c| c.console.cls());

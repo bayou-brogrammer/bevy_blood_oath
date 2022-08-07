@@ -18,8 +18,10 @@ pub fn render_tooltips(
     }
 
     let mut lines = Vec::new();
-    tooltip_q.iter().filter(|(pos, _, _, _)| **pos == mouse_map_pos).for_each(
-        |(pos, name, desc, stats)| {
+    tooltip_q
+        .iter()
+        .filter(|(pos, _, _, _)| **pos == mouse_map_pos)
+        .for_each(|(pos, name, desc, stats)| {
             if map.visible.get_bit(*pos) {
                 lines.push((CYAN, name.0.clone()));
 
@@ -31,8 +33,7 @@ pub fn render_tooltips(
                     lines.push((GRAY, format!("{}/{} hp", stats.hp, stats.max_hp)));
                 }
             }
-        },
-    );
+        });
 
     let mut batch = DrawBatch::new();
     batch.target(LAYER_TOOL);
