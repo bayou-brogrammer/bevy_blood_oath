@@ -30,7 +30,7 @@ jobs:
       - name: Install rust toolchain for Apple Silicon
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           target: aarch64-apple-darwin
           override: true
 
@@ -41,7 +41,7 @@ jobs:
       - name: Install rust toolchain for Apple x86
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           target: x86_64-apple-darwin
           override: true
 
@@ -85,21 +85,26 @@ jobs:
       - name: Install rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           override: true
+
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
+      
       - name: Build release
         run: |
           cargo build --release
+
       - name: Prepare release
         run: |
           strip target/release/${{ env.GAME_EXECUTABLE_NAME }}
           chmod +x target/release/${{ env.GAME_EXECUTABLE_NAME }}
           mv target/release/${{ env.GAME_EXECUTABLE_NAME }} .
+
       - name: Bundle release
         run: |
           tar -czf ${{ env.GAME_EXECUTABLE_NAME }}_linux.tar.gz ${{ env.GAME_EXECUTABLE_NAME }} assets credits
+      
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -116,25 +121,31 @@ jobs:
       - name: Get tag
         id: tag
         uses: dawidd6/action-get-tag@v1
+      
       - name: Checkout repository
         uses: actions/checkout@v3
+      
       - name: Install rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           override: true
+
       - name: Build release
         run: |
           cargo build --release
+
       - name: Prepare release
         run: |
           mkdir target/release/assets && cp -r assets target/release/assets
           mkdir target/release/credits && cp -r credits target/release/credits
+      
       - name: Zip release
         uses: vimtor/action-zip@v1
         with:
           files: target/release/assets/ target/release/credits/ target/release/${{ env.GAME_EXECUTABLE_NAME }}.exe
           dest: ${{ env.GAME_EXECUTABLE_NAME }}_windows.zip
+      
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -158,7 +169,7 @@ jobs:
       - name: Install rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           override: true
 
       - name: Install Dependencies
