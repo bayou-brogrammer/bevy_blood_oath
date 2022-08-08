@@ -56,7 +56,7 @@ mod prelude {
 
     pub const MAP_GEN_TIMER: f32 = 100.0;
     pub const SHOW_BOUNDARIES: bool = true;
-    pub const SHOW_MAPGEN_VISUALIZER: bool = false;
+    pub const SHOW_MAPGEN_VISUALIZER: bool = true;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 60;

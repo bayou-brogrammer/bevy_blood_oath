@@ -14,6 +14,7 @@ pub use templates::*;
 embedded_resource!(RAW_ITEM_FILE, "../../resources/raws/items.ron");
 embedded_resource!(RAW_MOB_FILE, "../../resources/raws/mobs.ron");
 embedded_resource!(RAW_PROP_FILE, "../../resources/raws/props.ron");
+embedded_resource!(RAW_SPAWN_TABLE_FILE, "../../resources/raws/spawn_table.ron");
 
 lazy_static! {
     pub static ref RAWS: Mutex<RawMaster> = Mutex::new(RawMaster::empty());
@@ -24,6 +25,7 @@ pub struct Raws {
     pub mobs: Vec<RawMob>,
     pub props: Vec<RawProp>,
     pub items: Vec<RawItem>,
+    pub spawn_table: Vec<SpawnTableEntry>,
 }
 
 impl Raws {
@@ -49,10 +51,12 @@ pub fn load_raws() {
     link_resource!(RAW_ITEM_FILE, "resources/raws/items.ron");
     link_resource!(RAW_MOB_FILE, "resources/raws/mobs.ron");
     link_resource!(RAW_PROP_FILE, "resources/raws/props.ron");
+    link_resource!(RAW_SPAWN_TABLE_FILE, "resources/raws/spawn_table.ron");
 
     let mobs = Raws::load_raw::<Vec<RawMob>>(RAW_MOB_FILE);
     let items = Raws::load_raw::<Vec<RawItem>>(RAW_ITEM_FILE);
     let props = Raws::load_raw::<Vec<RawProp>>(RAW_PROP_FILE);
+    let spawn_table = Raws::load_raw::<Vec<SpawnTableEntry>>(RAW_SPAWN_TABLE_FILE);
 
-    RAWS.lock().load(Raws { items, mobs, props });
+    RAWS.lock().load(Raws { items, mobs, props, spawn_table });
 }

@@ -23,3 +23,6 @@ pub struct Hidden;
 
 #[derive(Component, Debug, Serialize, Deserialize)]
 pub struct Door(pub bool);
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct Bystander {}

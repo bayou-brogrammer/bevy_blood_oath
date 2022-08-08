@@ -50,23 +50,7 @@ pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
     commands.remove_resource::<BuilderMap>()
 }
 
-fn room_table(map_depth: i32) -> RandomTable {
-    RandomTable::new()
-        .add(GOBLIN, 10)
-        .add(ORC, 1 + map_depth)
-        .add(HEALTH_POTION, 7)
-        .add(FIREBALL_SCROLL, 2 + map_depth)
-        .add(CONFUSION_SCROLL, 2 + map_depth)
-        .add(MAGIC_MISSLE_SCROLL, 4)
-        .add(DAGGER, 3)
-        .add(SHIELD, 3)
-        .add(LONGSWORD, map_depth - 1)
-        .add(TOWER_SHIELD, map_depth - 1)
-        .add(RATIONS, 10)
-        .add(MAGIC_MAPPING_SCROLL, 2)
-        .add(BEAR_TRAP, 2)
-}
-
+fn room_table(map_depth: i32) -> MasterTable { raws::get_spawn_table_for_depth(&RAWS.lock(), map_depth) }
 const MAX_MONSTERS: i32 = 10;
 
 /// Fills a room with stuff!
@@ -90,7 +74,7 @@ pub fn spawn_room(map: &Map, room: &Rect, map_depth: i32, spawn_list: &mut Vec<(
 /// Fills a region with stuff!
 pub fn spawn_region(area: &[usize], map_depth: i32, spawn_list: &mut Vec<(usize, String)>) {
     let spawn_table = room_table(map_depth);
-    let mut spawn_points: HashMap<usize, String> = HashMap::new();
+    let mut spawn_points: HashMap<usize, Option<String>> = HashMap::new();
     let mut areas: Vec<usize> = Vec::from(area);
 
     // Scope to keep the borrow checker happy
@@ -115,14 +99,17 @@ pub fn spawn_region(area: &[usize], map_depth: i32, spawn_list: &mut Vec<(usize,
     }
 
     // Actually spawn the monsters
-    for spawn in spawn_points.iter() {
-        spawn_list.push((*spawn.0, spawn.1.to_string()));
+    for (spawn_idx, spawn_key) in spawn_points.iter() {
+        if spawn_key.is_some() {
+            spawn_list.push((*spawn_idx, spawn_key.as_ref().unwrap().to_string()));
+        }
     }
 }
 
 /// Spawns a named entity (name in tuple.1) at the location in (tuple.0)
 pub fn spawn_entity(commands: &mut Commands, map: &Map, spawn: &(&usize, &String)) {
     let pt = map.index_to_point2d(*spawn.0);
+
     let spawn_result = spawn_named_entity(commands, spawn.1, SpawnType::AtPosition(pt));
     if spawn_result.is_some() {
         return;

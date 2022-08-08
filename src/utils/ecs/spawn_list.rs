@@ -1,25 +1,39 @@
 // Entities
-pub const DOOR: &str = "Door";
-pub const GOBLIN: &str = "Goblin";
-pub const ORC: &str = "Orc";
-
-// Equipment
-pub const DAGGER: &str = "Dagger";
-pub const SHIELD: &str = "Shield";
-pub const LONGSWORD: &str = "Longsword";
-pub const TOWER_SHIELD: &str = "Tower Shield";
-
-// Items
-pub const HEALTH_POTION: &str = "Health Potion";
-pub const FIREBALL_SCROLL: &str = "Fireball Scroll";
-pub const CONFUSION_SCROLL: &str = "Confusion Scroll";
-pub const MAGIC_MISSLE_SCROLL: &str = "Magic Missile Scroll";
+pub const MOM: &str = "Mom";
+pub const DRUNK: &str = "Drunk";
+pub const PATRON: &str = "Patron";
+pub const PRIEST: &str = "Priest";
+pub const FISHER: &str = "Fisher";
+pub const PEASANT: &str = "Peasant";
+pub const BARKEEP: &str = "Barkeep";
+pub const CLOTHIER: &str = "Clothier";
+pub const ALCHEMIST: &str = "Alchemist";
+pub const BLACKSMITH: &str = "Blacksmith";
+pub const PARISHIONER: &str = "Parishioner";
+pub const DOCK_WORKER: &str = "Dock Worker";
+pub const SHADY_SALESMAN: &str = "Shady Salesman";
+pub const WANNABE_PIRATE: &str = "Wannabe Pirate";
 pub const MAGIC_MAPPING_SCROLL: &str = "Magic Mapping Scroll";
 
-// Misc
-pub const RATIONS: &str = "Rations";
-pub const BEAR_TRAP: &str = "Bear Trap";
+// Props
+pub const BED: &str = "Bed";
+pub const KEG: &str = "Keg";
+pub const DOOR: &str = "Door";
+pub const LOOM: &str = "Loom";
+pub const TABLE: &str = "Table";
+pub const ANVIL: &str = "Anvil";
+pub const CHAIR: &str = "Chair";
+pub const ALTAR: &str = "Altar";
+pub const CANDLE: &str = "Candle";
+pub const CABINET: &str = "Cabinet";
+pub const HIDE_RACK: &str = "Hide Rack";
+pub const DEAD_THING: &str = "Dead Thing";
+pub const WEAPON_RACK: &str = "Weapon Rack";
+pub const ARMOR_STAND: &str = "Armor Stand";
+pub const WATER_TROUGH: &str = "Water Trough";
+pub const CHEMISTRY_SET: &str = "Chemistry Set";
 
+// Effects
 pub const AREA_OF_EFFECT: &str = "area_of_effect";
 pub const SINGLE_ACTIVATION: &str = "single_activation";
 pub const RANGED: &str = "ranged";

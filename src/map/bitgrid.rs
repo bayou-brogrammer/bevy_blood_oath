@@ -32,7 +32,7 @@ impl BitGrid {
     /// Reset all elements to false.
     pub fn zero_out_bits(&mut self) { self.bv.set_elements(0); }
 
-    pub fn apply_all_bits(&mut self) { self.bv.as_mut_bitslice().iter_mut().for_each(|mut b| b.set(true)); }
+    pub fn apply_all_bits(&mut self, bit: bool) { self.iter_mut().for_each(|mut b| b.set(bit)); }
 
     /// Get the bool at the given x and y.
     ///

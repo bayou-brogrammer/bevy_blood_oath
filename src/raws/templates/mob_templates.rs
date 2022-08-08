@@ -3,10 +3,17 @@ use crate::impl_raw;
 use super::*;
 
 #[derive(Deserialize, Debug, Clone)]
+pub enum AIType {
+    Basic,
+    Bystander,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct RawMob {
     pub name: String,
     pub blocks_tile: bool,
     pub vision_range: i32,
+    pub ai: Option<AIType>,
     pub stats: RawMobStats,
     pub glyph: Option<RawGlyph>,
 }

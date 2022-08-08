@@ -15,7 +15,6 @@ lto = true
 
 [features]
 default = ["bevy/dynamic", "bracket-lib/threaded"]
-dev = ["bevy/dynamic"]
 web = []
 
 [dependencies]

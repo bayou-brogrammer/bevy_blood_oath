@@ -15,15 +15,15 @@ pub enum SpawnType {
     AtPosition(Point),
 }
 
+#[rustfmt::skip]
 pub fn spawn_position(pos: SpawnType, eb: &mut EntityCommands, tag: &str, raws: &RawMaster) {
     // Spawn in the specified location
     match pos {
-        SpawnType::Equipped(by) => {}
-        SpawnType::AtPosition(pt) => {
-            eb.insert(pt);
-        }
-        SpawnType::Carried(by) => {
-            eb.insert(InBackpack { owner: by });
+        SpawnType::AtPosition(pt) => { eb.insert(pt); }
+        SpawnType::Carried(by) => { eb.insert(InBackpack { owner: by }); }
+        SpawnType::Equipped(by) => {
+            let slot = find_slot_for_equippable_item(tag, raws);
+            eb.insert(Equipped::new(by, slot));
         }
     }
 }
@@ -127,7 +127,20 @@ pub fn spawn_named_mob(
     let mut eb = commands.spawn();
     let mob_template = spawn_base_entity(raws, &mut eb, &raws.raws.mobs, &raws.mob_index, key, pos);
 
-    eb.insert(Monster {});
+    match mob_template.ai {
+        Some(ai_type) => match ai_type {
+            AIType::Basic => {
+                eb.insert(Monster {});
+            }
+            AIType::Bystander => {
+                eb.insert(Bystander {});
+            }
+        },
+        None => {
+            eb.insert(Monster {});
+        }
+    }
+
     if mob_template.blocks_tile {
         eb.insert(BlocksTile {});
     }
@@ -142,6 +155,7 @@ pub fn spawn_named_mob(
     Some(eb.id())
 }
 
+#[rustfmt::skip]
 pub fn spawn_named_prop(
     raws: &RawMaster,
     commands: &mut Commands,
@@ -153,20 +167,18 @@ pub fn spawn_named_prop(
 
     // Hidden Trait
     if let Some(hidden) = prop_template.hidden {
-        if hidden {
-            eb.insert(Hidden {});
-        }
+        if hidden { eb.insert(Hidden {}); }
     }
-    // Blocks Visibility Trait
+    // Blocks Tile
+    if let Some(blocks_tile) = prop_template.blocks_tile {
+        if blocks_tile { eb.insert(BlocksTile{}); };
+    }
+    // Blocks Visibility
     if let Some(blocks_visibility) = prop_template.blocks_visibility {
-        if blocks_visibility {
-            eb.insert(BlocksVisibility {});
-        }
+        if blocks_visibility { eb.insert(BlocksVisibility {}); }
     }
     // Door?
-    if let Some(door_open) = prop_template.door_open {
-        eb.insert(Door(door_open));
-    }
+    if let Some(door_open) = prop_template.door_open { eb.insert(Door(door_open)); }
     // Trigger Trait (Traps)
     if let Some(entry_trigger) = &prop_template.entry_trigger {
         eb.insert(EntryTrigger {});
@@ -187,4 +199,20 @@ pub fn spawn_named_entity(commands: &mut Commands, key: &str, pos: SpawnType) ->
     }
 
     None
+}
+
+pub enum SpawnTableType {
+    Item,
+    Mob,
+    Prop,
+}
+
+pub fn spawn_type_by_name(raws: &RawMaster, key: &str) -> SpawnTableType {
+    if raws.item_index.contains_key(key) {
+        SpawnTableType::Item
+    } else if raws.mob_index.contains_key(key) {
+        SpawnTableType::Mob
+    } else {
+        SpawnTableType::Prop
+    }
 }

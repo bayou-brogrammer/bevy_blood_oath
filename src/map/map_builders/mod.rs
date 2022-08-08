@@ -40,7 +40,7 @@ impl BuilderMap {
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_VISUALIZER {
             let mut snapshot = self.map.clone();
-            snapshot.revealed.apply_all_bits();
+            snapshot.revealed.apply_all_bits(true);
             self.history.push(snapshot);
         }
     }
@@ -93,18 +93,13 @@ impl BuilderChain {
             metabuilder.build_map(&mut self.build_data);
         }
     }
-
-    // pub fn spawn_entities(&mut self, world: &mut World) {
-    //     for entity in self.build_data.spawn_list.iter() {
-    //         spawner::spawn_entity(world, &(&entity.0, &entity.1));
-    //     }
-    // }
 }
 
 #[allow(clippy::match_single_binding)]
 pub fn level_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {
     console::log(format!("Depth: {}", new_depth));
     match new_depth {
+        1 => town_builder(new_depth, width, height),
         _ => random_builder(new_depth, width, height),
     }
 }

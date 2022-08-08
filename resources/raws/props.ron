@@ -1,28 +1,96 @@
 [
   RawProp(
     name: "Bear Trap",
-    glyph: Some(RawGlyph(
-      glyph: "^",
-      fg: "#FF0000",
-      bg: "#000000",
-      order: Actor,
+    hidden : Some(true),
+    glyph: Some(RawGlyph(glyph: "^", fg: "#FF0000", bg: "#000000", order: Actor)),
+    entry_trigger: Some(RawEntryTrigger(
+      effects: {
+        "damage" : Some("6"),
+        "single_activation" : Some("1")
+      }
     )),
-    effects: {
-      "damage" : Some("6"),
-      "single_activation" : Some("1")
-    }
   ),
   RawProp(
     name: "Door",
-    glyph: Some(RawGlyph(
-      glyph: "+",
-      fg: "#805A46",
-      bg: "#000000",
-      order: Actor,
-    )),
     hidden : Some(false),
     door_open : Some(true),
     blocks_tile : Some(true),
-    blocks_visibility : Some(true)
+    blocks_visibility : Some(true),
+    glyph: Some(RawGlyph(glyph: "+", fg: "#805A46", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Keg",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "φ", fg: "#AAAAAA", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Table",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "╦", fg: "#AAAAAA", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Chair",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "└", fg: "#AAAAAA", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Candle",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "Ä", fg: "#FFA500", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Anvil",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "╔", fg: "#AAAAAA", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Water Trough",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "•", fg: "#5555FF", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Weapon Rack",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "π", fg: "#FFD700", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Armor Stand",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "⌠", fg: "#FFFFFF", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Chemistry Set",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "δ", fg: "#00FFFF", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Dead Thing",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "☻", fg: "#AA0000", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Cabinet",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "∩", fg: "#805A46", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Bed",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "8", fg: "#805A46", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Loom",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "≡", fg: "#805A46", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Hide Rack",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "π", fg: "#805A46", bg: "#000000", order: Actor)),
+  ),
+  RawProp(
+    name: "Altar",
+    hidden : Some(false),
+    glyph: Some(RawGlyph(glyph: "╫", fg: "#5555FF", bg: "#000000", order: Actor)),
   ),
 ]
