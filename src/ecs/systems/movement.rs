@@ -30,7 +30,7 @@ pub fn movement(
             update_fov(entity, &mut fov_q);
             if entity == *player {
                 commands.insert_resource(destination);
-                commands.insert_resource(GameCamera::new(destination));
+                commands.insert_resource(CameraView::new(destination));
             }
         }
     }

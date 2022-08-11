@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub fn entity_render(
-    (map, camera): (Res<Map>, Res<GameCamera>),
+    (map, camera): (Res<Map>, Res<CameraView>),
     glyph_q: Query<(&Point, &Glyph), Without<Hidden>>,
 ) {
     let mut batch = DrawBatch::new();
@@ -12,10 +12,8 @@ pub fn entity_render(
 
     for (pos, glyph) in entities.iter() {
         if map.visible.get_bit(**pos) {
-            let entity_screen_pos = camera.screen_to_world(**pos);
-            if map.in_bounds(Point::new(entity_screen_pos.x, entity_screen_pos.y)) {
-                batch.set(entity_screen_pos, glyph.color, glyph.glyph);
-            }
+            let entity_screen_pos = camera.world_to_screen(**pos);
+            batch.set(entity_screen_pos, glyph.color, glyph.glyph);
         }
     }
 

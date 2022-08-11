@@ -60,7 +60,7 @@ mod prelude {
 
     pub const SCREEN_WIDTH: i32 = 56;
     pub const SCREEN_HEIGHT: i32 = 31;
-    pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 1.6) as i32;
+    pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 2.) as i32;
     pub const UI_HEIGHT: i32 = SCREEN_HEIGHT;
 
     pub const LAYER_ZERO: usize = 0;
@@ -136,11 +136,14 @@ impl GameWorld {
                 PlayerStage::HandleActions,
                 SystemStage::parallel(),
             )
-            .add_stage_after(PlayerStage::HandleActions, PlayerStage::Cleanup, SystemStage::parallel())
-            // AI Stages
-            .add_stage_after(PlayerStage::Cleanup, AIStage::GenerateActions, SystemStage::parallel())
+            .add_stage_after(PlayerStage::HandleActions, PlayerStage::Effects, SystemStage::parallel())
+            .add_stage_after(PlayerStage::Effects, PlayerStage::Cleanup, SystemStage::parallel());
+
+        // AI Stages
+        app.add_stage_after(PlayerStage::Cleanup, AIStage::GenerateActions, SystemStage::parallel())
             .add_stage_after(AIStage::GenerateActions, AIStage::HandleActions, SystemStage::parallel())
-            .add_stage_after(AIStage::HandleActions, AIStage::Cleanup, SystemStage::parallel());
+            .add_stage_after(AIStage::HandleActions, AIStage::Effects, SystemStage::parallel())
+            .add_stage_after(AIStage::Effects, AIStage::Cleanup, SystemStage::parallel());
 
         // Add Time Resource to the world
         app.init_resource::<Time>();
@@ -235,7 +238,7 @@ fn main() -> BError {
         // Cosoles
         ////////////////////////////////////////////////////////////////////
         .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map + Char
-        .with_sparse_console(UI_WIDTH, UI_HEIGHT, "terminal10x16.png") // UI
+        .with_sparse_console(UI_WIDTH, UI_HEIGHT, "vga.png") // UI
         .build()?;
 
     context.with_post_scanlines(true);

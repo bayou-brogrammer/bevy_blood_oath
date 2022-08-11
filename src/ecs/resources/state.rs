@@ -22,6 +22,7 @@ pub enum TurnState {
 pub enum PlayerStage {
     GenerateActions,
     HandleActions,
+    Effects,
     Cleanup,
 }
 
@@ -29,6 +30,7 @@ pub enum PlayerStage {
 pub enum AIStage {
     GenerateActions,
     HandleActions,
+    Effects,
     Cleanup,
 }
 

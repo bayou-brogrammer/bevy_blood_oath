@@ -27,7 +27,7 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
 
     commands.insert_resource(player);
     commands.insert_resource(start_pos);
-    commands.insert_resource(GameCamera::new(start_pos));
+    commands.insert_resource(CameraView::new(start_pos));
 
     // spawner::bear_trap(&mut commands, start_pos + Point::new(1, 0));
     commands
@@ -44,13 +44,12 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "Fire"),
-            RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, start_pos),
+            EntityBundle::new(Item, "MAGIC"),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN, BLACK), RenderOrder::Item, start_pos),
         ))
-        .insert(Consumable {})
+        .insert(Consumable)
         .insert(Ranged(6))
-        .insert(InflictsDamage(6))
-        // .insert(AreaOfEffect::new(3))
+        .insert(InflictsDamage(100))
         .remove::<Point>()
         .insert(InBackpack { owner: player });
 }

@@ -1,11 +1,11 @@
 use super::*;
 
 // Stats Panel
-pub const STATS_PANEL_WIDTH: i32 = 30;
+pub const STATS_PANEL_WIDTH: i32 = 35;
 pub const STATS_PANEL_HEIGHT: i32 = 8;
 
 // Log Panel
-pub const LOG_PANEL_WIDTH: i32 = 30;
+pub const LOG_PANEL_WIDTH: i32 = 35;
 pub const LOG_PANEL_HEIGHT: i32 = 12;
 
 // Map Panel
@@ -36,7 +36,7 @@ lazy_static! {
 pub fn box_framework(draw_batch: &mut DrawBatch) {
     draw_batch.draw_hollow_box(*STATS_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Top-right panel
     draw_batch.draw_hollow_box(*MAP_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Map box
-    draw_batch.draw_box(*LOG_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
+    draw_batch.draw_hollow_box(*LOG_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
     draw_batch.draw_hollow_box(*EQUIPMENT_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
     draw_batch.draw_hollow_box(*OVERALL_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Overall box
 

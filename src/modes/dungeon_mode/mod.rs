@@ -31,10 +31,10 @@ impl DungeonMode {
 
         update.add_system_set(
             ConditionSet::new()
-                .run_if_resource_exists::<GameCamera>()
+                .run_if_resource_exists::<CameraView>()
                 .with_system(render::map_renderer::map_render)
                 .with_system(render::entity_renderer::entity_render)
-                .with_system(render::tooltips::render_tooltips)
+                // .with_system(render::tooltips::render_tooltips)
                 .into(),
         );
 

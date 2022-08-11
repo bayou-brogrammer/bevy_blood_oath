@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub fn render_tooltips(
     map: Res<Map>,
     ctx: Res<BracketContext>,
-    camera: Res<GameCamera>,
+    camera: Res<CameraView>,
     tooltip_q: Query<(&Point, &Naming, Option<&Description>, Option<&CombatStats>), Without<Hidden>>,
 ) {
     let (min_x, _max_x, min_y, _max_y) = camera.get_screen_bounds();
