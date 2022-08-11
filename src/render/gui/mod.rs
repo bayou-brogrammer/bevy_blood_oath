@@ -120,26 +120,29 @@ fn draw_stats(draw_batch: &mut DrawBatch, world: &mut World) {
 fn equipped(draw_batch: &mut DrawBatch, world: &mut World) -> i32 {
     let mut equipped_q = world.query::<(&Equipped, &Naming, Option<&MeleePowerBonus>)>();
     if let Some(player_entity) = world.get_resource::<Entity>() {
-        let mut y = 13;
+        let mut y = EQUIPMENT_PANEL.y1 + 1;
+        let x = EQUIPMENT_PANEL.x1 + 1;
         for (equipped_by, name, melee_bonus) in equipped_q.iter(world) {
             if equipped_by.owner == *player_entity {
                 let item_name = name.0.clone();
 
                 draw_batch.print_color(
-                    Point::new(50, y),
+                    Point::new(x, y),
                     &item_name,
                     ColorPair::new(RGB::from_f32(0.5, 1.0, 0.5), BLACK),
                 );
                 y += 1;
 
                 if let Some(melee_bonus) = melee_bonus {
-                    let mut weapon_info = format!("┤ {} ({})", &item_name, melee_bonus.power);
-                    weapon_info += " ├";
-                    draw_batch.print_color(
-                        Point::new(3, LOG_PANEL.y1),
+                    let weapon_info = format!("{} ({})", &item_name, melee_bonus.power);
+                    print_label(
+                        draw_batch,
                         &weapon_info,
-                        ColorPair::new(YELLOW, BLACK),
-                    );
+                        Point::new(MAP_PANEL.x2, LOG_PANEL.y1),
+                        LOG_PANEL.width(),
+                        YELLOW,
+                        WHITE,
+                    )
                 }
             }
         }
@@ -181,7 +184,7 @@ pub fn render_ui(world: &mut World) {
     box_framework(&mut gui_batch);
     labels(&mut gui_batch, world);
     draw_stats(&mut gui_batch, world);
-    // equipped(&mut gui_batch, world);
+    equipped(&mut gui_batch, world);
     status(&mut gui_batch, world);
     bo_logging::print_log(&mut gui_batch, *LOG_PANEL);
 

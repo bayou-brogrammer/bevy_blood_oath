@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Deserialize, Serialize)]
 pub enum RenderOrder {
+    Player,
     Particle,
     Actor,
     Item,

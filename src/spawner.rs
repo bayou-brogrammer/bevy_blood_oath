@@ -17,10 +17,10 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
         )))
         .insert_bundle(RenderBundle {
             position: start_pos,
-            glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Actor),
+            glyph: Glyph::new(to_cp437('@'), ColorPair::new(YELLOW, BLACK), RenderOrder::Player),
         })
-        .insert(Naming("SecBot".to_string()))
-        .insert(Description::new("A bot that can attack and move."))
+        .insert(Naming("Danny".to_string()))
+        .insert(Description::new("A curious farm boy."))
         .insert(Blood(DARK_RED.into()))
         .insert(HungerClock::new(HungerState::WellFed, 20))
         .id();
@@ -29,33 +29,24 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
     commands.insert_resource(start_pos);
     commands.insert_resource(CameraView::new(start_pos));
 
-    // spawner::bear_trap(&mut commands, start_pos + Point::new(1, 0));
     commands
         .spawn()
         .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, MAGIC_MAPPING_SCROLL),
-            RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN3, BLACK), RenderOrder::Item, start_pos),
+            EntityBundle::new(Item, "Dagger"),
+            RenderBundle::new(
+                to_cp437('/'),
+                ColorPair::new(CYAN, BLACK),
+                RenderOrder::Item,
+                Point::new(0, 0),
+            ),
         ))
-        .insert(Consumable {})
-        .insert(MagicMapper {})
+        .insert(Equippable { slot: EquipmentSlot::Melee })
+        .insert(MeleePowerBonus::new(2))
         .remove::<Point>()
-        .insert(InBackpack { owner: player });
-
-    commands
-        .spawn()
-        .insert_bundle(ItemBundle::new(
-            EntityBundle::new(Item, "MAGIC"),
-            RenderBundle::new(to_cp437(')'), ColorPair::new(CYAN, BLACK), RenderOrder::Item, start_pos),
-        ))
-        .insert(Consumable)
-        .insert(Ranged(6))
-        .insert(InflictsDamage(100))
-        .remove::<Point>()
-        .insert(InBackpack { owner: player });
+        .insert(InBackpack::new(player));
 }
 
 pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
-    println!("Spawning entities...: {:?}", map_builder.spawn_list);
     for entity in map_builder.spawn_list.iter() {
         spawner::spawn_entity(&mut commands, &map_builder.map, &(&entity.0, &entity.1));
     }

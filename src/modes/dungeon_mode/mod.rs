@@ -130,26 +130,6 @@ impl DungeonMode {
             _ => {}
         }
 
-        // let turn_state = *app.world.resource::<TurnState>();
-        // match turn_state {
-        //     TurnState::MagicMapReveal(row) => self.reveal_map(&mut app.world, row),
-        //     TurnState::AwaitingInput => match player_input2(ctx, &mut app.world) {
-        //         PlayerInputResult::NoResult => {}
-        //         PlayerInputResult::AppQuit => return self.app_quit_dialog(),
-        //         PlayerInputResult::TurnDone => self.end_turn(&mut app.world),
-        //         PlayerInputResult::ShowInventory => {
-        //             return (
-        //                 ModeControl::Push(InventoryMode::new(&mut app.world).into()),
-        //                 ModeUpdate::Update,
-        //             )
-        //         }
-        //         _ => {
-        //             println!("DungeonMode::tick: Unknown player input result");
-        //         }
-        //     },
-        //     _ => {}
-        // }
-
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
@@ -175,7 +155,6 @@ impl DungeonMode {
     }
 
     fn use_item(&self, world: &mut World, item: &Entity, pt: Option<Point>) {
-        println!("DungeonMode::use_item: {:?}", item);
         let p = *world.resource::<Entity>();
         world.send_event(WantsToUseItem(p, *item, pt));
     }

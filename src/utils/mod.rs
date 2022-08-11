@@ -1,5 +1,3 @@
-pub mod rng;
-
 mod bterm;
 mod ecs;
 mod macros;

@@ -1,4 +1,5 @@
 // Entities
+pub const RAT: &str = "Rat";
 pub const MOM: &str = "Mom";
 pub const DRUNK: &str = "Drunk";
 pub const PATRON: &str = "Patron";

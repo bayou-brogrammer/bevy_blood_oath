@@ -22,20 +22,22 @@ pub enum TurnState {
 pub enum PlayerStage {
     GenerateActions,
     HandleActions,
-    Effects,
     Cleanup,
+    Effects,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, StageLabel)]
 pub enum AIStage {
+    HandleAI,
     GenerateActions,
     HandleActions,
-    Effects,
     Cleanup,
+    Effects,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
 pub enum StateLabel {
     Fov,
     Indexing,
+    AIActions,
 }

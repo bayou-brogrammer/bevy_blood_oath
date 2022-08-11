@@ -29,12 +29,9 @@ impl RawMaster {
 }
 
 pub fn get_spawn_table_for_depth(raws: &RawMaster, depth: i32) -> MasterTable {
-    let depth = 0;
     let available_options: Vec<&SpawnTableEntry> =
         raws.raws.spawn_table.iter().filter(|a| depth >= a.min_depth && depth <= a.max_depth).collect();
 
-    println!("depth: {:?}", depth);
-    println!("Available options: {:?}", raws.raws.spawn_table);
     let mut rt = MasterTable::new();
     for e in available_options.iter() {
         let mut weight = e.weight;

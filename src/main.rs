@@ -140,7 +140,8 @@ impl GameWorld {
             .add_stage_after(PlayerStage::Effects, PlayerStage::Cleanup, SystemStage::parallel());
 
         // AI Stages
-        app.add_stage_after(PlayerStage::Cleanup, AIStage::GenerateActions, SystemStage::parallel())
+        app.add_stage_after(PlayerStage::Cleanup, AIStage::HandleAI, SystemStage::parallel())
+            .add_stage_after(AIStage::HandleAI, AIStage::GenerateActions, SystemStage::parallel())
             .add_stage_after(AIStage::GenerateActions, AIStage::HandleActions, SystemStage::parallel())
             .add_stage_after(AIStage::HandleActions, AIStage::Effects, SystemStage::parallel())
             .add_stage_after(AIStage::Effects, AIStage::Cleanup, SystemStage::parallel());

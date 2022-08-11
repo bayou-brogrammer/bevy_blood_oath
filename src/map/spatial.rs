@@ -207,3 +207,18 @@ pub fn get_tile_content_clone(idx: usize) -> Vec<Entity> {
     let lock = SPATIAL_MAP.lock();
     lock.tile_content[idx].iter().map(|(e, _, _)| *e).collect()
 }
+
+pub fn get_tile_content_clone_pt(pt: Point) -> Vec<Entity> {
+    let lock = SPATIAL_MAP.lock();
+    let idx = lock.point2d_to_index(pt);
+    lock.tile_content[idx].iter().map(|(e, _, _)| *e).collect()
+}
+
+pub fn get_tile_content_clone_filtered<F>(pt: Point, mut filter: F) -> Vec<Entity>
+where
+    F: FnMut(Entity) -> bool,
+{
+    let lock = SPATIAL_MAP.lock();
+    let idx = lock.point2d_to_index(pt);
+    lock.tile_content[idx].iter().filter(|(e, _, _)| filter(*e)).map(|(e, _, _)| *e).collect()
+}

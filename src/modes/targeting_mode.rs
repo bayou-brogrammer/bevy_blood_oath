@@ -154,7 +154,7 @@ impl TargetingMode {
 
         if self.radius > 0 {
             let map = world.resource::<Map>();
-            field_of_view_set(mouse_map_pos, self.radius, &*map)
+            field_of_view_set(mouse_map_pos, self.radius, map)
                 .iter()
                 .filter(|pt| map.visible.get_bit(**pt))
                 .for_each(|pt| {

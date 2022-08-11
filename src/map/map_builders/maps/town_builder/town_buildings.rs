@@ -84,7 +84,7 @@ impl TownBuilder {
                     && idx != 0
                     && crate::rng::roll_dice(1, 2) == 1
                 {
-                    build_data.spawn_list.push((idx, "Rat".to_string()));
+                    build_data.spawn_list.push((idx, RAT.to_string()));
                 }
             }
         }

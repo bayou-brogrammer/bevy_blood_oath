@@ -1,13 +1,15 @@
+use bevy::ecs::schedule::ShouldRun;
+
 use self::player::PlayerInputResult;
 use crate::prelude::*;
 
+pub mod ai;
 pub mod end_turn;
 pub mod fov;
 pub mod hunger;
 pub mod inventory;
 pub mod map_indexing;
 pub mod melee_combat;
-pub mod monster_ai;
 pub mod movement;
 pub mod particles;
 pub mod player;
@@ -80,8 +82,14 @@ impl Plugin for PlayerPlugin {
                 .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(map_indexing::map_indexing)
                 .with_system(trigger::triggers)
-                .with_system(end_turn::end_turn)
                 .into(),
+        )
+        .add_system_set_to_stage(
+            PlayerStage::Effects,
+            SystemSet::new()
+                .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
+                .with_run_criteria(run_if_queue)
+                .with_system(run_effects_queue.exclusive_system()),
         )
         // CLeanup
         .add_system_set_to_stage(
@@ -92,13 +100,8 @@ impl Plugin for PlayerPlugin {
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::PlayerTurn)
                 .with_system(fov::fov_system)
+                .with_system(end_turn::end_turn)
                 .into(),
-        )
-        .add_system_set_to_stage(
-            PlayerStage::Cleanup,
-            SystemSet::new()
-                .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
-                .with_system(run_effects_queue.exclusive_system()),
         );
     }
 }
@@ -108,35 +111,44 @@ impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
         // Generate Actions
         app.add_system_set_to_stage(
-            AIStage::GenerateActions,
+            AIStage::HandleAI,
             ConditionSet::new()
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
-                .with_system(monster_ai::monster_ai)
-                .with_system(hunger::hunger_clock)
+                .with_system(ai::monster_ai)
+                .with_system(ai::bystander_ai)
                 .into(),
         )
         // Handle Actions
         .add_system_set_to_stage(
-            AIStage::HandleActions,
+            AIStage::GenerateActions,
             ConditionSet::new()
+                .label(StateLabel::AIActions)
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(movement::movement)
                 .with_system(melee_combat::combat)
+                .with_system(hunger::hunger_clock)
                 .into(),
         )
         // Cleanup
         .add_system_set_to_stage(
-            AIStage::Cleanup,
+            AIStage::HandleActions,
             ConditionSet::new()
                 .label(StateLabel::Indexing)
+                .after(StateLabel::AIActions)
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(map_indexing::map_indexing)
                 .with_system(trigger::triggers)
-                .with_system(end_turn::end_turn)
                 .into(),
+        )
+        .add_system_set_to_stage(
+            AIStage::Effects,
+            SystemSet::new()
+                .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
+                .with_run_criteria(run_if_queue)
+                .with_system(run_effects_queue.exclusive_system()),
         )
         .add_system_set_to_stage(
             AIStage::Cleanup,
@@ -146,13 +158,8 @@ impl Plugin for AIPlugin {
                 .run_in_state(GameCondition::Playing)
                 .run_if_resource_equals(TurnState::AITurn)
                 .with_system(fov::fov_system)
+                .with_system(end_turn::end_turn)
                 .into(),
-        )
-        .add_system_set_to_stage(
-            AIStage::Cleanup,
-            SystemSet::new()
-                .with_run_criteria(run_in_state_bevy(GameCondition::Playing))
-                .with_system(run_effects_queue.exclusive_system()),
         );
     }
 }
@@ -164,5 +171,13 @@ impl Plugin for SystemsPlugin {
             .add_plugin(AwaitingInputPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(AIPlugin);
+    }
+}
+
+fn run_if_queue() -> ShouldRun {
+    if EFFECT_QUEUE.lock().is_empty() {
+        ShouldRun::No
+    } else {
+        ShouldRun::YesAndCheckAgain
     }
 }

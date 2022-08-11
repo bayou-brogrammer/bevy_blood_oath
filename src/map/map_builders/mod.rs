@@ -99,7 +99,7 @@ impl BuilderChain {
 pub fn level_builder(new_depth: i32, width: i32, height: i32) -> BuilderChain {
     console::log(format!("Depth: {}", new_depth));
     match new_depth {
-        // 1 => town_builder(new_depth, width, height),
+        1 => town_builder(new_depth, width, height),
         _ => random_builder(new_depth, width, height),
     }
 }
