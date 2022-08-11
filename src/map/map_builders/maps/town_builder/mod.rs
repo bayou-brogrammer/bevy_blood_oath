@@ -63,8 +63,8 @@ impl TownBuilder {
         let building_size = self.sort_buildings(&buildings);
         self.building_factory(build_data, &buildings, &building_size);
 
-        // self.spawn_dockers(build_data);
-        // self.spawn_townsfolk(build_data, &mut available_building_tiles);
+        self.spawn_dockers(build_data);
+        self.spawn_townsfolk(build_data, &mut available_building_tiles);
 
         // Make visible for screenshot
         build_data.map.visible.apply_all_bits(true);

@@ -1,16 +1,13 @@
 [package]
-name = "bo_pathfinding"
-version = "0.1.0"
 authors = ["Jacob LeCoq <lecoqjacob@gmail.com>"]
 edition = "2021"
+name = "bo_pathfinding"
+version = "0.1.0"
 
 [features]
 default = ["bracket-lib/threaded"]
 web = []
 
 [dependencies]
-bracket-lib = { git = "https://github.com/lecoqjacob/bracket-lib", branch = "custom", features = [
-  "serde",
-  "bevy",
-] }
+bracket-lib = { git = "https://github.com/lecoqjacob/bracket-lib", branch = "custom", features = ["serde", "bevy"] }
 smallvec = "^1.9.0"

@@ -45,7 +45,7 @@ pub fn player_input(
 
             // Inventory
             GameKey::Pickup => match try_pickup_item(*pos, items_query) {
-                None => {}
+                None => bo_logging::Logger::new().append("There is nothing here to pick up.").log(),
                 Some(item) => {
                     pickup_event.send(WantsToPickupItem(player, item));
                 }

@@ -22,21 +22,18 @@ bo_logging = { path = "bo_logging/" }
 bo_pathfinding = { path = "bo_pathfinding/" }
 
 # Core Crates
-bracket-lib = { git = "https://github.com/lecoqjacob/bracket-lib", branch = "custom", features = [
-  "serde",
-  "bevy",
-] }
+bracket-lib = { git = "https://github.com/lecoqjacob/bracket-lib", branch = "custom", features = ["serde", "bevy"] }
 
-iyes_loopless = "~0.7.0"
 bevy = { version = "~0.8.0", default-features = false }
+iyes_loopless = "~0.7.0"
 
 # Utility Crates
-parking_lot = { version = "^0.12.1", features = ["nightly"] }
-serde = { version = "^1.0.140", features = ["derive"] }
 bitvec = { version = "^1.0.1", features = ["serde"] }
-lazy_static = "^1.4.0"
 console_error_panic_hook = "0.1"
+lazy_static = "^1.4.0"
+parking_lot = { version = "^0.12.1", features = ["nightly"] }
 ron = "^0.7.1"
+serde = { version = "^1.0.140", features = ["derive"] }
 
 [build-dependencies]
 embed-resource = "^1.7.3"

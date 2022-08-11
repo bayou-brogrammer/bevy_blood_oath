@@ -35,7 +35,7 @@
   RawMob(
     name: "Barkeep",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -43,7 +43,7 @@
   RawMob(
     name: "Shady Salesman",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "h", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -51,7 +51,7 @@
   RawMob(
     name: "Patron",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "h", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -59,7 +59,7 @@
   RawMob(
     name: "Priest",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -67,7 +67,7 @@
   RawMob(
     name: "Parishioner",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#AAAAAA", bg: "#000000", order: Actor)),
@@ -75,7 +75,7 @@
   RawMob(
     name: "Blacksmith",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -83,7 +83,7 @@
   RawMob(
     name: "Clothier",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -91,7 +91,7 @@
   RawMob(
     name: "Alchemist",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#EE82EE", bg: "#000000", order: Actor)),
@@ -99,7 +99,7 @@
   RawMob(
     name: "Mom",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#FFAAAA", bg: "#000000", order: Actor)),
@@ -107,7 +107,7 @@
   RawMob(
     name: "Peasant",
     vision_range: 4,
-    blocks_tile: true,
+    blocks_tile: false,
     ai: Some(Bystander),
     stats: RawMobStats(hp: 16, max_hp: 16, power: 4, defense: 1),
     glyph: Some(RawGlyph(glyph: "☺", fg: "#EE82EE", bg: "#000000", order: Actor)),

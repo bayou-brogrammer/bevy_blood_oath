@@ -1,4 +1,4 @@
-use bracket_terminal::prelude::*;
+use bracket_lib::prelude::*;
 
 mod builder;
 mod events;
