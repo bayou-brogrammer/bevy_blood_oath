@@ -5,7 +5,7 @@ pub fn entity_render(
     glyph_q: Query<(&Point, &Glyph), Without<Hidden>>,
 ) {
     let mut batch = DrawBatch::new();
-    batch.target(LAYER_ENTITY);
+    batch.target(LAYER_ZERO);
 
     let mut entities = glyph_q.iter().collect::<Vec<_>>();
     entities.sort_by(|&a, &b| b.1.render_order.cmp(&a.1.render_order));

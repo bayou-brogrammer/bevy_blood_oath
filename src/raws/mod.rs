@@ -58,5 +58,7 @@ pub fn load_raws() {
     let props = Raws::load_raw::<Vec<RawProp>>(RAW_PROP_FILE);
     let spawn_table = Raws::load_raw::<Vec<SpawnTableEntry>>(RAW_SPAWN_TABLE_FILE);
 
+    println!("{:?}", mobs);
+
     RAWS.lock().load(Raws { items, mobs, props, spawn_table });
 }

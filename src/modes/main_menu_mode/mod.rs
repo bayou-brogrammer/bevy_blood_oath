@@ -101,7 +101,7 @@ impl MainMenuMode {
 
     pub fn draw(&self, ctx: &mut BTerm, world: &mut World, _active: bool) {
         let mut batch = DrawBatch::new();
-        batch.target(LAYER_ZERO);
+        batch.target(LAYER_TEXT);
 
         let assets = world.resource::<RexAssets>();
         ctx.render_xp_sprite(&assets.menu, 0, 0);
@@ -111,7 +111,12 @@ impl MainMenuMode {
             (SCREEN_WIDTH, SCREEN_HEIGHT),
             BoxConfigWithTitle {
                 box_config: BoxConfig::new((30, 10), ColorPair::new(WHITE, BLACK), true, false),
-                text_config: TextConfig::new("BloodOath", ColorPair::new(RED, BLACK), Alignment::Center),
+                text_config: TextConfig::new(
+                    "BloodOath",
+                    ColorPair::new(RED, BLACK),
+                    Alignment::Center,
+                    true,
+                ),
             },
         );
 

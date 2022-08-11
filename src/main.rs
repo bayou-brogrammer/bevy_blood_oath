@@ -56,18 +56,15 @@ mod prelude {
 
     pub const MAP_GEN_TIMER: f32 = 100.0;
     pub const SHOW_BOUNDARIES: bool = true;
-    pub const SHOW_MAPGEN_VISUALIZER: bool = true;
+    pub const SHOW_MAPGEN_VISUALIZER: bool = false;
 
-    pub const SCREEN_WIDTH: i32 = 80;
-    pub const SCREEN_HEIGHT: i32 = 60;
-
-    pub const UI_WIDTH: i32 = 80;
-    pub const UI_HEIGHT: i32 = 30;
+    pub const SCREEN_WIDTH: i32 = 56;
+    pub const SCREEN_HEIGHT: i32 = 31;
+    pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 1.6) as i32;
+    pub const UI_HEIGHT: i32 = SCREEN_HEIGHT;
 
     pub const LAYER_ZERO: usize = 0;
-    pub const LAYER_ENTITY: usize = 1;
-    pub const LAYER_TEXT: usize = 2;
-    pub const LAYER_TOOL: usize = 3;
+    pub const LAYER_TEXT: usize = 1;
 
     pub const BATCH_ZERO: usize = 0;
     pub const BATCH_DECOR: usize = 1000;
@@ -153,20 +150,7 @@ impl GameWorld {
         app.insert_resource(MenuMemory::new());
         app.add_loopless_state(GameCondition::MainMenu);
 
-        // #[cfg(debug_assertions)]
-        // app.add_system_set_to_stage(
-        //     CoreStage::Update,
-        //     ConditionSet::new()
-        //         .with_system(|m_q: Query<&Point, Added<Monster>>, i_q: Query<&Point, Added<Item>>| {
-        //             for pos in m_q.iter() {
-        //                 eprintln!("Monster Spawned at {:?}", pos)
-        //             }
-        //             for pos in i_q.iter() {
-        //                 eprintln!("Item Spawned at {:?}", pos)
-        //             }
-        //         })
-        //         .into(),
-        // );
+        raws::load_raws();
 
         Self {
             app,
@@ -228,27 +212,30 @@ impl GameState for GameWorld {
     }
 }
 
-embedded_resource!(TERMINAL_FONT, "../resources/terminal8x8.png");
+bracket_lib::prelude::add_wasm_support!();
+
 embedded_resource!(VGA_FONT, "../resources/vga.png");
+embedded_resource!(TERMINAL_8X8_FONT, "../resources/terminal8x8.png");
+embedded_resource!(TERMINAL_10X16_FONT, "../resources/terminal10x16.png");
 
 fn main() -> BError {
-    link_resource!(TERMINAL_FONT, "resources/terminal8x8.png");
     link_resource!(VGA_FONT, "resources/vga.png");
+    link_resource!(TERMINAL_8X8_FONT, "resources/terminal8x8.png");
+    link_resource!(TERMINAL_10X16_FONT, "resources/terminal10x16.png");
 
-    let mut context = BTermBuilder::simple(80, 60)
-        .unwrap()
-        .with_fps_cap(60.0)
-        .with_tile_dimensions(12, 12)
-        .with_dimensions(80, 60)
-        .with_title("Roguelike Tutorial")
-        .with_font("vga.png", 8, 16)
-        // Entity Console #1
-        .with_sparse_console(80, 60, "terminal8x8.png")
-        // TEXT Console #2
-        .with_sparse_console(80, 30, "vga.png")
-        // ToolTip Console #3
-        .with_sparse_console(80, 30, "vga.png")
-        .with_vsync(false)
+    let mut context = BTermBuilder::new()
+        .with_title("Bloodoath") // Set Window Title
+        .with_tile_dimensions(16, 16)
+        .with_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT) // ..Assuming a console of this size
+        .with_fps_cap(60.0) // Limit game speed
+        .with_font("terminal10x16.png", 10, 16)
+        .with_font("terminal8x8.png", 8, 8)
+        .with_font("vga.png", 8, 16) // Load easy-to-read font
+        ////////////////////////////////////////////////////////////////////
+        // Cosoles
+        ////////////////////////////////////////////////////////////////////
+        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map + Char
+        .with_sparse_console(UI_WIDTH, UI_HEIGHT, "terminal10x16.png") // UI
         .build()?;
 
     context.with_post_scanlines(true);

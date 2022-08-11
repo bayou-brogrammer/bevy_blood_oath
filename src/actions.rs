@@ -16,6 +16,7 @@ pub enum GameKey {
     RightUp,
     RightDown,
     // Actions
+    TakeStairs,
     Escape,
     Select,
     SkipTurn,
@@ -23,6 +24,8 @@ pub enum GameKey {
     Inventory,
     Drop,
     Remove,
+    Apply,
+    Equip,
 }
 
 fn key_mapping(key: VirtualKeyCode) -> Option<GameKey> {
@@ -38,6 +41,7 @@ fn key_mapping(key: VirtualKeyCode) -> Option<GameKey> {
         VirtualKeyCode::N | VirtualKeyCode::Numpad3 => Some(GameKey::RightDown),
 
         // Actions
+        VirtualKeyCode::Period => Some(GameKey::TakeStairs),
         VirtualKeyCode::Escape => Some(GameKey::Escape),
         VirtualKeyCode::Return => Some(GameKey::Select),
         VirtualKeyCode::Space => Some(GameKey::SkipTurn),
@@ -45,12 +49,23 @@ fn key_mapping(key: VirtualKeyCode) -> Option<GameKey> {
         VirtualKeyCode::I => Some(GameKey::Inventory),
         VirtualKeyCode::D => Some(GameKey::Drop),
         VirtualKeyCode::R => Some(GameKey::Remove),
+        VirtualKeyCode::A => Some(GameKey::Apply),
+        VirtualKeyCode::E => Some(GameKey::Equip),
         _ => None,
     }
 }
 
 impl VirtualGameKey for VirtualKeyCode {
     fn get_key(&self) -> Option<GameKey> { key_mapping(*self) }
+}
+
+impl VirtualGameKey for Option<VirtualKeyCode> {
+    fn get_key(&self) -> Option<GameKey> {
+        match self {
+            Some(key) => key_mapping(*key),
+            None => None,
+        }
+    }
 }
 
 impl VirtualGameKey for Option<&VirtualKeyCode> {

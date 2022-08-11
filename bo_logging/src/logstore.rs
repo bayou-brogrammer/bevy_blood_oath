@@ -6,27 +6,27 @@ lazy_static! {
     static ref LOG: Mutex<Vec<Vec<LogFragment>>> = Mutex::new(Vec::new());
 }
 
+pub fn clear_log() { LOG.lock().clear(); }
 pub fn append_entry(fragments: Vec<LogFragment>) { LOG.lock().push(fragments); }
 
-pub fn clear_log() { LOG.lock().clear(); }
+#[allow(unused_must_use)]
+pub fn print_log(draw_batch: &mut DrawBatch, log_rect: Rect) {
+    let mut block = TextBlock::new(log_rect.x1, log_rect.y1 + 1, log_rect.width() - 1, log_rect.height() - 2);
 
-pub fn print_log(console: usize, pos: Point) {
-    let mut batch = DrawBatch::new();
-    batch.target(console);
+    LOG.lock().iter().rev().take(5).for_each(|log| {
+        let mut buf = TextBuilder::empty();
+        buf.fg(WHITE).append("- ");
 
-    let mut y = pos.y;
-    let mut x = pos.x;
-    LOG.lock().iter().rev().take(6).for_each(|log| {
         log.iter().for_each(|frag| {
-            batch.print_color(Point::new(x, y), &frag.text, ColorPair::new(frag.color.to_rgba(1.0), BLACK));
-            x += frag.text.len() as i32;
-            x += 1;
+            buf.fg(frag.color).bg(BLACK).line_wrap(&frag.text);
         });
-        y += 1;
-        x = pos.x;
+
+        buf.ln();
+        block.print(&buf);
+        buf.reset();
     });
 
-    batch.submit(5000).expect("Batch error");
+    block.render_to_draw_batch(draw_batch);
 }
 
 pub fn clone_log() -> Vec<Vec<LogFragment>> { LOG.lock().clone() }

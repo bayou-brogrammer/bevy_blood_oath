@@ -1,8 +1,6 @@
-use crate::prelude::*;
+#![allow(dead_code)]
 
-lazy_static! {
-    pub static ref WHITE_BLACK: ColorPair = ColorPair::new(WHITE, BLACK);
-}
+use super::*;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Base Colors
@@ -10,10 +8,11 @@ lazy_static! {
 
 pub const BOX_GRAY: (u8, u8, u8) = (153, 153, 153);
 pub const LIGHT_RED: (u8, u8, u8) = (255, 204, 203);
+pub const LIGHT_GRAY: (u8, u8, u8) = (221, 221, 221);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Named Colors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 pub const SELECTED_BG: (u8, u8, u8) = DARKCYAN;
-pub const REGULAR_SCREEN_BURN: (u8, u8, u8) = (0, 255, 255);
 pub const DARK_SCREEN_BURN: (u8, u8, u8) = LIGHTGRAY;
+pub const REGULAR_SCREEN_BURN: (u8, u8, u8) = (0, 255, 255);

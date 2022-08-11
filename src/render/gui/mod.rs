@@ -1,27 +1,29 @@
 use super::*;
 
-use lazy_static::lazy_static;
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Log Panel
-pub const LOG_PANEL_WIDTH: i32 = UI_WIDTH - 1;
-pub const LOG_PANEL_HEIGHT: i32 = 7;
-
-// Map Panel
-pub const MAP_PANEL_WIDTH: i32 = UI_WIDTH - 31;
-pub const MAP_PANEL_HEIGHT: i32 = UI_HEIGHT - 8;
-
-// Map Panel
+// Stats Panel
 pub const STATS_PANEL_WIDTH: i32 = 30;
 pub const STATS_PANEL_HEIGHT: i32 = 8;
 
-pub const EQUIPMENT_PANEL_WIDTH: i32 = 30;
-pub const EQUIPMENT_PANEL_HEIGHT: i32 = UI_HEIGHT - LOG_PANEL_HEIGHT - STATS_PANEL_HEIGHT - 1;
+// Log Panel
+pub const LOG_PANEL_WIDTH: i32 = 30;
+pub const LOG_PANEL_HEIGHT: i32 = 12;
+
+// Map Panel
+pub const MAP_PANEL_WIDTH: i32 = UI_WIDTH - STATS_PANEL_WIDTH - 1;
+pub const MAP_PANEL_HEIGHT: i32 = UI_HEIGHT - 1;
+
+// Equipment Panel
+pub const EQUIPMENT_PANEL_WIDTH: i32 = STATS_PANEL_WIDTH;
+pub const EQUIPMENT_PANEL_HEIGHT: i32 = UI_HEIGHT - LOG_PANEL_HEIGHT - STATS_PANEL_HEIGHT;
 
 lazy_static! {
     pub static ref MAP_PANEL: Rect = Rect::with_size(0, 0, MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT);
-    pub static ref LOG_PANEL: Rect = Rect::with_size(0, MAP_PANEL_HEIGHT, LOG_PANEL_WIDTH, LOG_PANEL_HEIGHT);
+    pub static ref LOG_PANEL: Rect = Rect::with_size(
+        UI_WIDTH - LOG_PANEL_WIDTH,
+        UI_HEIGHT - LOG_PANEL_HEIGHT,
+        LOG_PANEL_WIDTH,
+        LOG_PANEL_HEIGHT
+    );
     pub static ref STATS_PANEL: Rect =
         Rect::with_size(MAP_PANEL_WIDTH, 0, STATS_PANEL_WIDTH, STATS_PANEL_HEIGHT);
     pub static ref EQUIPMENT_PANEL: Rect =
@@ -31,41 +33,87 @@ lazy_static! {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-fn box_framework(draw_batch: &mut DrawBatch) {
+pub fn box_framework(draw_batch: &mut DrawBatch) {
     draw_batch.draw_hollow_box(*STATS_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Top-right panel
     draw_batch.draw_hollow_box(*MAP_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Map box
-    draw_batch.draw_hollow_box(*LOG_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
+    draw_batch.draw_box(*LOG_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
+    draw_batch.draw_hollow_box(*EQUIPMENT_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
     draw_batch.draw_hollow_box(*OVERALL_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Overall box
 
     // Draw box connectors
-    draw_batch.set(Point::new(0, 45), ColorPair::new(BOX_GRAY, BLACK), to_cp437('├'));
-    draw_batch.set(Point::new(49, 8), ColorPair::new(BOX_GRAY, BLACK), to_cp437('├'));
-    draw_batch.set(Point::new(49, 0), ColorPair::new(BOX_GRAY, BLACK), to_cp437('┬'));
-    draw_batch.set(Point::new(49, 45), ColorPair::new(BOX_GRAY, BLACK), to_cp437('┴'));
-    draw_batch.set(Point::new(79, 8), ColorPair::new(BOX_GRAY, BLACK), to_cp437('┤'));
-    draw_batch.set(Point::new(79, 45), ColorPair::new(BOX_GRAY, BLACK), to_cp437('┤'));
-}
-
-pub fn map_label(draw_batch: &mut DrawBatch, world: &mut World) {
-    let map = world.resource::<Map>();
-    let name_length = map.name.len() + 2;
-    let x_pos = (22 - (name_length / 2)) as i32;
-
-    draw_batch.set(Point::new(x_pos, 0), ColorPair::new(BOX_GRAY, BLACK), to_cp437('┤'));
+    // draw_batch.set(Point::new(0, MAP_PANEL_HEIGHT), ColorPair::new(BOX_GRAY, BLACK), to_cp437('├'));
+    draw_batch.set(Point::new(MAP_PANEL_WIDTH, 0), ColorPair::new(BOX_GRAY, BLACK), to_cp437('┬'));
     draw_batch.set(
-        Point::new(x_pos + name_length as i32 - 1, 0),
+        Point::new(UI_WIDTH - 1, MAP_PANEL_HEIGHT),
+        ColorPair::new(BOX_GRAY, BLACK),
+        to_cp437('┤'),
+    );
+    draw_batch.set(
+        Point::new(MAP_PANEL_WIDTH, STATS_PANEL_HEIGHT),
         ColorPair::new(BOX_GRAY, BLACK),
         to_cp437('├'),
     );
-    draw_batch.print_color(Point::new(x_pos + 1, 0), &map.name, *WHITE_BLACK);
+    draw_batch.set(
+        Point::new(MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
+        ColorPair::new(BOX_GRAY, BLACK),
+        to_cp437('┴'),
+    );
+    draw_batch.set(
+        Point::new(UI_WIDTH - 1, STATS_PANEL_HEIGHT),
+        ColorPair::new(BOX_GRAY, BLACK),
+        to_cp437('┤'),
+    );
+}
+
+pub fn labels(draw_batch: &mut DrawBatch, world: &World) {
+    let map = world.resource::<Map>();
+
+    // Map Label
+    crate::utils::print_label(draw_batch, &map.name, Point::new(0, 0), MAP_PANEL.width(), WHITE, WHITE);
+
+    // Stats
+    print_label(draw_batch, "Stats", Point::new(MAP_PANEL.x2, 0), STATS_PANEL.width(), WHITE, WHITE);
+    // Equipment
+    print_label(
+        draw_batch,
+        "Equipment",
+        Point::new(MAP_PANEL.x2, EQUIPMENT_PANEL.y1),
+        STATS_PANEL.width(),
+        WHITE,
+        WHITE,
+    );
 }
 
 fn draw_stats(draw_batch: &mut DrawBatch, world: &mut World) {
     let mut stats_q = world.query_filtered::<&CombatStats, With<Player>>();
     for stats in stats_q.iter(world) {
-        let health = format!(" HP: {} / {} ", stats.hp, stats.max_hp);
-        draw_batch.print_color(Point::new(50, 1), &health, *WHITE_BLACK);
-        draw_batch.bar_horizontal(Point::new(64, 1), 14, stats.hp, stats.max_hp, ColorPair::new(RED, BLACK));
+        let health = format!("Health: {}/{}", stats.hp, stats.max_hp);
+        let mana = format!("Mana:   {}/{}", 0, 0);
+        let xp = format!("Level:  {}", 1);
+
+        let text_x = STATS_PANEL.x1 + 1;
+        let bar_x = text_x + 14;
+
+        draw_batch.print_color(Point::new(text_x, 1), &health, ColorPair::new(WHITE, BLACK));
+        draw_batch.print_color(Point::new(text_x, 2), &mana, ColorPair::new(WHITE, BLACK));
+        draw_batch.print_color(Point::new(text_x, 3), &xp, ColorPair::new(WHITE, BLACK));
+
+        draw_batch.bar_horizontal(
+            Point::new(bar_x, 1),
+            14,
+            stats.hp,
+            stats.max_hp,
+            ColorPair::new(RED, BLACK),
+        );
+        draw_batch.bar_horizontal(Point::new(bar_x, 2), 14, 0, 0, ColorPair::new(BLUE, BLACK));
+        let xp_level_start = 0;
+        draw_batch.bar_horizontal(
+            Point::new(bar_x, 3),
+            14,
+            0 - xp_level_start,
+            1000,
+            ColorPair::new(GOLD, BLACK),
+        );
     }
 }
 
@@ -106,19 +154,20 @@ fn status(draw_batch: &mut DrawBatch, world: &mut World) {
     if let Some(player) = world.get_resource::<Entity>() {
         let hc = world.get::<HungerClock>(*player).unwrap();
 
+        let x = EQUIPMENT_PANEL.x1 + 1;
         let y = EQUIPMENT_PANEL.y2 - 1;
         match hc.state {
             HungerState::Normal => {}
             HungerState::WellFed => {
-                draw_batch.print_color(Point::new(50, y), "Well Fed", ColorPair::new(GREEN, BLACK));
+                draw_batch.print_color(Point::new(x, y), "Well Fed", ColorPair::new(GREEN, BLACK));
                 // y -= 1;
             }
             HungerState::Hungry => {
-                draw_batch.print_color(Point::new(50, y), "Hungry", ColorPair::new(ORANGE, BLACK));
+                draw_batch.print_color(Point::new(x, y), "Hungry", ColorPair::new(ORANGE, BLACK));
                 // y -= 1;
             }
             HungerState::Starving => {
-                draw_batch.print_color(Point::new(50, y), "Starving", ColorPair::new(RED, BLACK));
+                draw_batch.print_color(Point::new(x, y), "Starving", ColorPair::new(RED, BLACK));
                 // y -= 1;
             }
         }
@@ -130,11 +179,11 @@ pub fn render_ui(world: &mut World) {
     gui_batch.target(LAYER_TEXT);
 
     box_framework(&mut gui_batch);
-    map_label(&mut gui_batch, world);
+    labels(&mut gui_batch, world);
     draw_stats(&mut gui_batch, world);
-    equipped(&mut gui_batch, world);
+    // equipped(&mut gui_batch, world);
     status(&mut gui_batch, world);
-    print_log(LAYER_TEXT, Point::new(1, UI_HEIGHT - LOG_PANEL_HEIGHT + 1));
+    bo_logging::print_log(&mut gui_batch, *LOG_PANEL);
 
     gui_batch.submit(BATCH_UI).expect("Batch error"); // On top of everything
 }

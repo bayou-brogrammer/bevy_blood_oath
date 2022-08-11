@@ -264,7 +264,7 @@ impl InventoryMode {
             Point::new(start_x, start_y),
             BoxConfigWithTitle::new(
                 BoxConfig::new((inv_width, 5), ColorPair::new(BOX_GRAY, BLACK), false, false),
-                TextConfig::new("< Equipment >", ColorPair::new(CYAN, BLACK), Alignment::Left),
+                TextConfig::new("< Equipment >", ColorPair::new(CYAN, BLACK), Alignment::Left, false),
             ),
         );
 
@@ -336,6 +336,7 @@ impl InventoryMode {
                     ColorPair::new(CYAN, BLACK),
                     ColorPair::new(YELLOW, BLACK),
                     Alignment::Left,
+                    false,
                 ),
             ),
         );

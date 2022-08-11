@@ -66,7 +66,7 @@ pub fn player_input(
                 });
 
                 if can_heal {
-                    add_effect(Some(player), EffectType::new_healing(1), Targets::Single(player))
+                    add_effect(Some(player), EffectType::Healing(1), Targets::Single(player))
                 }
 
                 return PlayerInputResult::TurnDone;

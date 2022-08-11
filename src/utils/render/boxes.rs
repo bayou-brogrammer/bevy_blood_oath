@@ -42,11 +42,24 @@ pub struct TextConfig {
     pub title_color: ColorPair,
     pub footer: Option<String>,
     pub footer_color: Option<ColorPair>,
+    pub with_dividers: bool,
 }
 
 impl TextConfig {
-    pub fn new<S: ToString>(title: S, title_color: ColorPair, alignment: Alignment) -> Self {
-        Self { alignment, title_color, footer: None, footer_color: None, title: title.to_string() }
+    pub fn new<S: ToString>(
+        title: S,
+        title_color: ColorPair,
+        alignment: Alignment,
+        with_dividers: bool,
+    ) -> Self {
+        Self {
+            alignment,
+            title_color,
+            footer: None,
+            with_dividers,
+            footer_color: None,
+            title: title.to_string(),
+        }
     }
 
     pub fn with_footer<S: ToString, F: ToString>(
@@ -55,10 +68,12 @@ impl TextConfig {
         title_color: ColorPair,
         footer_color: ColorPair,
         alignment: Alignment,
+        with_dividers: bool,
     ) -> Self {
         Self {
             alignment,
             title_color,
+            with_dividers,
             title: title.to_string(),
             footer: Some(footer.to_string()),
             footer_color: Some(footer_color),
@@ -81,15 +96,11 @@ fn draw_box(batch: &mut DrawBatch, box_rect: Rect, double: bool, hollow: bool, c
     box_rect
 }
 
-fn draw_title(
-    batch: &mut DrawBatch,
-    box_rect: Rect,
-    title: String,
-    title_color: ColorPair,
-    footer: Option<String>,
-    footer_color: Option<ColorPair>,
-    alignment: Alignment,
-) {
+fn draw_title(batch: &mut DrawBatch, box_rect: Rect, text_config: TextConfig, box_config: BoxConfig) {
+    // let BoxConfig { color, double, hollow, dimensions } = box_config;
+    let TextConfig { title, alignment, title_color, footer, footer_color, with_dividers } = text_config;
+    let box_color = box_config.color.fg;
+
     match alignment {
         Alignment::Left => {
             batch.print_color(Point::new(box_rect.x1 + 2, box_rect.y1), title, title_color);
@@ -102,11 +113,22 @@ fn draw_title(
             );
         }
         Alignment::Center => {
-            batch.print_color_centered_at(
-                Point::new(box_rect.x1 + box_rect.width() / 2, box_rect.y1),
-                title,
-                title_color,
-            );
+            if with_dividers {
+                print_label(
+                    batch,
+                    title,
+                    Point::new(box_rect.x1, box_rect.y1),
+                    box_rect.width(),
+                    title_color.fg,
+                    box_color,
+                );
+            } else {
+                batch.print_color_centered_at(
+                    Point::new(box_rect.x1 + box_rect.width() / 2, box_rect.y1),
+                    title,
+                    title_color,
+                );
+            }
         }
     }
 
@@ -136,10 +158,8 @@ fn draw_title(
 }
 
 pub fn box_with_title(batch: &mut DrawBatch, pt: Point, config: BoxConfigWithTitle) -> Rect {
-    let BoxConfigWithTitle {
-        box_config: BoxConfig { color, double, hollow, dimensions },
-        text_config: TextConfig { title, alignment, title_color, footer, footer_color },
-    } = config;
+    let BoxConfigWithTitle { box_config: BoxConfig { color, double, hollow, dimensions }, text_config } =
+        config;
 
     let (box_w, box_h) = dimensions;
 
@@ -151,7 +171,7 @@ pub fn box_with_title(batch: &mut DrawBatch, pt: Point, config: BoxConfigWithTit
     let box_rect = Rect::with_size(pt.x, pt.y, box_w, box_h);
 
     draw_box(batch, box_rect, double, hollow, color);
-    draw_title(batch, box_rect, title, title_color, footer, footer_color, alignment);
+    draw_title(batch, box_rect, text_config, config.box_config);
 
     box_rect
 }
@@ -179,10 +199,8 @@ pub fn center_box_with_title(
     screen_bounds: (i32, i32),
     config: BoxConfigWithTitle,
 ) -> Rect {
-    let BoxConfigWithTitle {
-        box_config: BoxConfig { color, double, hollow, dimensions },
-        text_config: TextConfig { title, alignment, title_color, footer, footer_color },
-    } = config;
+    let BoxConfigWithTitle { box_config: BoxConfig { color, double, hollow, dimensions }, text_config } =
+        config;
 
     let (screen_w, screen_h) = screen_bounds;
     let (box_w, box_h) = dimensions;
@@ -198,7 +216,7 @@ pub fn center_box_with_title(
     let box_rect = Rect::with_size(start_x, start_y, end_x, end_y);
 
     draw_box(batch, box_rect, double, hollow, color);
-    draw_title(batch, box_rect, title, title_color, footer, footer_color, alignment);
+    draw_title(batch, box_rect, text_config, config.box_config);
 
     box_rect
 }

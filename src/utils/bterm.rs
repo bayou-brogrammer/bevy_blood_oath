@@ -1,12 +1,13 @@
 use crate::prelude::*;
 
-pub trait BTermClear {
+pub trait BTermAdditions {
     fn reset_consoles();
     fn clear_all_internal_consoles();
     fn clear_consoles(&mut self, consoles: &[usize]);
+    fn get_key(&self) -> Option<GameKey>;
 }
 
-impl BTermClear for BTerm {
+impl BTermAdditions for BTerm {
     fn reset_consoles() { BACKEND_INTERNAL.lock().consoles.clear(); }
 
     fn clear_all_internal_consoles() {
@@ -23,4 +24,6 @@ impl BTermClear for BTerm {
             self.set_active_console(consoles[0])
         }
     }
+
+    fn get_key(&self) -> Option<GameKey> { self.key.get_key() }
 }

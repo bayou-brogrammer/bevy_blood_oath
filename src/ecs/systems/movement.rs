@@ -10,6 +10,7 @@ pub fn movement(
     mut move_events: ResMut<Events<WantsToMove>>,
 ) {
     for WantsToMove(entity, destination) in move_events.drain() {
+        println!("{:?} wants to move to {:?}", entity, destination);
         door_q.iter_mut().filter(|(_, _, p)| **p == destination).for_each(|(door, mut glyph, _)| {
             commands.entity(door).remove::<BlocksVisibility>().remove::<BlocksTile>().insert(Door(true));
             glyph.glyph = to_cp437('/');

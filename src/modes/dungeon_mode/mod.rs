@@ -25,8 +25,6 @@ impl std::fmt::Debug for DungeonMode {
 
 impl DungeonMode {
     pub fn new(app: &mut App) -> Self {
-        raws::load_raws();
-
         // Create a render schedule and a stage
         let mut render_schedule = Schedule::default();
         let mut update = SystemStage::parallel();
@@ -43,8 +41,8 @@ impl DungeonMode {
         render_schedule.add_stage(CoreStage::Update, update);
 
         // Setup State
-        app.insert_resource(NextState(GameCondition::Playing));
         app.insert_resource(TurnState::AwaitingInput);
+        app.insert_resource(NextState(GameCondition::Playing));
 
         // Setup Plugins
         app.add_plugin(SystemsPlugin);
@@ -112,6 +110,7 @@ impl DungeonMode {
 
         let turn_state = *app.world.resource::<TurnState>();
         match turn_state {
+            TurnState::MagicMapReveal(row) => self.reveal_map(&mut app.world, row),
             TurnState::AwaitingInput => {
                 if let Some(result) = app.world.remove_resource::<PlayerInputResult>() {
                     match result {
@@ -128,7 +127,6 @@ impl DungeonMode {
                     }
                 }
             }
-            TurnState::MagicMapReveal(row) => self.reveal_map(&mut app.world, row),
             _ => {}
         }
 

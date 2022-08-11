@@ -36,7 +36,7 @@ pub fn render_tooltips(
         });
 
     let mut batch = DrawBatch::new();
-    batch.target(LAYER_TOOL);
+    batch.target(LAYER_TEXT);
 
     if !lines.is_empty() {
         let height = lines.len() + 1;

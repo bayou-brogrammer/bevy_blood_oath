@@ -40,9 +40,23 @@ pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
         .insert(MagicMapper {})
         .remove::<Point>()
         .insert(InBackpack { owner: player });
+
+    commands
+        .spawn()
+        .insert_bundle(ItemBundle::new(
+            EntityBundle::new(Item, "Fire"),
+            RenderBundle::new(to_cp437(')'), ColorPair::new(ORANGE, BLACK), RenderOrder::Item, start_pos),
+        ))
+        .insert(Consumable {})
+        .insert(Ranged(6))
+        .insert(InflictsDamage(6))
+        // .insert(AreaOfEffect::new(3))
+        .remove::<Point>()
+        .insert(InBackpack { owner: player });
 }
 
 pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
+    println!("Spawning entities...: {:?}", map_builder.spawn_list);
     for entity in map_builder.spawn_list.iter() {
         spawner::spawn_entity(&mut commands, &map_builder.map, &(&entity.0, &entity.1));
     }
