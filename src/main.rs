@@ -7,7 +7,6 @@ pub mod spawner;
 
 mod actions;
 mod ecs;
-mod effects;
 mod map;
 mod modes;
 mod random_table;
@@ -42,7 +41,6 @@ mod prelude {
 
     pub use crate::actions::*;
     pub use crate::ecs::*;
-    pub use crate::effects::*;
     pub use crate::map::*;
     pub use crate::modes::*;
     pub use crate::random_table::*;
