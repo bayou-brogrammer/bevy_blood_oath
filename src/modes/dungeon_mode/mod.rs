@@ -133,7 +133,7 @@ impl DungeonMode {
         (ModeControl::Stay, ModeUpdate::Update)
     }
 
-    pub fn draw(&mut self, _ctx: &mut BTerm, world: &mut World, _active: bool) {
+    pub fn draw(&mut self, ctx: &mut BTerm, world: &mut World, _active: bool) {
         self.render_schedule.run(world);
         gui::render_ui(world);
     }
