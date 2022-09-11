@@ -18,14 +18,14 @@ default = ["bevy/dynamic", "bracket-lib/threaded"]
 web     = []
 
 [dependencies]
-bo_logging     = { path = "bo_logging/" }
-bo_pathfinding = { path = "bo_pathfinding/" }
+bo_logging = { path = "bo_logging/" }
 
 # Core Crates
 bracket-lib = { git = "https://github.com/lecoqjacob/bracket-lib", branch = "custom", features = [
   "serde",
   "bevy",
 ] }
+bracket-state-machine = { git = "https://github.com/lecoqjacob/bracket-state-machine", branch = "custom" }
 
 bevy          = { version = "~0.8", default-features = false }
 iyes_loopless = "~0.7"
@@ -35,7 +35,7 @@ bitvec                   = { version = "^1", features = ["serde"] }
 console_error_panic_hook = "0.1"
 lazy_static              = "^1"
 parking_lot              = { version = "^0.12", features = ["nightly"] }
-ron                      = "0.8.0"
+ron                      = "^0.8"
 serde                    = { version = "^1", features = ["derive"] }
 
 [build-dependencies]
@@ -44,4 +44,4 @@ embed-resource = "^1"
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!
 
-members = ["bo_logging", "bo_pathfinding"]
+members = ["bo_logging"]

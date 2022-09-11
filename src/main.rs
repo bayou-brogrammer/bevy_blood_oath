@@ -23,6 +23,7 @@ mod prelude {
 
     // Bracket Lib
     pub use bracket_lib::prelude::*;
+    pub use bracket_state_machine::prelude::*;
 
     // Random Helper Crates
     pub use lazy_static::lazy_static;
@@ -30,7 +31,6 @@ mod prelude {
 
     // Local Helper Libs
     pub use bo_logging::*;
-    pub use bo_pathfinding::prelude::*;
 
     // Local Crates
     pub use crate::impl_default;
@@ -75,6 +75,8 @@ mod prelude {
 
 pub use prelude::*;
 
+use crate::main_menu_mode::MainMenuMode;
+
 pub struct BracketContext {
     pub mouse_pt: Point,
     pub frame_time_ms: f32,
@@ -94,9 +96,6 @@ impl_new!(
 
 pub struct GameWorld {
     pub app: App,
-    pub wait_for_event: bool,
-    pub mode_stack: ModeStack,
-    pub active_mouse_pos: Point,
 }
 
 impl_default!(GameWorld);
@@ -154,12 +153,7 @@ impl GameWorld {
 
         raws::load_raws();
 
-        Self {
-            app,
-            wait_for_event: false,
-            active_mouse_pos: Point::zero(),
-            mode_stack: ModeStack::new(vec![main_menu_mode::MainMenuMode::new().into()]),
-        }
+        Self { app }
     }
 
     fn inject_bracket_context(&mut self, ctx: &mut BTerm) {
@@ -180,37 +174,6 @@ impl GameWorld {
             ctx.mouse_point(),
             ctx.left_click,
         ));
-    }
-}
-
-impl GameState for GameWorld {
-    fn tick(&mut self, ctx: &mut BTerm) {
-        self.inject_bracket_context(ctx);
-
-        if !self.wait_for_event {
-            self.active_mouse_pos = ctx.mouse_point();
-
-            match self.mode_stack.update(ctx, &mut self.app) {
-                RunControl::Update => {}
-                RunControl::Quit => ctx.quit(),
-                RunControl::WaitForEvent => self.wait_for_event = true,
-            }
-        } else {
-            let new_mouse = ctx.mouse_point();
-
-            // Handle Keys & Mouse Clicks
-            if ctx.key.is_some() || ctx.left_click {
-                self.wait_for_event = false;
-            }
-
-            // Handle Mouse Movement
-            if new_mouse != self.active_mouse_pos {
-                self.wait_for_event = false;
-                self.active_mouse_pos = new_mouse;
-            }
-        }
-
-        render_draw_buffer(ctx).expect("Render error");
     }
 }
 
@@ -242,5 +205,6 @@ fn main() -> BError {
 
     context.with_post_scanlines(true);
 
-    main_loop(context, GameWorld::new())
+    let machine = StateMachine::new(GameWorld::new(), MainMenuMode::new());
+    main_loop(context, machine)
 }

@@ -18,23 +18,28 @@ impl MessageBoxMode {
         let inner_width = msg.iter().map(|m| m.to_string().chars().count()).max().unwrap_or(0) as i32;
         Self { msg, inner_width }
     }
+}
 
-    pub fn tick(
+impl State for MessageBoxMode {
+    type State = GameWorld;
+    type StateResult = MessageBoxModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        _app: &mut App,
-        _pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
-        if let Some(key) = ctx.key {
+        term: &mut BTerm,
+        _state: &mut Self::State,
+        _pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
+        if let Some(key) = term.key {
             if matches!(key, VirtualKeyCode::Return | VirtualKeyCode::Escape) {
-                return (ModeControl::Pop(MessageBoxModeResult::Done.into()), ModeUpdate::Immediate);
+                return (Transition::Pop(MessageBoxModeResult::Done), TransitionControl::Immediate);
             }
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
+    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(0);
 

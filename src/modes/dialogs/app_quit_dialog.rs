@@ -16,27 +16,32 @@ impl AppQuitDialogMode {
     pub fn new() -> Self {
         Self { dialog: YesNoDialogMode::new("Really quit Bload Oath?".to_string(), false) }
     }
+}
 
-    pub fn tick(
+impl State for AppQuitDialogMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        app: &mut App,
-        pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
-        match self.dialog.tick(ctx, app, pop_result) {
-            (ModeControl::Pop(ModeResult::YesNoDialogModeResult(result)), mode_update) => match result {
+        term: &mut BTerm,
+        state: &mut Self::State,
+        pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
+        match self.dialog.update(term, state, pop_result) {
+            (Transition::Pop(ModeResult::YesNoDialogModeResult(result)), mode_update) => match result {
                 YesNoDialogModeResult::Yes => {
-                    (ModeControl::Pop(AppQuitDialogModeResult::Confirmed.into()), mode_update)
+                    (Transition::Pop(AppQuitDialogModeResult::Confirmed.into()), mode_update)
                 }
                 YesNoDialogModeResult::No => {
-                    (ModeControl::Pop(AppQuitDialogModeResult::Cancelled.into()), mode_update)
+                    (Transition::Pop(AppQuitDialogModeResult::Cancelled.into()), mode_update)
                 }
             },
             result => result,
         }
     }
 
-    pub fn draw(&self, ctx: &mut BTerm, world: &mut World, active: bool) {
-        self.dialog.draw(ctx, world, active);
+    fn render(&mut self, term: &mut BTerm, state: &mut Self::State, active: bool) {
+        self.dialog.render(term, state, active);
     }
 }

@@ -1,4 +1,5 @@
-use super::{ModeControl, ModeResult, *};
+use super::*;
+use bracket_state_machine::prelude::TransitionControl;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Result
@@ -46,19 +47,27 @@ impl MainMenuMode {
 
         Self { actions, selection: 0 }
     }
+}
 
-    pub fn tick(
+impl State for MainMenuMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        app: &mut App,
-        _pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
-        app.update();
+        term: &mut BTerm,
+        state: &mut Self::State,
+        _pop_result: &Option<Self::StateResult>,
+    ) -> ModeReturn {
+        state.app.update();
 
-        if let Some(key) = ctx.key {
+        if let Some(key) = term.key {
             match key {
                 VirtualKeyCode::Escape => {
-                    return (ModeControl::Pop(MainMenuModeResult::AppQuit.into()), ModeUpdate::Immediate)
+                    return (
+                        Transition::Pop(MainMenuModeResult::AppQuit.into()),
+                        TransitionControl::Immediate,
+                    )
                 }
                 VirtualKeyCode::Down => {
                     if self.selection < self.actions.len().saturating_sub(1) {
@@ -80,14 +89,14 @@ impl MainMenuMode {
                     match self.actions[self.selection] {
                         MainMenuAction::Quit => {
                             return (
-                                ModeControl::Pop(MainMenuModeResult::AppQuit.into()),
-                                ModeUpdate::Immediate,
+                                Transition::Pop(MainMenuModeResult::AppQuit.into()),
+                                TransitionControl::Immediate,
                             )
                         }
                         MainMenuAction::NewGame => {
                             return (
-                                ModeControl::Switch(MapGenMode::new_game(&mut app.world).into()),
-                                ModeUpdate::Immediate,
+                                Transition::Switch(MapGenMode::new_game(&mut state.app.world).boxed()),
+                                TransitionControl::Immediate,
                             );
                         }
                     }
@@ -96,19 +105,16 @@ impl MainMenuMode {
             }
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&self, ctx: &mut BTerm, world: &mut World, _active: bool) {
+    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_TEXT);
 
-        let assets = world.resource::<RexAssets>();
-        ctx.render_xp_sprite(&assets.menu, 0, 0);
-
         let box_rect = center_box_with_title(
             &mut batch,
-            (SCREEN_WIDTH, SCREEN_HEIGHT),
+            (UI_WIDTH, UI_HEIGHT),
             BoxConfigWithTitle {
                 box_config: BoxConfig::new((30, 10), ColorPair::new(WHITE, BLACK), true, false),
                 text_config: TextConfig::new(

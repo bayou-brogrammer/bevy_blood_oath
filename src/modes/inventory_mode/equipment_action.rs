@@ -81,7 +81,7 @@ impl EquipmentActionMode {
         }
     }
 
-    fn confirm_action(&self) -> (ModeControl, ModeUpdate) {
+    fn confirm_action(&self) -> ModeReturn {
         let result = match self.subsection {
             SubSection::Cancel => EquipmentActionModeResult::Cancelled,
             SubSection::Actions => match self.actions[self.selection as usize] {
@@ -90,21 +90,26 @@ impl EquipmentActionMode {
             },
         };
 
-        (ModeControl::Pop(result.into()), ModeUpdate::Immediate)
+        (Transition::Pop(result.into()), TransitionControl::Immediate)
     }
+}
 
-    pub fn tick(
+impl State for EquipmentActionMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        _app: &mut App,
-        _pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
-        if let Some(key) = ctx.key {
+        term: &mut BTerm,
+        _state: &mut Self::State,
+        _pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
+        if let Some(key) = term.key {
             match key {
                 VirtualKeyCode::Escape => {
                     return (
-                        ModeControl::Pop(EquipmentActionModeResult::Cancelled.into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(EquipmentActionModeResult::Cancelled.into()),
+                        TransitionControl::Immediate,
                     )
                 }
                 VirtualKeyCode::Down => match self.subsection {
@@ -155,10 +160,10 @@ impl EquipmentActionMode {
             }
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
+    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(LAYER_TEXT);
 

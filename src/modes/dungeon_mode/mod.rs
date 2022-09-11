@@ -1,5 +1,5 @@
 use super::*;
-use crate::player::PlayerInputResult;
+use crate::{inventory_mode::InventoryMode, player::PlayerInputResult};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Result
@@ -18,7 +18,9 @@ pub struct DungeonMode {
 }
 
 impl std::fmt::Debug for DungeonMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { f.debug_struct("DungeonMode").finish() }
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("DungeonMode").finish()
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,15 +52,22 @@ impl DungeonMode {
 
         Self { render_schedule }
     }
+}
 
-    pub fn tick(
+impl State for DungeonMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        _ctx: &mut BTerm,
-        app: &mut App,
-        pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
+        _term: &mut BTerm,
+        state: &mut Self::State,
+        pop_result: &Option<Self::StateResult>,
+    ) -> ModeReturn {
         // Update Systems
-        app.update();
+        state.app.update();
+
+        let world = &mut state.app.world;
 
         if let Some(result) = pop_result {
             match result {
@@ -69,7 +78,10 @@ impl DungeonMode {
                         // if let Err(e) = saveload::save_game(world) {
                         //     eprintln!("Warning: bo_saveload::save_game: {}", e);
                         // }
-                        return (ModeControl::Pop(DungeonModeResult::Done.into()), ModeUpdate::Immediate);
+                        return (
+                            Transition::Pop(DungeonModeResult::Done.into()),
+                            TransitionControl::Immediate,
+                        );
                     }
                 },
 
@@ -78,8 +90,8 @@ impl DungeonMode {
                     YesNoDialogModeResult::No => {}
                     YesNoDialogModeResult::Yes => {
                         return (
-                            ModeControl::Switch(MapGenMode::next_level(&mut app.world).into()),
-                            ModeUpdate::Immediate,
+                            Transition::Switch(MapGenMode::next_level(world).boxed()),
+                            TransitionControl::Immediate,
                         );
                     }
                 },
@@ -89,38 +101,36 @@ impl DungeonMode {
                     InventoryModeResult::DoNothing => {}
                     _ => {
                         match result {
-                            InventoryModeResult::EquipItem(item) => self.equip_item(&mut app.world, item),
-                            InventoryModeResult::DropItem(item) => self.drop_item(&mut app.world, item),
-                            InventoryModeResult::DropEquipment(item) => self.drop_item(&mut app.world, item),
-                            InventoryModeResult::UseItem(item, target) => {
-                                self.use_item(&mut app.world, item, *target)
-                            }
+                            InventoryModeResult::EquipItem(item) => self.equip_item(world, item),
+                            InventoryModeResult::DropItem(item) => self.drop_item(world, item),
+                            InventoryModeResult::DropEquipment(item) => self.drop_item(world, item),
+                            InventoryModeResult::UseItem(item, target) => self.use_item(world, item, *target),
                             InventoryModeResult::RemoveEquipment(equipment) => {
-                                self.remove_equipment(&mut app.world, equipment)
+                                self.remove_equipment(world, equipment)
                             }
                             _ => {}
                         }
 
-                        self.end_turn(&mut app.world);
+                        self.end_turn(world);
                     }
                 },
                 _ => unreachable!("Unknown popped dungeon result: [{:?}]", result),
             };
         }
 
-        let turn_state = *app.world.resource::<TurnState>();
+        let turn_state = *world.resource::<TurnState>();
         match turn_state {
-            TurnState::MagicMapReveal(row) => self.reveal_map(&mut app.world, row),
+            TurnState::MagicMapReveal(row) => self.reveal_map(world, row),
             TurnState::AwaitingInput => {
-                if let Some(result) = app.world.remove_resource::<PlayerInputResult>() {
+                if let Some(result) = world.remove_resource::<PlayerInputResult>() {
                     match result {
                         PlayerInputResult::NoResult => {}
                         PlayerInputResult::AppQuit => return self.app_quit_dialog(),
-                        PlayerInputResult::TurnDone => self.end_turn(&mut app.world),
+                        PlayerInputResult::TurnDone => self.end_turn(world),
                         PlayerInputResult::ShowInventory => {
                             return (
-                                ModeControl::Push(InventoryMode::new(&mut app.world).into()),
-                                ModeUpdate::Update,
+                                Transition::Push(InventoryMode::new(world).boxed()),
+                                TransitionControl::Update,
                             )
                         }
                         _ => {}
@@ -130,22 +140,22 @@ impl DungeonMode {
             _ => {}
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&mut self, ctx: &mut BTerm, world: &mut World, _active: bool) {
-        self.render_schedule.run(world);
-        gui::render_ui(world);
+    fn render(&mut self, _term: &mut BTerm, state: &mut Self::State, _active: bool) {
+        self.render_schedule.run(&mut state.app.world);
+        gui::render_ui(&mut state.app.world);
     }
 }
 
 impl DungeonMode {
-    fn app_quit_dialog(&self) -> (ModeControl, ModeUpdate) {
+    fn app_quit_dialog(&self) -> ModeReturn {
         #[cfg(not(target_arch = "wasm32"))]
-        return (ModeControl::Push(AppQuitDialogMode::new().into()), ModeUpdate::Update);
+        return (Transition::Push(AppQuitDialogMode::new().boxed()), TransitionControl::Update);
 
         #[cfg(target_arch = "wasm32")]
-        return (ModeControl::Stay, ModeUpdate::Update);
+        return (Transition::Stay, TransitionControl::Update);
     }
 
     fn end_turn(&self, world: &mut World) {

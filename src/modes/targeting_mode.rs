@@ -21,7 +21,7 @@ pub struct TargetingMode {
 
 /// Pick a target position within a certain range of the player.
 impl TargetingMode {
-    pub fn new(ctx: &mut BTerm, world: &World, item: Entity, range: i32, warn_self: bool) -> Self {
+    pub fn new(term: &mut BTerm, world: &World, item: Entity, range: i32, warn_self: bool) -> Self {
         let item_name = world.get::<Naming>(item).unwrap().0.clone();
         let radius = world.get::<AreaOfEffect>(item).map_or(0, |aoe| aoe.radius);
 
@@ -50,7 +50,7 @@ impl TargetingMode {
             item_name,
             valid_cells,
             player_positon,
-            active_mouse_pt: ctx.mouse_point(),
+            active_mouse_pt: term.mouse_point(),
             camera: *world.resource::<CameraView>(),
         }
     }
@@ -66,45 +66,50 @@ impl TargetingMode {
 
         false
     }
+}
 
-    pub fn tick(
+impl State for TargetingMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        _app: &mut App,
-        pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
+        term: &mut BTerm,
+        _state: &mut Self::State,
+        pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
         if let Some(result) = pop_result {
             return match result {
                 ModeResult::YesNoDialogModeResult(result) => match result {
-                    YesNoDialogModeResult::No => (ModeControl::Stay, ModeUpdate::Update),
+                    YesNoDialogModeResult::No => (Transition::Stay, TransitionControl::Update),
                     YesNoDialogModeResult::Yes => (
-                        ModeControl::Pop(
+                        Transition::Pop(
                             TargetingModeResult::Target(
                                 self.item,
                                 self.camera.screen_to_world(self.active_mouse_pt),
                             )
                             .into(),
                         ),
-                        ModeUpdate::Immediate,
+                        TransitionControl::Immediate,
                     ),
                 },
-                _ => (ModeControl::Stay, ModeUpdate::Update),
+                _ => (Transition::Stay, TransitionControl::Update),
             };
         }
 
-        let game_key = ctx.get_key();
+        let game_key = term.get_key();
 
         // Handle Escaping
         if game_key == Some(GameKey::Escape) {
-            return (ModeControl::Pop(TargetingModeResult::Cancelled.into()), ModeUpdate::Update);
+            return (Transition::Pop(TargetingModeResult::Cancelled.into()), TransitionControl::Update);
         }
 
         // Handle Left Mouse || Resturn Key Press
-        if game_key == Some(GameKey::Select) || ctx.left_click {
+        if game_key == Some(GameKey::Select) || term.left_click {
             let map_mouse_pos = self.camera.screen_to_world(self.active_mouse_pt);
 
             let result = if self.should_warn() {
-                ModeControl::Push(
+                Transition::Push(
                     YesNoDialogMode::new(
                         format!(
                             "Really {} yourself?",
@@ -112,22 +117,22 @@ impl TargetingMode {
                         ),
                         false,
                     )
-                    .into(),
+                    .boxed(),
                 )
             } else {
-                ModeControl::Pop(TargetingModeResult::Target(self.item, map_mouse_pos).into())
+                Transition::Pop(TargetingModeResult::Target(self.item, map_mouse_pos).into())
             };
 
-            return (result, ModeUpdate::Immediate);
+            return (result, TransitionControl::Immediate);
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&mut self, ctx: &mut BTerm, world: &mut World, active: bool) {
-        match (active, ctx.screen_burn_color == REGULAR_SCREEN_BURN.into()) {
-            (true, false) => ctx.screen_burn_color(REGULAR_SCREEN_BURN.into()),
-            (false, true) => ctx.screen_burn_color(RGB::named(LIGHTGRAY)),
+    fn render(&mut self, term: &mut BTerm, state: &mut Self::State, active: bool) {
+        match (active, term.screen_burn_color == REGULAR_SCREEN_BURN.into()) {
+            (true, false) => term.screen_burn_color(REGULAR_SCREEN_BURN.into()),
+            (false, true) => term.screen_burn_color(RGB::named(LIGHTGRAY)),
             _ => {}
         }
 
@@ -149,11 +154,11 @@ impl TargetingMode {
         });
 
         // Draw Blast Radius
-        self.active_mouse_pt = if active { ctx.mouse_point() } else { self.active_mouse_pt };
+        self.active_mouse_pt = if active { term.mouse_point() } else { self.active_mouse_pt };
         let mouse_map_pos = self.camera.screen_to_world(self.active_mouse_pt);
 
         if self.radius > 0 {
-            let map = world.resource::<Map>();
+            let map = state.app.world.resource::<Map>();
             field_of_view_set(mouse_map_pos, self.radius, map)
                 .iter()
                 .filter(|pt| map.visible.get_bit(**pt))

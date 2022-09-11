@@ -93,7 +93,7 @@ impl InventoryActionMode {
         Self { actions, subsection, selection, inner_width, item: (item_id, item_glyph, item_name) }
     }
 
-    fn confirm_action(&self, ctx: &mut BTerm, world: &World) -> (ModeControl, ModeUpdate) {
+    fn confirm_action(&self, ctx: &mut BTerm, world: &World) -> ModeReturn {
         let result = match self.subsection {
             SubSection::Cancel => InventoryActionModeResult::Cancelled,
             SubSection::Actions => match self.actions[self.selection as usize] {
@@ -102,10 +102,10 @@ impl InventoryActionMode {
                 InventoryAction::UseItem => {
                     if let Some(Ranged(range)) = world.get::<Ranged>(self.item.0) {
                         return (
-                            ModeControl::Push(
-                                TargetingMode::new(ctx, world, self.item.0, *range, true).into(),
+                            Transition::Push(
+                                TargetingMode::new(ctx, world, self.item.0, *range, true).boxed(),
                             ),
-                            ModeUpdate::Update,
+                            TransitionControl::Update,
                         );
                     } else {
                         InventoryActionModeResult::UseItem(self.item.0, None)
@@ -114,34 +114,39 @@ impl InventoryActionMode {
             },
         };
 
-        (ModeControl::Pop(result.into()), ModeUpdate::Immediate)
+        (Transition::Pop(result.into()), TransitionControl::Immediate)
     }
+}
 
-    pub fn tick(
+impl State for InventoryActionMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        app: &mut App,
-        pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
+        term: &mut BTerm,
+        state: &mut Self::State,
+        pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
         if let Some(result) = pop_result {
             return match result {
                 ModeResult::TargetingModeResult(result) => match result {
-                    TargetingModeResult::Cancelled => return (ModeControl::Stay, ModeUpdate::Update),
+                    TargetingModeResult::Cancelled => return (Transition::Stay, TransitionControl::Update),
                     TargetingModeResult::Target(item, pt) => (
-                        ModeControl::Pop(InventoryActionModeResult::UseItem(*item, Some(*pt)).into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryActionModeResult::UseItem(*item, Some(*pt)).into()),
+                        TransitionControl::Immediate,
                     ),
                 },
-                _ => (ModeControl::Stay, ModeUpdate::Update),
+                _ => (Transition::Stay, TransitionControl::Update),
             };
         }
 
-        if let Some(key) = ctx.key {
+        if let Some(key) = term.key {
             match key {
                 VirtualKeyCode::Escape => {
                     return (
-                        ModeControl::Pop(InventoryActionModeResult::Cancelled.into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryActionModeResult::Cancelled.into()),
+                        TransitionControl::Immediate,
                     )
                 }
                 VirtualKeyCode::Down => match self.subsection {
@@ -175,7 +180,7 @@ impl InventoryActionMode {
                     }
                 },
                 VirtualKeyCode::Return => {
-                    return self.confirm_action(ctx, &app.world);
+                    return self.confirm_action(term, &state.app.world);
                 }
 
                 key @ VirtualKeyCode::D | key @ VirtualKeyCode::A => {
@@ -183,7 +188,7 @@ impl InventoryActionMode {
                         if let Some(action_pos) = self.actions.iter().position(|a| *a == inv_action) {
                             if matches!(self.subsection, SubSection::Actions) && self.selection == action_pos
                             {
-                                return self.confirm_action(ctx, &app.world);
+                                return self.confirm_action(term, &state.app.world);
                             } else {
                                 self.subsection = SubSection::Actions;
                                 self.selection = action_pos;
@@ -195,10 +200,10 @@ impl InventoryActionMode {
             }
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
+    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(LAYER_TEXT);
 

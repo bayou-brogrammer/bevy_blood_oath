@@ -887,8 +887,8 @@ dependencies = [
  "bevy",
  "bitvec",
  "bo_logging",
- "bo_pathfinding",
  "bracket-lib",
+ "bracket-state-machine",
  "console_error_panic_hook",
  "embed-resource",
  "iyes_loopless",
@@ -912,14 +912,6 @@ dependencies = [
  "lazy_static",
  "parking_lot 0.12.1",
  "textwrap",
-]
-
-[[package]]
-name = "bo_pathfinding"
-version = "0.1.0"
-dependencies = [
- "bracket-lib",
- "smallvec",
 ]
 
 [[package]]
@@ -1018,6 +1010,14 @@ dependencies = [
  "bracket-embedding",
  "byteorder",
  "flate2",
+]
+
+[[package]]
+name = "bracket-state-machine"
+version = "0.1.0"
+source = "git+https://github.com/lecoqjacob/bracket-state-machine?branch=custom#bb08418f2a455d2185ccaf44cf077e0ef767507c"
+dependencies = [
+ "bracket-lib",
 ]
 
 [[package]]

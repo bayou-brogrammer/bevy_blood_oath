@@ -97,55 +97,63 @@ impl InventoryMode {
             equipment: Equipment::new(weapon, armor),
         }
     }
+}
 
-    pub fn tick(
+impl State for InventoryMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        app: &mut App,
-        pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
+        term: &mut BTerm,
+        state: &mut Self::State,
+        pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
         if let Some(result) = pop_result {
             return match result {
                 ////////////////////////////////////////////////////////////////////////////////////////
                 // Inventory Action
                 ////////////////////////////////////////////////////////////////////////////////////////
                 ModeResult::InventoryActionModeResult(result) => match result {
-                    InventoryActionModeResult::Cancelled => (ModeControl::Stay, ModeUpdate::Update),
+                    InventoryActionModeResult::Cancelled => (Transition::Stay, TransitionControl::Update),
                     InventoryActionModeResult::UseItem(item_id, pt) => (
-                        ModeControl::Pop(InventoryModeResult::UseItem(*item_id, *pt).into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryModeResult::UseItem(*item_id, *pt).into()),
+                        TransitionControl::Immediate,
                     ),
                     InventoryActionModeResult::DropItem(item_id) => (
-                        ModeControl::Pop(InventoryModeResult::DropItem(*item_id).into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryModeResult::DropItem(*item_id).into()),
+                        TransitionControl::Immediate,
                     ),
                     InventoryActionModeResult::EquipItem(item_id) => (
-                        ModeControl::Pop(InventoryModeResult::EquipItem(*item_id).into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryModeResult::EquipItem(*item_id).into()),
+                        TransitionControl::Immediate,
                     ),
                 },
                 ////////////////////////////////////////////////////////////////////////////////////////
                 // Equipment Action
                 ////////////////////////////////////////////////////////////////////////////////////////
                 ModeResult::EquipmentActionModeResult(result) => match result {
-                    EquipmentActionModeResult::Cancelled => (ModeControl::Stay, ModeUpdate::Update),
+                    EquipmentActionModeResult::Cancelled => (Transition::Stay, TransitionControl::Update),
                     EquipmentActionModeResult::RemoveEquipment(item_id) => (
-                        ModeControl::Pop(InventoryModeResult::RemoveEquipment(*item_id).into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryModeResult::RemoveEquipment(*item_id).into()),
+                        TransitionControl::Immediate,
                     ),
                     EquipmentActionModeResult::DropEquipment(item_id) => (
-                        ModeControl::Pop(InventoryModeResult::DropEquipment(*item_id).into()),
-                        ModeUpdate::Immediate,
+                        Transition::Pop(InventoryModeResult::DropEquipment(*item_id).into()),
+                        TransitionControl::Immediate,
                     ),
                 },
                 _ => unreachable!("InventoryMode::tick: Unexpected ModeResult"),
             };
         }
 
-        if let Some(key) = ctx.key {
+        if let Some(key) = term.key {
             match (&self.subsection, key) {
                 (_, VirtualKeyCode::Escape) => {
-                    return (ModeControl::Pop(InventoryModeResult::DoNothing.into()), ModeUpdate::Update)
+                    return (
+                        Transition::Pop(InventoryModeResult::DoNothing.into()),
+                        TransitionControl::Update,
+                    )
                 }
                 ////////////////////////////////////////////////////
                 // Sub Section Weapon
@@ -160,8 +168,10 @@ impl InventoryMode {
                 (SubSection::EquipWeapon, VirtualKeyCode::Return) => {
                     if let Some(weapon) = &self.equipment.weapon {
                         return (
-                            ModeControl::Push(EquipmentActionMode::new(&app.world, weapon.0, None).into()),
-                            ModeUpdate::Update,
+                            Transition::Push(
+                                EquipmentActionMode::new(&state.app.world, weapon.0, None).boxed(),
+                            ),
+                            TransitionControl::Update,
                         );
                     }
                 }
@@ -178,8 +188,10 @@ impl InventoryMode {
                 (SubSection::EquipArmor, VirtualKeyCode::Return) => {
                     if let Some(armor) = &self.equipment.armor {
                         return (
-                            ModeControl::Push(EquipmentActionMode::new(&app.world, armor.0, None).into()),
-                            ModeUpdate::Update,
+                            Transition::Push(
+                                EquipmentActionMode::new(&state.app.world, armor.0, None).boxed(),
+                            ),
+                            TransitionControl::Update,
                         );
                     }
                 }
@@ -204,8 +216,8 @@ impl InventoryMode {
                     if !self.inventory.is_empty() {
                         let item = self.inventory[self.inv_selection as usize].0;
                         return (
-                            ModeControl::Push(InventoryActionMode::new(&app.world, item, None).into()),
-                            ModeUpdate::Update,
+                            Transition::Push(InventoryActionMode::new(&state.app.world, item, None).boxed()),
+                            TransitionControl::Update,
                         );
                     }
                 }
@@ -214,13 +226,18 @@ impl InventoryMode {
                 {
                     if let Some(item_id) = self.inventory.get(self.inv_selection as usize) {
                         if let Some(inv_action) = InventoryAction::from_key(key) {
-                            if InventoryAction::item_supports_action(&app.world, item_id.0, inv_action) {
+                            if InventoryAction::item_supports_action(&state.app.world, item_id.0, inv_action)
+                            {
                                 return (
-                                    ModeControl::Push(
-                                        InventoryActionMode::new(&app.world, item_id.0, Some(inv_action))
-                                            .into(),
+                                    Transition::Push(
+                                        InventoryActionMode::new(
+                                            &state.app.world,
+                                            item_id.0,
+                                            Some(inv_action),
+                                        )
+                                        .boxed(),
                                     ),
-                                    ModeUpdate::Update,
+                                    TransitionControl::Update,
                                 );
                             }
                         }
@@ -230,10 +247,10 @@ impl InventoryMode {
             }
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
+    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(LAYER_TEXT);
 

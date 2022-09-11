@@ -1,4 +1,5 @@
 use super::*;
+use crate::GameWorld;
 
 const YES_STR: &str = "[ Yes ]";
 const NO_STR: &str = "[ No ]";
@@ -27,35 +28,42 @@ impl From<bool> for YesNoDialogModeResult {
 
 /// A yes-or-no dialog box with a prompt that shows up in the center of the screen.
 impl YesNoDialogMode {
-    pub fn new(prompt: String, yes_default: bool) -> Self { Self { prompt, yes_selected: yes_default } }
+    pub fn new(prompt: String, yes_default: bool) -> Self {
+        Self { prompt, yes_selected: yes_default }
+    }
+}
 
-    pub fn tick(
+impl State for YesNoDialogMode {
+    type State = GameWorld;
+    type StateResult = ModeResult;
+
+    fn update(
         &mut self,
-        ctx: &mut BTerm,
-        _app: &mut App,
-        _pop_result: &Option<ModeResult>,
-    ) -> (ModeControl, ModeUpdate) {
-        if let Some(key) = ctx.key {
+        term: &mut BTerm,
+        _state: &mut Self::State,
+        _pop_result: &Option<Self::StateResult>,
+    ) -> StateReturn<Self::State, Self::StateResult> {
+        if let Some(key) = term.key {
             match key {
                 VirtualKeyCode::Escape => {
-                    return (ModeControl::Pop(YesNoDialogModeResult::No.into()), ModeUpdate::Update);
+                    return (Transition::Pop(YesNoDialogModeResult::No.into()), TransitionControl::Update);
                 }
                 VirtualKeyCode::Left => self.yes_selected = true,
                 VirtualKeyCode::Right => self.yes_selected = false,
                 VirtualKeyCode::Return => {
                     return (
-                        ModeControl::Pop(YesNoDialogModeResult::from(self.yes_selected).into()),
-                        ModeUpdate::Update,
+                        Transition::Pop(YesNoDialogModeResult::from(self.yes_selected).into()),
+                        TransitionControl::Update,
                     );
                 }
                 _ => {}
             }
         }
 
-        (ModeControl::Stay, ModeUpdate::Update)
+        (Transition::Stay, TransitionControl::Update)
     }
 
-    pub fn draw(&self, _ctx: &mut BTerm, _world: &mut World, _active: bool) {
+    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(LAYER_TEXT);
 

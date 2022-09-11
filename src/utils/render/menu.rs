@@ -29,7 +29,7 @@ pub fn print_label<S: ToString, C: Into<RGBA> + Copy>(
     let x_pos = (display_width / 2) - (name_length / 2);
 
     // Left Side
-    draw_batch.set(Point::new(pos.x + x_pos - 2, pos.y), ColorPair::new(divider_color, BLACK), to_cp437('├'));
+    draw_batch.set(Point::new(pos.x + x_pos - 2, pos.y), ColorPair::new(divider_color, BLACK), to_cp437('│'));
     for i in (pos.x + x_pos - 1)..=(pos.x + x_pos) {
         draw_batch.set(Point::new(i, pos.y), ColorPair::new(divider_color, BLACK), to_cp437(' '));
     }
@@ -37,7 +37,7 @@ pub fn print_label<S: ToString, C: Into<RGBA> + Copy>(
     draw_batch.set(
         Point::new(pos.x + x_pos + name_length + 1, pos.y),
         ColorPair::new(divider_color, BLACK),
-        to_cp437('┤'),
+        to_cp437('│'),
     );
     for i in (pos.x + x_pos)..=pos.x + x_pos + name_length {
         draw_batch.set(Point::new(i, pos.y), ColorPair::new(divider_color, BLACK), to_cp437(' '));

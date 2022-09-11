@@ -24,7 +24,9 @@ pub struct BoxConfigWithTitle {
 }
 
 impl BoxConfigWithTitle {
-    pub fn new(box_config: BoxConfig, text_config: TextConfig) -> Self { Self { box_config, text_config } }
+    pub fn new(box_config: BoxConfig, text_config: TextConfig) -> Self {
+        Self { box_config, text_config }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
