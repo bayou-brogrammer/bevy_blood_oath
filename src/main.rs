@@ -58,8 +58,10 @@ mod prelude {
 
     pub const SCREEN_WIDTH: i32 = 56;
     pub const SCREEN_HEIGHT: i32 = 31;
+
     pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 1.6) as i32;
     pub const UI_HEIGHT: i32 = SCREEN_HEIGHT;
+    pub const LOG_DISPLAY_WIDTH: i32 = (SCREEN_WIDTH as f32 * 1.5) as i32;
 
     pub const LAYER_ZERO: usize = 0;
     pub const LAYER_TEXT: usize = 1;
@@ -156,18 +158,18 @@ impl GameWorld {
         Self { app }
     }
 
-    fn inject_bracket_context(&mut self, ctx: &mut BTerm) {
+    pub fn global_tick(ctx: &mut BTerm, state: &mut GameWorld) {
         ctx.set_active_console(LAYER_ZERO);
 
         if let Some(key) = ctx.key {
-            self.app.insert_resource(key);
+            state.app.insert_resource(key);
         } else {
             // In order to keep consistency with the Legion version, we need to access Bevy's World
             // directly, since App doesn't support removing resources.
-            self.app.world.remove_resource::<VirtualKeyCode>();
+            state.app.world.remove_resource::<VirtualKeyCode>();
         }
 
-        self.app.insert_resource(BracketContext::new(
+        state.app.insert_resource(BracketContext::new(
             ctx.frame_time_ms,
             ctx.get_char_size(),
             ctx.mouse_pos(),
@@ -205,6 +207,7 @@ fn main() -> BError {
 
     context.with_post_scanlines(true);
 
-    let machine = StateMachine::new(GameWorld::new(), MainMenuMode::new());
+    let mut machine = StateMachine::new(GameWorld::new(), MainMenuMode::new());
+    machine.add_global_tick_fn(GameWorld::global_tick);
     main_loop(context, machine)
 }

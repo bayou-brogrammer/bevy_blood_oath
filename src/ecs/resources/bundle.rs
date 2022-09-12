@@ -19,7 +19,9 @@ pub struct EntityBundle<TAG: Component> {
 }
 
 impl<TAG: Component> EntityBundle<TAG> {
-    pub fn new(tag: TAG, name: &str) -> Self { Self { tag, name: Naming(name.to_string()) } }
+    pub fn new(tag: TAG, name: &str) -> Self {
+        Self { tag, name: Naming(name.to_string()) }
+    }
 }
 
 #[derive(Bundle, Component)]
@@ -29,7 +31,9 @@ pub struct FighterBundle {
 }
 
 impl FighterBundle {
-    pub fn new(fov: FieldOfView, stats: CombatStats) -> Self { Self { fov, stats } }
+    pub fn new(fov: FieldOfView, stats: CombatStats) -> Self {
+        Self { fov, stats }
+    }
 }
 
 #[derive(Bundle, Component)]
@@ -40,7 +44,9 @@ pub struct PlayerBundle {
 }
 
 impl PlayerBundle {
-    pub fn new(fighter: FighterBundle) -> Self { Self { fighter, tag: Player } }
+    pub fn new(fighter: FighterBundle) -> Self {
+        Self { fighter, tag: Player }
+    }
 }
 
 #[derive(Bundle, Component)]
@@ -52,7 +58,9 @@ pub struct MonsterBundle {
 }
 
 impl MonsterBundle {
-    pub fn new(fighter: FighterBundle) -> Self { Self { fighter, blocks: BlocksTile, tag: Monster } }
+    pub fn new(fighter: FighterBundle) -> Self {
+        Self { fighter, blocks: BlocksTile, tag: Monster }
+    }
 }
 
 #[derive(Bundle, Component)]

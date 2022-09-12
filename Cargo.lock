@@ -1015,7 +1015,7 @@ dependencies = [
 [[package]]
 name = "bracket-state-machine"
 version = "0.1.0"
-source = "git+https://github.com/lecoqjacob/bracket-state-machine?branch=custom#bb08418f2a455d2185ccaf44cf077e0ef767507c"
+source = "git+https://github.com/lecoqjacob/bracket-state-machine?branch=custom#bca277753070d3a68df5626bae21c49412436982"
 dependencies = [
  "bracket-lib",
 ]

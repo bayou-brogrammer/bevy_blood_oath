@@ -110,11 +110,11 @@ impl State for MainMenuMode {
 
     fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut batch = DrawBatch::new();
-        batch.target(LAYER_TEXT);
+        batch.target(LAYER_ZERO);
 
         let box_rect = center_box_with_title(
             &mut batch,
-            (UI_WIDTH, UI_HEIGHT),
+            (SCREEN_WIDTH, SCREEN_HEIGHT),
             BoxConfigWithTitle {
                 box_config: BoxConfig::new((30, 10), ColorPair::new(WHITE, BLACK), true, false),
                 text_config: TextConfig::new(

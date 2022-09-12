@@ -259,6 +259,10 @@ impl State for InventoryMode {
 
         draw_batch.submit(BATCH_UI_INV).expect("Batch error"); // On top of everything
     }
+
+    fn draw_behind(&self) -> bool {
+        true
+    }
 }
 
 impl InventoryMode {
