@@ -69,7 +69,7 @@ impl State for YesNoDialogMode {
 
         let box_rect = center_box(
             &mut draw_batch,
-            (UI_WIDTH, UI_HEIGHT),
+            (MAP_PANEL_WIDTH, MAP_PANEL_HEIGHT),
             BoxConfig::new((self.prompt.len() as i32 + 3, 5), ColorPair::new(WHITE, BLACK), true, false),
         );
 

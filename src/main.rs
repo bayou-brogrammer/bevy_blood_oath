@@ -57,18 +57,19 @@ mod prelude {
     pub const SHOW_MAPGEN_VISUALIZER: bool = false;
 
     pub const SCREEN_WIDTH: i32 = 56;
-    pub const SCREEN_HEIGHT: i32 = 31;
+    pub const SCREEN_HEIGHT: i32 = 38;
 
-    pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 1.6) as i32;
+    pub const UI_WIDTH: i32 = SCREEN_WIDTH;
+    // pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 2.) as i32;
     pub const UI_HEIGHT: i32 = SCREEN_HEIGHT;
-    pub const LOG_DISPLAY_WIDTH: i32 = (SCREEN_WIDTH as f32 * 1.5) as i32;
+    pub const LOG_DISPLAY_WIDTH: i32 = (SCREEN_WIDTH as f32 * 2.) as i32;
 
     pub const LAYER_ZERO: usize = 0;
-    pub const LAYER_TEXT: usize = 1;
+    pub const LAYER_CHAR: usize = 1;
+    pub const LAYER_TEXT: usize = 2;
+    pub const LAYER_LOG: usize = 3;
 
     pub const BATCH_ZERO: usize = 0;
-    pub const BATCH_DECOR: usize = 1000;
-    pub const BATCH_ITEMS: usize = 2000;
     pub const BATCH_CHARS: usize = 3000;
     pub const BATCH_UI: usize = 10_000;
     pub const BATCH_UI_INV: usize = 15_000;
@@ -159,6 +160,9 @@ impl GameWorld {
     }
 
     pub fn global_tick(ctx: &mut BTerm, state: &mut GameWorld) {
+        println!("Global Tick: {:?}", ctx.get_char_size());
+        println!("Global Tick2: {:?}", ctx.get_scale());
+
         ctx.set_active_console(LAYER_ZERO);
 
         if let Some(key) = ctx.key {
@@ -195,14 +199,16 @@ fn main() -> BError {
         .with_tile_dimensions(16, 16)
         .with_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT) // ..Assuming a console of this size
         .with_fps_cap(60.0) // Limit game speed
-        .with_font("terminal10x16.png", 10, 16)
         .with_font("terminal8x8.png", 8, 8)
         .with_font("vga.png", 8, 16) // Load easy-to-read font
+        .with_font("terminal10x16.png", 10, 16) // Load easy-to-read font
         ////////////////////////////////////////////////////////////////////
         // Cosoles
         ////////////////////////////////////////////////////////////////////
-        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map + Char
-        .with_sparse_console(UI_WIDTH, UI_HEIGHT, "terminal10x16.png") // UI
+        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map
+        .with_sparse_console_no_bg(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Char
+        .with_sparse_console(UI_WIDTH, UI_HEIGHT, "vga.png") // UI
+        .with_sparse_console(LOG_DISPLAY_WIDTH, UI_HEIGHT, "vga.png") // LOG
         .build()?;
 
     context.with_post_scanlines(true);

@@ -102,15 +102,8 @@ fn draw_stats(draw_batch: &mut DrawBatch, world: &mut World) {
             stats.max_hp,
             ColorPair::new(RED, BLACK),
         );
-        draw_batch.bar_horizontal(Point::new(bar_x, 2), 14, 20, 30, ColorPair::new(NAVYBLUE, BLACK));
-        let xp_level_start = 0;
-        draw_batch.bar_horizontal(
-            Point::new(bar_x, 3),
-            14,
-            0 - xp_level_start,
-            1000,
-            ColorPair::new(GOLD, BLACK),
-        );
+        draw_batch.bar_horizontal(Point::new(bar_x, 2), 14, 15, 30, ColorPair::new(NAVYBLUE, BLACK));
+        draw_batch.bar_horizontal(Point::new(bar_x, 3), 14, 100, 1000, ColorPair::new(GOLD, BLACK));
     }
 }
 

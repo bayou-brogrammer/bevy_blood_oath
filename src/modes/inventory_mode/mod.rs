@@ -279,7 +279,7 @@ impl InventoryMode {
 
         let (inv_width, inv_height) = self.dimensions;
         let start_x = (MAP_PANEL_WIDTH / 2) - (inv_width / 2);
-        let start_y = (MAP_PANEL_HEIGHT / 2) - (inv_height);
+        let start_y = (MAP_PANEL_HEIGHT / 2) - (inv_height) - 5 / 2;
         let equipment_box = box_with_title(
             draw_batch,
             Point::new(start_x, start_y),
