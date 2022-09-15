@@ -1,5 +1,8 @@
 use super::*;
-use crate::{inventory_mode::InventoryMode, player::PlayerInputResult};
+use crate::inventory_mode::InventoryMode;
+
+mod player;
+pub use player::*;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Result
@@ -36,6 +39,7 @@ impl DungeonMode {
                 .run_if_resource_exists::<CameraView>()
                 .with_system(render::map_renderer::map_render)
                 .with_system(render::entity_renderer::entity_render)
+                .with_system(render::entity_renderer::particle_render)
                 // .with_system(render::tooltips::render_tooltips)
                 .into(),
         );
@@ -60,16 +64,16 @@ impl State for DungeonMode {
 
     fn update(
         &mut self,
-        _term: &mut BTerm,
+        term: &mut BTerm,
         state: &mut Self::State,
         pop_result: &Option<Self::StateResult>,
     ) -> ModeReturn {
         // Update Systems
         state.app.update();
 
-        let world = &mut state.app.world;
-
         if let Some(result) = pop_result {
+            let world = &mut state.app.world;
+
             match result {
                 // App Quit
                 ModeResult::AppQuitDialogModeResult(result) => match result {
@@ -118,24 +122,44 @@ impl State for DungeonMode {
             };
         }
 
-        let turn_state = *world.resource::<TurnState>();
+        let turn_state = *state.app.world.resource::<TurnState>();
         match turn_state {
-            TurnState::MagicMapReveal(row) => self.reveal_map(world, row),
+            TurnState::MagicMapReveal(row) => self.reveal_map(&mut state.app.world, row),
             TurnState::AwaitingInput => {
-                if let Some(result) = world.remove_resource::<PlayerInputResult>() {
-                    match result {
-                        PlayerInputResult::NoResult => {}
-                        PlayerInputResult::AppQuit => return self.app_quit_dialog(),
-                        PlayerInputResult::TurnDone => self.end_turn(world),
-                        PlayerInputResult::ShowInventory => {
-                            return (
-                                Transition::Push(InventoryMode::new(world).boxed()),
-                                TransitionControl::Update,
-                            )
-                        }
-                        _ => {}
+                match player_input(term, &mut state.app.world) {
+                    PlayerInputResult::NoResult => {}
+                    PlayerInputResult::AppQuit => return self.app_quit_dialog(),
+                    PlayerInputResult::TurnDone => self.end_turn(&mut state.app.world),
+                    PlayerInputResult::ShowInventory => {
+                        return (
+                            Transition::Push(InventoryMode::new(&mut state.app.world).boxed()),
+                            TransitionControl::Update,
+                        )
                     }
+                    player::PlayerInputResult::Descend => {
+                        return (
+                            Transition::Push(
+                                YesNoDialogMode::new("Descend to the next level?".to_string(), false).boxed(),
+                            ),
+                            TransitionControl::Update,
+                        );
+                    }
+                    _ => {}
                 }
+                // if let Some(result) = state.app.world.remove_resource::<PlayerInputResult>() {
+                //     match result {
+                //         PlayerInputResult::NoResult => {}
+                //         PlayerInputResult::AppQuit => return self.app_quit_dialog(),
+                //         PlayerInputResult::TurnDone => self.end_turn(&mut state.app.world),
+                //         PlayerInputResult::ShowInventory => {
+                //             return (
+                //                 Transition::Push(InventoryMode::new(&mut state.app.world).boxed()),
+                //                 TransitionControl::Update,
+                //             )
+                //         }
+                //         _ => {}
+                //     }
+                // }
             }
             _ => {}
         }

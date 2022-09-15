@@ -13,7 +13,6 @@ pub fn movement(
         door_q.iter_mut().filter(|(_, _, p)| **p == destination).for_each(|(door, mut glyph, _)| {
             commands.entity(door).remove::<BlocksVisibility>().remove::<BlocksTile>().insert(Door(true));
             glyph.glyph = to_cp437('/');
-
             update_fov(entity, &mut fov_q);
         });
 

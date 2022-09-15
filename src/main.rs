@@ -57,17 +57,17 @@ mod prelude {
     pub const SHOW_MAPGEN_VISUALIZER: bool = false;
 
     pub const SCREEN_WIDTH: i32 = 56;
-    pub const SCREEN_HEIGHT: i32 = 38;
+    pub const SCREEN_HEIGHT: i32 = 31;
 
-    pub const UI_WIDTH: i32 = SCREEN_WIDTH;
-    // pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 2.) as i32;
+    pub const UI_WIDTH: i32 = (SCREEN_WIDTH as f32 * 2.) as i32;
     pub const UI_HEIGHT: i32 = SCREEN_HEIGHT;
     pub const LOG_DISPLAY_WIDTH: i32 = (SCREEN_WIDTH as f32 * 2.) as i32;
 
     pub const LAYER_ZERO: usize = 0;
     pub const LAYER_CHAR: usize = 1;
-    pub const LAYER_TEXT: usize = 2;
-    pub const LAYER_LOG: usize = 3;
+    pub const LAYER_PARTICLE: usize = 2;
+    pub const LAYER_TEXT: usize = 3;
+    pub const LAYER_LOG: usize = 4;
 
     pub const BATCH_ZERO: usize = 0;
     pub const BATCH_CHARS: usize = 3000;
@@ -106,6 +106,8 @@ impl_default!(GameWorld);
 impl GameWorld {
     pub fn new() -> Self {
         let mut app = App::new();
+
+        raws::load_raws();
 
         // When building for WASM, print panics to the browser console
         #[cfg(target_arch = "wasm32")]
@@ -154,25 +156,13 @@ impl GameWorld {
         app.insert_resource(MenuMemory::new());
         app.add_loopless_state(GameCondition::MainMenu);
 
-        raws::load_raws();
-
         Self { app }
     }
 
     pub fn global_tick(ctx: &mut BTerm, state: &mut GameWorld) {
-        println!("Global Tick: {:?}", ctx.get_char_size());
-        println!("Global Tick2: {:?}", ctx.get_scale());
-
         ctx.set_active_console(LAYER_ZERO);
 
-        if let Some(key) = ctx.key {
-            state.app.insert_resource(key);
-        } else {
-            // In order to keep consistency with the Legion version, we need to access Bevy's World
-            // directly, since App doesn't support removing resources.
-            state.app.world.remove_resource::<VirtualKeyCode>();
-        }
-
+        state.app.insert_resource(ctx.key);
         state.app.insert_resource(BracketContext::new(
             ctx.frame_time_ms,
             ctx.get_char_size(),
@@ -207,6 +197,7 @@ fn main() -> BError {
         ////////////////////////////////////////////////////////////////////
         .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map
         .with_sparse_console_no_bg(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Char
+        .with_sparse_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Particle
         .with_sparse_console(UI_WIDTH, UI_HEIGHT, "vga.png") // UI
         .with_sparse_console(LOG_DISPLAY_WIDTH, UI_HEIGHT, "vga.png") // LOG
         .build()?;

@@ -54,7 +54,9 @@ pub fn spawn_entities(mut commands: Commands, map_builder: Res<BuilderMap>) {
     commands.remove_resource::<BuilderMap>()
 }
 
-fn room_table(map_depth: i32) -> MasterTable { raws::get_spawn_table_for_depth(&RAWS.lock(), map_depth) }
+fn room_table(map_depth: i32) -> MasterTable {
+    raws::get_spawn_table_for_depth(&RAWS.lock(), map_depth)
+}
 const MAX_MONSTERS: i32 = 10;
 
 /// Fills a room with stuff!
@@ -131,12 +133,12 @@ impl Plugin for SpawnerPlugin {
             SystemSet::new().with_system(spawn_player).with_system(spawn_entities.after(spawn_player)),
         );
 
-        app.add_exit_system(GameCondition::Playing, |mut commands: Commands, q: Query<Entity>| {
-            println!("Exiting game");
-            q.iter().for_each(|e| {
-                commands.entity(e).despawn_recursive();
-            });
-        });
+        // app.add_exit_system(GameCondition::Playing, |mut commands: Commands, q: Query<Entity>| {
+        //     println!("Exiting game");
+        //     q.iter().for_each(|e| {
+        //         commands.entity(e).despawn_recursive();
+        //     });
+        // });
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////

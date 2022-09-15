@@ -1,17 +1,19 @@
+use crate::dungeon_mode::PlayerInputResult;
+
 use super::*;
 
-#[derive(Debug)]
-pub enum PlayerInputResult {
-    AppQuit,
-    Descend,
-    TurnDone,
-    NoResult,
-    // Inventory
-    ShowDrop,
-    ShowRemove,
-    ShowInventory,
-    _ShowInventoryShortcut,
-}
+// #[derive(Debug)]
+// pub enum PlayerInputResult {
+//     AppQuit,
+//     Descend,
+//     TurnDone,
+//     NoResult,
+//     // Inventory
+//     ShowDrop,
+//     ShowRemove,
+//     ShowInventory,
+//     _ShowInventoryShortcut,
+// }
 
 pub fn player_input(
     mut commands: Commands,

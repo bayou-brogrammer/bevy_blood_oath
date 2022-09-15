@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 pub const VIEWPORT_X_OFFSET: i32 = 20;
 pub const VIEWPORT_Y_OFFSET: i32 = 15;
-pub const VIEWPORT_WIDTH: i32 = 37;
+pub const VIEWPORT_WIDTH: i32 = 40;
 pub const VIEWPORT_HEIGHT: i32 = 31;
 
 #[derive(Debug, Copy, Clone)]

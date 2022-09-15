@@ -145,23 +145,23 @@ fn equipped(draw_batch: &mut DrawBatch, world: &mut World) -> i32 {
 
 fn status(draw_batch: &mut DrawBatch, world: &mut World) {
     if let Some(player) = world.get_resource::<Entity>() {
-        let hc = world.get::<HungerClock>(*player).unwrap();
-
-        let x = EQUIPMENT_PANEL.x1 + 1;
-        let y = EQUIPMENT_PANEL.y2 - 1;
-        match hc.state {
-            HungerState::Normal => {}
-            HungerState::WellFed => {
-                draw_batch.print_color(Point::new(x, y), "Well Fed", ColorPair::new(GREEN, BLACK));
-                // y -= 1;
-            }
-            HungerState::Hungry => {
-                draw_batch.print_color(Point::new(x, y), "Hungry", ColorPair::new(ORANGE, BLACK));
-                // y -= 1;
-            }
-            HungerState::Starving => {
-                draw_batch.print_color(Point::new(x, y), "Starving", ColorPair::new(RED, BLACK));
-                // y -= 1;
+        if let Some(hc) = world.get::<HungerClock>(*player) {
+            let x = EQUIPMENT_PANEL.x1 + 1;
+            let y = EQUIPMENT_PANEL.y2 - 1;
+            match hc.state {
+                HungerState::Normal => {}
+                HungerState::WellFed => {
+                    draw_batch.print_color(Point::new(x, y), "Well Fed", ColorPair::new(GREEN, BLACK));
+                    // y -= 1;
+                }
+                HungerState::Hungry => {
+                    draw_batch.print_color(Point::new(x, y), "Hungry", ColorPair::new(ORANGE, BLACK));
+                    // y -= 1;
+                }
+                HungerState::Starving => {
+                    draw_batch.print_color(Point::new(x, y), "Starving", ColorPair::new(RED, BLACK));
+                    // y -= 1;
+                }
             }
         }
     }

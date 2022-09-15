@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 pub fn entity_render(
     (map, camera): (Res<Map>, Res<CameraView>),
-    glyph_q: Query<(&Point, &Glyph), Without<Hidden>>,
+    glyph_q: Query<(&Point, &Glyph), (Without<Hidden>, Without<ParticleLifetime>)>,
 ) {
     let mut batch = DrawBatch::new();
     batch.target(LAYER_CHAR);
@@ -13,6 +13,23 @@ pub fn entity_render(
     for (pos, glyph) in entities.iter() {
         if map.visible.get_bit(**pos) {
             let entity_screen_pos = camera.world_to_screen(**pos);
+            batch.set(entity_screen_pos, glyph.color, glyph.glyph);
+        }
+    }
+
+    batch.submit(BATCH_CHARS).expect("Error batching map");
+}
+
+pub fn particle_render(
+    (map, camera): (Res<Map>, Res<CameraView>),
+    glyph_q: Query<(&Point, &Glyph), With<ParticleLifetime>>,
+) {
+    let mut batch = DrawBatch::new();
+    batch.target(LAYER_PARTICLE);
+
+    for (pos, glyph) in glyph_q.iter() {
+        if map.visible.get_bit(*pos) {
+            let entity_screen_pos = camera.world_to_screen(*pos);
             batch.set(entity_screen_pos, glyph.color, glyph.glyph);
         }
     }
