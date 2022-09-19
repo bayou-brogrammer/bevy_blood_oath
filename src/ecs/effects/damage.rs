@@ -33,12 +33,9 @@ pub fn death(world: &mut World, _effect: &EffectSpawner, target: Entity) {
 
         entity.remove_bundle::<MonsterBundle>();
 
-        if let Some(glyph) = entity.get::<Glyph>() {
-            entity.insert(Glyph {
-                glyph: glyph.glyph,
-                color: ColorPair::new(DARK_GRAY, glyph.color.bg),
-                render_order: RenderOrder::Corpse,
-            });
+        if let Some(mut glyph) = entity.get_mut::<Glyph>() {
+            glyph.render_order = RenderOrder::Corpse;
+            glyph.color = ColorPair::new(DARK_GRAY, BLACK);
         }
 
         if let Some(name) = entity.get::<Naming>() {

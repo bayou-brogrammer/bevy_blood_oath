@@ -95,7 +95,7 @@ impl State for MainMenuMode {
                         }
                         MainMenuAction::NewGame => {
                             return (
-                                Transition::Switch(MapGenMode::new_game(&mut state.app.world).boxed()),
+                                Transition::Switch(DungeonMode::new(&mut state.app).boxed()),
                                 TransitionControl::Immediate,
                             );
                         }
@@ -108,9 +108,13 @@ impl State for MainMenuMode {
         (Transition::Stay, TransitionControl::Update)
     }
 
-    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
+    fn render(&mut self, term: &mut BTerm, _state: &mut Self::State, _active: bool) {
         let mut batch = DrawBatch::new();
         batch.target(LAYER_ZERO);
+
+        term.set(0, 0, WHITE, BLACK, 0);
+        term.set(1, 0, WHITE, BLACK, 30);
+        term.set(2, 0, WHITE, BLACK, 0);
 
         let box_rect = center_box_with_title(
             &mut batch,

@@ -63,7 +63,8 @@ impl State for YesNoDialogMode {
         (Transition::Stay, TransitionControl::Update)
     }
 
-    fn render(&mut self, _term: &mut BTerm, _state: &mut Self::State, _active: bool) {
+    fn render(&mut self, term: &mut BTerm, _state: &mut Self::State, _active: bool) {
+        term.print(0, MAP_PANEL_HEIGHT / 2, "*");
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(LAYER_TEXT);
 

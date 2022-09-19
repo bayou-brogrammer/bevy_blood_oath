@@ -1,8 +1,12 @@
 use crate::prelude::*;
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
-pub enum GameCondition {
+pub enum AppState {
     MainMenu,
+    NewGame,
+    NextLevel,
+    PreviousLevel,
+
     Setup,
     Playing,
     GameOver,

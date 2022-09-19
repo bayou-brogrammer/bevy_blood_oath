@@ -7,7 +7,6 @@ pub enum TargetingModeResult {
     Target(Entity, Point),
 }
 
-#[derive(Debug)]
 pub struct TargetingMode {
     radius: i32,
     item: Entity,
@@ -136,10 +135,10 @@ impl State for TargetingMode {
             _ => {}
         }
 
+        state.render_schedule.run(&mut state.app.world);
+
         let mut draw_batch = DrawBatch::new();
         draw_batch.target(LAYER_ZERO);
-
-        draw_batch.set_bg(Point::new(0, 0), GREEN);
 
         draw_batch.print_color(
             Point::new(2, 2),
@@ -177,5 +176,9 @@ impl State for TargetingMode {
         }
 
         draw_batch.submit(BATCH_UI).expect("Batch error");
+    }
+
+    fn draw_behind(&self) -> bool {
+        false
     }
 }

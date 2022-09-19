@@ -76,6 +76,7 @@ mod prelude {
     pub const BATCH_TOOLTIPS: usize = 100_000; // Over everything
 }
 
+use modes::map_gen::MapGenPlugin;
 pub use prelude::*;
 
 use crate::main_menu_mode::MainMenuMode;
@@ -99,6 +100,7 @@ impl_new!(
 
 pub struct GameWorld {
     pub app: App,
+    pub render_schedule: Schedule,
 }
 
 impl_default!(GameWorld);
@@ -154,9 +156,29 @@ impl GameWorld {
 
         app.insert_resource(RexAssets::new());
         app.insert_resource(MenuMemory::new());
-        app.add_loopless_state(GameCondition::MainMenu);
+        app.add_loopless_state(AppState::MainMenu);
 
-        Self { app }
+        app.add_plugin(MapGenPlugin);
+
+        // Create a render schedule and a stage
+        let mut render_schedule = Schedule::default();
+        let mut update = SystemStage::parallel();
+
+        update.add_system_set(
+            ConditionSet::new()
+                .run_if_resource_exists::<CameraView>()
+                .with_system(ecs::render::map_renderer::map_render)
+                .with_system(ecs::render::entity_renderer::entity_render)
+                .with_system(ecs::render::entity_renderer::particle_render)
+                // .with_system(render::tooltips::render_tooltips)
+                .into(),
+        );
+
+        render_schedule.add_stage(CoreStage::Update, update);
+
+        // app.add_system(save_scene_system.exclusive_system()).register_type::<Player>();
+
+        Self { app, render_schedule }
     }
 
     pub fn global_tick(ctx: &mut BTerm, state: &mut GameWorld) {
@@ -180,6 +202,8 @@ embedded_resource!(TERMINAL_8X8_FONT, "../resources/terminal8x8.png");
 embedded_resource!(TERMINAL_10X16_FONT, "../resources/terminal10x16.png");
 
 fn main() -> BError {
+    env_logger::init();
+
     link_resource!(VGA_FONT, "resources/vga.png");
     link_resource!(TERMINAL_8X8_FONT, "resources/terminal8x8.png");
     link_resource!(TERMINAL_10X16_FONT, "resources/terminal10x16.png");
@@ -192,11 +216,12 @@ fn main() -> BError {
         .with_font("terminal8x8.png", 8, 8)
         .with_font("vga.png", 8, 16) // Load easy-to-read font
         .with_font("terminal10x16.png", 10, 16) // Load easy-to-read font
+        .with_font("urizen12x12.png", 13, 13) // Load easy-to-read font
         ////////////////////////////////////////////////////////////////////
         // Cosoles
         ////////////////////////////////////////////////////////////////////
-        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map
-        .with_sparse_console_no_bg(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Char
+        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "urizen12x12.png") // Map
+        .with_sparse_console_no_bg(SCREEN_WIDTH, SCREEN_HEIGHT, "urizen12x12.png") // Char
         .with_sparse_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Particle
         .with_sparse_console(UI_WIDTH, UI_HEIGHT, "vga.png") // UI
         .with_sparse_console(LOG_DISPLAY_WIDTH, UI_HEIGHT, "vga.png") // LOG
@@ -208,3 +233,23 @@ fn main() -> BError {
     machine.add_global_tick_fn(GameWorld::global_tick);
     main_loop(context, machine)
 }
+
+// #[derive(Component, Reflect, Default)]
+// #[reflect(Component)] // this tells the reflect derive to also reflect component behaviors
+// struct ComponentA {
+//     pub x: f32,
+//     pub y: f32,
+// }
+
+// fn save_scene_system(world: &mut World) {
+//     // The TypeRegistry resource contains information about all registered types (including
+//     // components). This is used to construct scenes.
+//     let type_registry = world.resource::<TypeRegistry>();
+//     let scene = DynamicScene::from_world(world, type_registry);
+
+//     // Scenes can be serialized like this:
+//     let serialized_scene = scene.serialize_ron(type_registry).unwrap();
+
+//     // Showing the scene in the console
+//     println!("{}", serialized_scene);
+// }

@@ -19,7 +19,7 @@ impl Plugin for InventoryPlugin {
         app.add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                .run_in_state(GameCondition::Playing)
+                .run_in_state(AppState::Playing)
                 .run_on_event::<WantsToPickupItem>()
                 .with_system(item_collection)
                 .into(),
@@ -27,7 +27,7 @@ impl Plugin for InventoryPlugin {
         .add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                .run_in_state(GameCondition::Playing)
+                .run_in_state(AppState::Playing)
                 .run_on_event::<WantsToDropItem>()
                 .with_system(item_drop)
                 .into(),
@@ -35,7 +35,7 @@ impl Plugin for InventoryPlugin {
         .add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                .run_in_state(GameCondition::Playing)
+                .run_in_state(AppState::Playing)
                 .run_on_event::<WantsToRemoveItem>()
                 .with_system(remove_item)
                 .into(),
@@ -43,7 +43,7 @@ impl Plugin for InventoryPlugin {
         .add_system_set_to_stage(
             CoreStage::Update,
             ConditionSet::new()
-                .run_in_state(GameCondition::Playing)
+                .run_in_state(AppState::Playing)
                 .run_on_event::<WantsToEquipItem>()
                 .with_system(equip_use)
                 .into(),

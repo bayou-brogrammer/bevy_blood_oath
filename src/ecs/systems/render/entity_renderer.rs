@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 pub fn entity_render(
     (map, camera): (Res<Map>, Res<CameraView>),
-    glyph_q: Query<(&Point, &Glyph), (Without<Hidden>, Without<ParticleLifetime>)>,
+    glyph_q: Query<(&Point, &Glyph), (Without<Hidden>, Without<ParticleLifetime>, Without<Prop>)>,
 ) {
     let mut batch = DrawBatch::new();
     batch.target(LAYER_CHAR);

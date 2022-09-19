@@ -36,7 +36,7 @@ impl Plugin for ParticlePlugin {
         app.add_system_set_to_stage(
             CoreStage::PreUpdate,
             ConditionSet::new()
-                .run_in_state(GameCondition::Playing)
+                .run_in_state(AppState::Playing)
                 .with_system(particle_spawn_system)
                 .with_system(update_particles)
                 .into(),

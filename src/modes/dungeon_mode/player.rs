@@ -16,42 +16,52 @@ pub enum PlayerInputResult {
 pub fn player_input(ctx: &mut BTerm, world: &mut World) -> PlayerInputResult {
     match ctx.get_key() {
         None => return PlayerInputResult::NoResult, // Nothing happened
-        Some(key) => match key {
-            GameKey::Escape => return PlayerInputResult::AppQuit,
-            GameKey::Left => try_move_player(Point::new(-1, 0), world),
-            GameKey::Right => try_move_player(Point::new(1, 0), world),
-            GameKey::Up => try_move_player(Point::new(0, -1), world),
-            GameKey::Down => try_move_player(Point::new(0, 1), world),
+        Some(key) => {
+            let player_query = world.query_filtered::<(Entity, &Point), (With<Player>, Without<Monster>)>();
 
-            // Diagonals
-            GameKey::RightUp => try_move_player(Point::new(1, -1), world),
-            GameKey::LeftUp => try_move_player(Point::new(-1, -1), world),
-            GameKey::RightDown => try_move_player(Point::new(1, 1), world),
-            GameKey::LeftDown => try_move_player(Point::new(-1, 1), world),
+            match key {
+                GameKey::Escape => return PlayerInputResult::AppQuit,
 
-            GameKey::Inventory => return PlayerInputResult::ShowInventory,
-            GameKey::Remove => return PlayerInputResult::ShowRemove,
-            GameKey::Drop => return PlayerInputResult::ShowDrop,
-            GameKey::SkipTurn => return PlayerInputResult::TurnDone,
+                GameKey::Left => try_move_player(world, Point::new(-1, 0), player_query),
+                GameKey::Right => try_move_player(world, Point::new(1, 0), player_query),
+                GameKey::Up => try_move_player(world, Point::new(0, -1), player_query),
+                GameKey::Down => try_move_player(world, Point::new(0, 1), player_query),
 
-            GameKey::TakeStairs => {
-                if try_next_level(world) {
-                    return PlayerInputResult::Descend;
-                } else {
-                    bo_logging::Logger::new().append("There is no way down from here.").log();
+                // Diagonals
+                GameKey::RightUp => try_move_player(world, Point::new(1, -1), player_query),
+                GameKey::LeftUp => try_move_player(world, Point::new(-1, -1), player_query),
+                GameKey::RightDown => try_move_player(world, Point::new(1, 1), player_query),
+                GameKey::LeftDown => try_move_player(world, Point::new(-1, 1), player_query),
+
+                GameKey::Inventory => return PlayerInputResult::ShowInventory,
+                GameKey::Remove => return PlayerInputResult::ShowRemove,
+                GameKey::Drop => return PlayerInputResult::ShowDrop,
+                GameKey::SkipTurn => return PlayerInputResult::TurnDone,
+
+                GameKey::TakeStairs => {
+                    if try_next_level(world) {
+                        return PlayerInputResult::Descend;
+                    } else {
+                        bo_logging::Logger::new().append("There is no way down from here.").log();
+                    }
                 }
-            }
 
-            _ => {}
-        },
+                GameKey::Pickup => try_pickup_item(world, player_query),
+
+                _ => {}
+            }
+        }
     }
 
     PlayerInputResult::TurnDone
 }
 
-fn try_move_player(delta: Point, world: &mut World) {
-    let mut player_query = world.query_filtered::<(Entity, &Point), (With<Player>, Without<Monster>)>();
-    let (player, pos) = player_query.single_mut(world);
+fn try_move_player(
+    world: &mut World,
+    delta: Point,
+    mut player_q: QueryState<(Entity, &Point), (With<Player>, Without<Monster>)>,
+) {
+    let (player, pos) = player_q.single_mut(world);
 
     let destination = *pos + delta;
     if delta.x != 0 || delta.y != 0 {
@@ -81,4 +91,20 @@ fn try_next_level(world: &mut World) -> bool {
         let player_pos = world.resource::<Point>();
         map.tiles[map.point2d_to_index(*player_pos)].tile_type == TileType::DownStairs
     })
+}
+
+fn try_pickup_item(
+    world: &mut World,
+    mut player_query: QueryState<(Entity, &Point), (With<Player>, Without<Monster>)>,
+) {
+    let mut items_query = world.query_filtered::<(Entity, &Point), With<Item>>();
+    let (player, pos) = player_query.single(world);
+
+    for (entity, item_pos) in items_query.iter(world) {
+        if *item_pos == *pos {
+            return world.send_event(WantsToPickupItem(player, entity));
+        }
+    }
+
+    bo_logging::Logger::new().append("There is nothing here to pick up.").log()
 }

@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, switch_in_game_state};
 use std::collections::HashMap;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -8,6 +8,7 @@ use std::collections::HashMap;
 pub fn spawn_player(mut commands: Commands, map_builder: Res<BuilderMap>) {
     let start_pos = map_builder.starting_position.unwrap();
 
+    println!("Starting position: {:?}", start_pos);
     // Spawn Player
     let player = commands
         .spawn()
@@ -128,17 +129,20 @@ pub fn spawn_entity(commands: &mut Commands, map: &Map, spawn: &(&usize, &String
 pub struct SpawnerPlugin;
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_exit_system_set(
-            GameCondition::Setup,
-            SystemSet::new().with_system(spawn_player).with_system(spawn_entities.after(spawn_player)),
+        app.add_enter_system_set(
+            AppState::NewGame,
+            SystemSet::new()
+                .with_system(spawn_player)
+                .with_system(spawn_entities.after(spawn_player))
+                .with_system(switch_in_game_state!(AppState::Playing)),
         );
 
-        // app.add_exit_system(GameCondition::Playing, |mut commands: Commands, q: Query<Entity>| {
-        //     println!("Exiting game");
-        //     q.iter().for_each(|e| {
-        //         commands.entity(e).despawn_recursive();
-        //     });
-        // });
+        app.add_enter_system_set(
+            AppState::NextLevel,
+            SystemSet::new()
+                .with_system(spawn_entities)
+                .with_system(switch_in_game_state!(AppState::Playing)),
+        );
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////

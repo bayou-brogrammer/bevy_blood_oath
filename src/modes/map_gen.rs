@@ -1,155 +1,160 @@
-use super::*;
+use crate::prelude::*;
+use bevy::ecs::system::CommandQueue;
 
-////////////////////////////////////////////////////////////////////////////////
-/// Mode
-////////////////////////////////////////////////////////////////////////////////
+fn setup_new_game(world: &mut World) {
+    world.clear_entities();
 
-#[derive(Debug)]
-pub struct MapGenMode {
-    mapgen_timer: f32,
-    mapgen_index: usize,
-    mapgen_history: Vec<Map>,
+    world.insert_resource(ParticleBuilder::new());
+    world.insert_resource(MasterDungeonMap::new());
+    world.insert_resource(Map::new(0, 64, 64, "Dummy Map"));
+
+    transition_to_new_map(world, 1);
+
+    bo_logging::clear_log();
+    bo_logging::clear_events();
+    bo_logging::Logger::new().append("Welcome to").color(CYAN).append("Rusty Roguelike").log();
 }
 
-pub enum MapGenAction {
-    NewGame,
-    GoToLevel,
+fn goto_level(world: &mut World) {
+    freeze_level_entities(world);
+
+    let state = world.resource::<CurrentState<AppState>>();
+    let offset = if state.0 == AppState::NextLevel { 1 } else { -1 };
+    let new_depth = world.resource::<Map>().depth + offset;
+
+    let dungeon_map = world.resource::<MasterDungeonMap>();
+    if dungeon_map.get_map(new_depth).is_some() {
+        transition_to_existing_map(world, new_depth, offset);
+        thaw_level_entities(world);
+    } else {
+        transition_to_new_map(world, new_depth)
+    }
+
+    // Notify the player
+    bo_logging::Logger::new().append("You change level.").log();
 }
 
-impl MapGenMode {
-    pub fn new(world: &mut World, action: MapGenAction) -> Self {
-        world.insert_resource(NextState(GameCondition::Setup));
+//////////////////////////////////////////////////////////////////////////////
+// Generation
+//////////////////////////////////////////////////////////////////////////////
 
-        let mut map_gen_mode = MapGenMode { mapgen_index: 0, mapgen_timer: 0.0, mapgen_history: Vec::new() };
+pub fn freeze_level_entities(world: &mut World) {
+    // Obtain ECS access
+    let mut positions = world.query::<(Entity, &Point)>();
+    let map_depth = world.resource::<Map>().depth;
+    let player_entity = world.resource::<Entity>();
 
-        match action {
-            MapGenAction::NewGame => map_gen_mode.setup_new_game(world).expect("Failed to setup new game"),
-            MapGenAction::GoToLevel => map_gen_mode.goto_level(world, 1),
+    let mut queue = CommandQueue::default();
+    let mut commands = Commands::new(&mut queue, world);
+
+    // Find positions and make OtherLevelPosition
+    for (entity, pos) in positions.iter(world) {
+        if entity != *player_entity {
+            commands.entity(entity).remove::<Point>();
+            commands.entity(entity).insert(OtherLevelPosition::new(*pos, map_depth));
         }
-
-        map_gen_mode
     }
 
-    pub fn new_game(world: &mut World) -> Self {
-        MapGenMode::new(world, MapGenAction::NewGame)
-    }
-
-    pub fn next_level(world: &mut World) -> Self {
-        MapGenMode::new(world, MapGenAction::GoToLevel)
-    }
-
-    fn setup_new_game(&mut self, world: &mut World) -> Result<(), BoxedError> {
-        world.clear_entities();
-
-        world.insert_resource(ParticleBuilder::new());
-        world.insert_resource(MasterDungeonMap::new());
-        world.insert_resource(Map::new(0, 64, 64, "Dummy Map"));
-
-        self.generate_world_map(world, 1, 0);
-
-        Ok(())
-    }
-
-    fn goto_level(&mut self, world: &mut World, offset: i32) {
-        MasterDungeonMap::freeze_level_entities(world);
-
-        // Build a new map and place the player
-        let current_depth = world.resource::<Map>().depth;
-        self.generate_world_map(world, current_depth + offset, offset);
-
-        // Notify the player
-        bo_logging::Logger::new().append("You change level.").log();
-    }
-
-    fn generate_world_map(&mut self, world: &mut World, new_depth: i32, offset: i32) {
-        self.mapgen_index = 0;
-        self.mapgen_timer = 0.0;
-        self.mapgen_history.clear();
-
-        let map_building_info = MasterDungeonMap::level_transition(world, new_depth, offset);
-        match map_building_info {
-            Some(history) => self.mapgen_history = history,
-            None => MasterDungeonMap::thaw_level_entities(world),
-        }
-
-        bo_logging::clear_log();
-        bo_logging::clear_events();
-        bo_logging::Logger::new().append("Welcome to").color(CYAN).append("Rusty Roguelike").log();
-    }
+    queue.apply(world);
 }
 
-/// Show the title screen of the game with a menu that leads into the game proper.
-impl State for MapGenMode {
-    type State = GameWorld;
-    type StateResult = ModeResult;
+pub fn thaw_level_entities(world: &mut World) {
+    // Obtain ECS access
+    let mut other_positions = world.query::<(Entity, &OtherLevelPosition)>();
+    let map_depth = world.resource::<Map>().depth;
+    let player_entity = world.resource::<Entity>();
 
-    fn update(
-        &mut self,
-        term: &mut BTerm,
-        state: &mut Self::State,
-        _pop_result: &Option<Self::StateResult>,
-    ) -> ModeReturn {
-        state.app.update();
+    let mut queue = CommandQueue::default();
+    let mut commands = Commands::new(&mut queue, world);
 
-        if !SHOW_MAPGEN_VISUALIZER {
-            return (
-                Transition::Switch(Box::new(DungeonMode::new(&mut state.app))),
-                TransitionControl::Update,
-            );
-        }
-
-        self.mapgen_timer += term.frame_time_ms;
-        if self.mapgen_timer > 100.0 {
-            self.mapgen_timer = 0.0;
-            self.mapgen_index += 1;
-            if self.mapgen_index >= self.mapgen_history.len() {
-                return (
-                    Transition::Switch(DungeonMode::new(&mut state.app).into()),
-                    TransitionControl::Update,
-                );
-            }
-        }
-
-        (Transition::Stay, TransitionControl::Update)
+    // Find OtherLevelPosition
+    for (entity, pos) in other_positions
+        .iter(world)
+        .filter(|(entity, pos)| *entity != *player_entity && pos.depth == map_depth)
+    {
+        commands.entity(entity).insert(pos.pt);
+        commands.entity(entity).remove::<OtherLevelPosition>();
     }
 
-    fn render(&mut self, term: &mut BTerm, _state: &mut Self::State, _active: bool) {
-        if let Some(map) = self.mapgen_history.get(self.mapgen_index) {
-            let player_pos = Point::new(map.width / 2, map.height / 2);
-            let (x_chars, y_chars) = term.get_char_size();
+    queue.apply(world);
+}
 
-            let center_x = (x_chars / 2) as i32;
-            let center_y = (y_chars / 2) as i32;
+fn transition_to_new_map(world: &mut World, new_depth: i32) {
+    let mut builder = map_builders::level_builder(new_depth, 80, 50);
+    builder.build_map();
+    world.insert_resource(builder.build_data.clone());
 
-            let min_x = player_pos.x - center_x;
-            let max_x = min_x + x_chars as i32;
-            let min_y = player_pos.y - center_y;
-            let max_y = min_y + y_chars as i32;
+    // Add Up Stairs
+    if new_depth > 1 {
+        if let Some(pos) = &builder.build_data.starting_position {
+            let up_idx = builder.build_data.map.point2d_to_index(*pos);
+            builder.build_data.map.tiles[up_idx] = GameTile::stairs_up();
+        }
+    }
 
-            let map_width = map.width;
-            let map_height = map.height;
+    let player_start;
+    {
+        let mut worldmap_resource = world.resource_mut::<Map>();
+        *worldmap_resource = builder.build_data.map.clone();
+        player_start = builder.build_data.starting_position.unwrap();
+    }
 
-            let mut draw_batch = DrawBatch::new();
-            draw_batch.target(LAYER_ZERO);
+    {
+        let mut q = world.query_filtered::<(&mut Point, &mut FieldOfView), With<Player>>();
+        for (mut pos, mut fov) in q.iter_mut(world) {
+            *pos = player_start;
+            fov.is_dirty = true;
+        }
 
-            // Render Map
-            for (y, ty) in (min_y..max_y).enumerate() {
-                for (x, tx) in (min_x..max_x).enumerate() {
-                    let pt = Point::new(tx, ty);
-                    if tx > 0 && tx < map_width && ty > 0 && ty < map_height {
-                        let idx = map.point2d_to_index(pt);
+        if let Some(mut pt) = world.get_resource_mut::<Point>() {
+            *pt = player_start;
+        }
 
-                        if map.revealed.get_bit(pt) {
-                            let (glyph, color) = map.tile_glyph(idx);
-                            draw_batch.set(Point::new(x, y), color, glyph);
-                        }
-                    } else if SHOW_BOUNDARIES {
-                        draw_batch.set(Point::new(x, y), ColorPair::new(GRAY, BLACK), to_cp437('·'));
-                    }
+        if let Some(mut camera) = world.get_resource_mut::<CameraView>() {
+            camera.on_player_move(player_start);
+        }
+    }
+
+    // Store the newly minted map
+    let mut dungeon_master = world.resource_mut::<MasterDungeonMap>();
+    dungeon_master.store_map(&builder.build_data.map);
+}
+
+fn transition_to_existing_map(ecs: &mut World, new_depth: i32, offset: i32) {
+    let dungeon_master = ecs.resource::<MasterDungeonMap>();
+    let map = dungeon_master.get_map(new_depth).unwrap();
+    let player = *ecs.resource::<Entity>();
+
+    // Find the down stairs and place the player
+    let stair_type = if offset < 0 { TileType::DownStairs } else { TileType::UpStairs };
+    {
+        for (idx, _tile) in map.get_tile_type(stair_type).iter().enumerate() {
+            let mut player_position = ecs.resource_mut::<Point>();
+            *player_position = map.index_to_point2d(idx);
+
+            if let Some(mut player_pos_comp) = ecs.get_mut::<Point>(player) {
+                *player_pos_comp = map.index_to_point2d(idx);
+                if new_depth == 1 {
+                    player_pos_comp.x -= 1;
                 }
             }
-
-            draw_batch.submit(BATCH_ZERO).expect("Failed to submit draw batch");
         }
+    }
+
+    let mut worldmap_resource = ecs.resource_mut::<Map>();
+    *worldmap_resource = map;
+
+    if let Some(mut fov) = ecs.get_mut::<FieldOfView>(player) {
+        fov.is_dirty = true;
+    }
+}
+
+pub struct MapGenPlugin;
+impl Plugin for MapGenPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_enter_system(AppState::NewGame, setup_new_game.exclusive_system());
+
+        app.add_enter_system(AppState::NextLevel, (goto_level).exclusive_system());
+        app.add_enter_system(AppState::PreviousLevel, (goto_level).exclusive_system());
     }
 }

@@ -8,7 +8,7 @@ pub const STATS_PANEL_HEIGHT: i32 = 8;
 
 // Map Panel
 pub const MAP_PANEL_WIDTH: i32 = UI_WIDTH - STATS_PANEL_WIDTH - 1;
-pub const MAP_PANEL_HEIGHT: i32 = UI_HEIGHT - 1;
+pub const MAP_PANEL_HEIGHT: i32 = UI_HEIGHT - LOG_PANEL_HEIGHT;
 
 // Log Panel
 pub const LOG_PANEL_WIDTH: i32 = MAP_PANEL_WIDTH;
@@ -32,7 +32,7 @@ lazy_static! {
 ////////////////////////////////////////////////////////////////////////////////
 
 pub fn box_framework(draw_batch: &mut DrawBatch) {
-    draw_batch.draw_hollow_box(*STATS_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Top-right panel
+    // draw_batch.draw_hollow_box(*STATS_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Top-right panel
     draw_batch.draw_hollow_box(*MAP_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Map box
     draw_batch.draw_hollow_box(*LOG_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box
     draw_batch.draw_hollow_box(*EQUIPMENT_PANEL, ColorPair::new(BOX_GRAY, BLACK)); // Log box

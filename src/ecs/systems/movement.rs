@@ -8,6 +8,7 @@ pub fn movement(
     mut fov_q: Query<&mut FieldOfView>,
     mut door_q: Query<(Entity, &mut Glyph, &Point), With<Door>>,
     mut move_events: ResMut<Events<WantsToMove>>,
+    mut camera: ResMut<CameraView>,
 ) {
     for WantsToMove(entity, destination) in move_events.drain() {
         door_q.iter_mut().filter(|(_, _, p)| **p == destination).for_each(|(door, mut glyph, _)| {
@@ -28,7 +29,8 @@ pub fn movement(
             update_fov(entity, &mut fov_q);
             if entity == *player {
                 commands.insert_resource(destination);
-                commands.insert_resource(CameraView::new(destination));
+                // commands.insert_resource(CameraView::new(destination));
+                camera.on_player_move(destination);
             }
         }
     }

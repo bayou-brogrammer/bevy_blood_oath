@@ -15,7 +15,7 @@ pub fn end_turn(
     };
 
     if stats.hp < 1 {
-        commands.insert_resource(NextState(GameCondition::GameOver));
+        commands.insert_resource(NextState(AppState::GameOver));
         return;
     }
 

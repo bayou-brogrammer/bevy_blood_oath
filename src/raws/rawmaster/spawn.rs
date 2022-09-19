@@ -165,6 +165,8 @@ pub fn spawn_named_prop(
     let mut eb = commands.spawn();
     let prop_template = spawn_base_entity(raws, &mut eb, &raws.raws.props, &raws.prop_index, key, pos);
 
+    eb.insert(Prop {});
+    
     // Hidden Trait
     if let Some(hidden) = prop_template.hidden {
         if hidden { eb.insert(Hidden {}); }

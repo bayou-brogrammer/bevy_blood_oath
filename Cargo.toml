@@ -14,7 +14,7 @@ codegen-units = 1
 lto           = true
 
 [features]
-default = ["bevy/dynamic", "bracket-lib/threaded"]
+default = ["bevy/dynamic", "bracket-lib/threaded", "bevy/bevy_scene"]
 web     = []
 
 [dependencies]
@@ -27,16 +27,19 @@ bracket-lib = { git = "https://github.com/lecoqjacob/bracket-lib", branch = "cus
 ] }
 bracket-state-machine = { git = "https://github.com/lecoqjacob/bracket-state-machine", branch = "custom" }
 
-bevy          = { version = "~0.8", default-features = false }
+bevy          = { version = "~0.8" }
 iyes_loopless = "~0.7"
 
 # Utility Crates
 bitvec                   = { version = "^1", features = ["serde"] }
 console_error_panic_hook = "0.1"
+env_logger               = "0.9"
 lazy_static              = "^1"
+log                      = "0.4"
 parking_lot              = { version = "^0.12", features = ["nightly"] }
 ron                      = "^0.8"
 serde                    = { version = "^1", features = ["derive"] }
+serde_json               = "1"
 
 [build-dependencies]
 embed-resource = "^1"

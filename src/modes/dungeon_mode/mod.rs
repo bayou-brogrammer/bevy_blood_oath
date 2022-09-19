@@ -16,9 +16,7 @@ pub enum DungeonModeResult {
 /// Mode
 ////////////////////////////////////////////////////////////////////////////////
 
-pub struct DungeonMode {
-    render_schedule: Schedule,
-}
+pub struct DungeonMode {}
 
 impl std::fmt::Debug for DungeonMode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -30,31 +28,15 @@ impl std::fmt::Debug for DungeonMode {
 
 impl DungeonMode {
     pub fn new(app: &mut App) -> Self {
-        // Create a render schedule and a stage
-        let mut render_schedule = Schedule::default();
-        let mut update = SystemStage::parallel();
-
-        update.add_system_set(
-            ConditionSet::new()
-                .run_if_resource_exists::<CameraView>()
-                .with_system(render::map_renderer::map_render)
-                .with_system(render::entity_renderer::entity_render)
-                .with_system(render::entity_renderer::particle_render)
-                // .with_system(render::tooltips::render_tooltips)
-                .into(),
-        );
-
-        render_schedule.add_stage(CoreStage::Update, update);
-
         // Setup State
         app.insert_resource(TurnState::AwaitingInput);
-        app.insert_resource(NextState(GameCondition::Playing));
+        app.insert_resource(NextState(AppState::NewGame));
 
         // Setup Plugins
         app.add_plugin(SystemsPlugin);
         app.add_plugin(spawner::SpawnerPlugin);
 
-        Self { render_schedule }
+        Self {}
     }
 }
 
@@ -93,10 +75,7 @@ impl State for DungeonMode {
                 ModeResult::YesNoDialogModeResult(result) => match result {
                     YesNoDialogModeResult::No => {}
                     YesNoDialogModeResult::Yes => {
-                        return (
-                            Transition::Switch(MapGenMode::next_level(world).boxed()),
-                            TransitionControl::Immediate,
-                        );
+                        state.app.insert_resource(NextState(AppState::NextLevel));
                     }
                 },
 
@@ -125,42 +104,26 @@ impl State for DungeonMode {
         let turn_state = *state.app.world.resource::<TurnState>();
         match turn_state {
             TurnState::MagicMapReveal(row) => self.reveal_map(&mut state.app.world, row),
-            TurnState::AwaitingInput => {
-                match player_input(term, &mut state.app.world) {
-                    PlayerInputResult::NoResult => {}
-                    PlayerInputResult::AppQuit => return self.app_quit_dialog(),
-                    PlayerInputResult::TurnDone => self.end_turn(&mut state.app.world),
-                    PlayerInputResult::ShowInventory => {
-                        return (
-                            Transition::Push(InventoryMode::new(&mut state.app.world).boxed()),
-                            TransitionControl::Update,
-                        )
-                    }
-                    player::PlayerInputResult::Descend => {
-                        return (
-                            Transition::Push(
-                                YesNoDialogMode::new("Descend to the next level?".to_string(), false).boxed(),
-                            ),
-                            TransitionControl::Update,
-                        );
-                    }
-                    _ => {}
+            TurnState::AwaitingInput => match player_input(term, &mut state.app.world) {
+                PlayerInputResult::NoResult => {}
+                PlayerInputResult::AppQuit => return self.app_quit_dialog(),
+                PlayerInputResult::TurnDone => self.end_turn(&mut state.app.world),
+                PlayerInputResult::ShowInventory => {
+                    return (
+                        Transition::Push(InventoryMode::new(&mut state.app.world).boxed()),
+                        TransitionControl::Update,
+                    )
                 }
-                // if let Some(result) = state.app.world.remove_resource::<PlayerInputResult>() {
-                //     match result {
-                //         PlayerInputResult::NoResult => {}
-                //         PlayerInputResult::AppQuit => return self.app_quit_dialog(),
-                //         PlayerInputResult::TurnDone => self.end_turn(&mut state.app.world),
-                //         PlayerInputResult::ShowInventory => {
-                //             return (
-                //                 Transition::Push(InventoryMode::new(&mut state.app.world).boxed()),
-                //                 TransitionControl::Update,
-                //             )
-                //         }
-                //         _ => {}
-                //     }
-                // }
-            }
+                player::PlayerInputResult::Descend => {
+                    return (
+                        Transition::Push(
+                            YesNoDialogMode::new("Descend to the next level?".to_string(), false).boxed(),
+                        ),
+                        TransitionControl::Update,
+                    );
+                }
+                _ => {}
+            },
             _ => {}
         }
 
@@ -168,7 +131,7 @@ impl State for DungeonMode {
     }
 
     fn render(&mut self, _term: &mut BTerm, state: &mut Self::State, _active: bool) {
-        self.render_schedule.run(&mut state.app.world);
+        state.render_schedule.run(&mut state.app.world);
         gui::render_ui(&mut state.app.world);
     }
 }

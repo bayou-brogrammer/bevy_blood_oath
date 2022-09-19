@@ -18,7 +18,6 @@ use inventory_mode::EquipmentActionModeResult;
 use inventory_mode::InventoryActionModeResult;
 use inventory_mode::InventoryModeResult;
 use main_menu_mode::MainMenuModeResult;
-use map_gen::MapGenMode;
 pub use menu_memory::MenuMemory;
 use targeting_mode::{TargetingMode, TargetingModeResult};
 

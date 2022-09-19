@@ -18,7 +18,18 @@ macro_rules! impl_new
 macro_rules! impl_default {
     ($to:ty) => {
         impl Default for $to {
-            fn default() -> Self { Self::new() }
+            fn default() -> Self {
+                Self::new()
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! switch_in_game_state {
+    ($e:expr) => {
+        |mut commands: Commands| {
+            commands.insert_resource(NextState($e));
         }
     };
 }
