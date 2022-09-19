@@ -220,8 +220,8 @@ fn main() -> BError {
         ////////////////////////////////////////////////////////////////////
         // Cosoles
         ////////////////////////////////////////////////////////////////////
-        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "urizen12x12.png") // Map
-        .with_sparse_console_no_bg(SCREEN_WIDTH, SCREEN_HEIGHT, "urizen12x12.png") // Char
+        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Map
+        .with_sparse_console_no_bg(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Char
         .with_sparse_console(SCREEN_WIDTH, SCREEN_HEIGHT, "terminal8x8.png") // Particle
         .with_sparse_console(UI_WIDTH, UI_HEIGHT, "vga.png") // UI
         .with_sparse_console(LOG_DISPLAY_WIDTH, UI_HEIGHT, "vga.png") // LOG
